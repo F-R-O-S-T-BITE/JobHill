@@ -228,14 +228,53 @@ const LandingBody = () => {
               Learn More
             </a>
           </div>
-          <div className="md:w-1/2 flex justify-end">
-            <Image
-              src="/resources/Ant_table_info_home.png"
-              alt="Application tracker visualization"
-              width={350}
-              height={270}
-              className="h-auto max-w-[500px] md:max-w-[550px] object-contain"
-            />
+          <div className="md:w-1/2 flex justify-center items-center">
+            <div className="w-full md:w-10/12">
+              <Image
+                src="/resources/Ant_table_info_home.png"
+                alt="Application tracker visualization"
+                width={300}
+                height={220}
+                className="w-full h-auto"
+                priority
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div className="bg-white py-16">
+      <div className="container mx-auto px-4">
+        <div className="flex flex-col md:flex-row items-center">
+          <div className="md:w-1/2 flex justify-center items-center mb-8 md:mb-0 order-2 md:order-1">
+            <div className="w-full md:w-10/12">
+              <Image
+                src="/resources/Extension_Home.png"
+                alt="Chrome extension for job applications"
+                width={400}
+                height={320}
+                className="w-full h-auto"
+                priority
+              />
+            </div>
+          </div>
+          
+          <div className="md:w-1/2 pl-0 md:pl-8 order-1 md:order-2 mb-8 md:mb-0">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4 font-inter">
+              Google Extension: Auto-Apply & Daily Internship Alerts
+            </h2>
+            <p className="mb-8 font-inter text-lg text-[#000000]">
+              Our Chrome extension autofills applications with your saved info and delivers daily alerts about new matching internships—so you apply faster and never miss opportunities.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <a href="#" className="inline-block bg-[#0353A4] text-white font-inter font-medium px-6 py-3 rounded hover:bg-[#0F3DDE] transition-colors">
+                Learn More
+              </a>
+              <a href="#" className="inline-block bg-gray-200 text-gray-700 font-inter font-medium px-6 py-3 rounded hover:bg-gray-300 transition-colors">
+                Download
+              </a>
+            </div>
           </div>
         </div>
       </div>
