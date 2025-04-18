@@ -1,5 +1,6 @@
 import Image from "next/image"
 import './globals.css';
+import LandingBody from "@/components/LandingBody";
 
 export default function Home() {
   return (
@@ -7,7 +8,7 @@ export default function Home() {
       <header className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <div className="flex items-center">
-            <h1 className="text-[#0353A4] text-[40px] font-black font-inter tracking-tight">JOBHILL</h1>
+            <h1 className="text-[#0353A4] text-4xl font-black font-inter tracking-tight">JOBHILL</h1>
           </div>
           <div>
             <button className="bg-[#0353A4] text-white px-4 py-2 rounded hover:bg-[#03459E] transition-colors font-semibold">
@@ -17,13 +18,13 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="w-full bg-[#FDF5E9] py-16">
+      <section className="w-full bg-[#FDF5E9] py-12 md:py-16">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center">
           <div className="md:w-1/2 mb-8 md:mb-0">
-            <h2 className="text-[60px] font-bold mb-2 text-[#000000]">
+            <h2 className="text-6xl font-bold mb-2 text-[#000000]">
               Looking for an <br />
-              <span className="text-[#0353A4]">Internship?</span>
+              <span className="text-[#0353A4] mt-1 inline-block">Internship?</span>
             </h2>
             <p className="text-[20px] my-4 text-[#000000]">
               <span className="text-[#0353A4] font-medium">Jobhill:</span> Your go-to platform for finding
@@ -37,7 +38,7 @@ export default function Home() {
             </button>
           </div>
           
-          <div className="md:w-1/2 flex justify-end pr-4">
+          <div className="hidden md:flex md:w-1/2 justify-end pr-4">
             <Image
               src="/resources/Banner_Home.png"
               alt="Internship illustration"
@@ -50,6 +51,7 @@ export default function Home() {
         </div>
       </div>
     </section>
+    <LandingBody/>
       <main className="container mx-auto px-4 py-12">
       </main>
     </div>
