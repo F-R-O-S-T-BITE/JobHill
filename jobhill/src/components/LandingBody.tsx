@@ -214,6 +214,32 @@ const LandingBody = () => {
         </div>
       </div>
     </div>
+
+    <div className="bg-[#F5F7FA] py-16">
+      <div className="container mx-auto px-4">
+        <div className="flex flex-col md:flex-row items-center">
+          <div className="md:w-1/2 mb-8 md:mb-0 pr-0 md:pr-8">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4 font-inter">Organizing your Job Search with an Application Tracker 
+            </h2>
+            <p className="mb-8 font-inter text-lg text-[#000000]">
+              Transform chaos into clarity with a centralized application table. Track roles, deadlines, and statuses to avoid overlooked steps. Visualize progress, spot patterns, and stay motivated-all while reducing stress.
+            </p>
+            <a href="#" className="inline-block bg-[#0353A4] text-white font-inter font-medium px-6 py-3 rounded hover:bg-[#0F3DDE] transition-colors">
+              Learn More
+            </a>
+          </div>
+          <div className="md:w-1/2 flex justify-end">
+            <Image
+              src="/resources/Ant_table_info_home.png"
+              alt="Application tracker visualization"
+              width={350}
+              height={270}
+              className="h-auto max-w-[500px] md:max-w-[550px] object-contain"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
     </>
   );
 };
