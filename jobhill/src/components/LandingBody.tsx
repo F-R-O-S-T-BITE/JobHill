@@ -1,176 +1,155 @@
-import React from 'react';
+"use client";
+
+import React, { useRef } from 'react';
 import Image from 'next/image';
-import styles from './slider.module.css'
+import styles from './slider.module.css';
 
 const LandingBody = () => {
-    return (
-        <div className="bg-white py-12">
-        <section className="mb-16">
-          <h3 className="text-md text-[#000000] md:text-2xl font-bold text-center mb-8 font-inter">Today Internship's
-          </h3>
-          
-          <div className={styles.slider}>
-            <div className={styles.slideTrack}>
-              <div className={styles.slide}>
-                <div className="flex items-center justify-center h-[60px] w-[60px] mx-auto">
-                  <Image 
-                    src="https://static.vecteezy.com/system/resources/previews/046/861/647/non_2x/google-logo-transparent-background-free-png.png" 
-                    height={60} 
-                    width={60} 
-                    alt="Company logo"
-                    className="object-contain" 
-                  />
-                </div>
-              </div>
-              <div className={styles.slide}>
-                <div className="flex items-center justify-center h-[60px] w-[60px] mx-auto">
-                  <Image 
-                    src="https://images.icon-icons.com/2429/PNG/512/microsoft_logo_icon_147261.png" 
-                    height={60} 
-                    width={60} 
-                    alt="Company logo"
-                    className="object-contain" 
-                  />
-                </div>
-              </div>
-              <div className={styles.slide}>
-                <div className="flex items-center justify-center h-[60px] w-[60px] mx-auto">
-                  <Image 
-                    src="https://images.icon-icons.com/2699/PNG/512/nvidia_logo_icon_169902.png" 
-                    height={60} 
-                    width={60} 
-                    alt="Company logo"
-                    className="object-contain" 
-                  />
-                </div>
-              </div>
-              <div className={styles.slide}>
-                <div className="flex items-center justify-center h-[60px] w-[60px] mx-auto">
-                  <Image 
-                    src="https://1000marcas.net/wp-content/uploads/2020/03/logo-Cisco.png" 
-                    height={60} 
-                    width={60} 
-                    alt="Company logo"
-                    className="object-contain" 
-                  />
-                </div>
-              </div>
-              <div className={styles.slide}>
-                <div className="flex items-center justify-center h-[60px] w-[60px] mx-auto">
-                  <Image 
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Notion-logo.svg/1200px-Notion-logo.svg.png" 
-                    height={60} 
-                    width={60} 
-                    alt="Company logo"
-                    className="object-contain" 
-                  />
-                </div>
-              </div>
-              <div className={styles.slide}>
-                <div className="flex items-center justify-center h-[60px] w-[60px] mx-auto">
-                  <Image 
-                    src="https://upload.wikimedia.org/wikipedia/commons/7/7d/Intel_logo_%282006-2020%29.svg" 
-                    height={60} 
-                    width={60} 
-                    alt="Company logo"
-                    className="object-contain" 
-                  />
-                </div>
-              </div>
-              <div className={styles.slide}>
-                <div className="flex items-center justify-center h-[60px] w-[60px] mx-auto">
-                  <Image 
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Rockstar_Games_Logo.svg/800px-Rockstar_Games_Logo.svg.png" 
-                    height={60} 
-                    width={60} 
-                    alt="Company logo"
-                    className="object-contain" 
-                  />
-                </div>
-              </div>
+    const slideTrackRef = useRef<HTMLDivElement | null>(null);
 
-              {/* Duplicated slides for continuous scrolling */}
-              <div className={styles.slide}>
-                <div className="flex items-center justify-center h-[60px] w-[60px] mx-auto">
-                  <Image 
-                    src="https://static.vecteezy.com/system/resources/previews/046/861/647/non_2x/google-logo-transparent-background-free-png.png" 
-                    height={60} 
-                    width={60} 
-                    alt="Company logo"
-                    className="object-contain" 
+    const logos = [
+      "https://static.vecteezy.com/system/resources/previews/046/861/647/non_2x/google-logo-transparent-background-free-png.png",
+      "https://images.icon-icons.com/2429/PNG/512/microsoft_logo_icon_147261.png",
+      "https://images.icon-icons.com/2699/PNG/512/nvidia_logo_icon_169902.png",
+      "https://1000marcas.net/wp-content/uploads/2020/03/logo-Cisco.png",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Notion-logo.svg/1200px-Notion-logo.svg.png",
+      "https://upload.wikimedia.org/wikipedia/commons/7/7d/Intel_logo_%282006-2020%29.svg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Rockstar_Games_Logo.svg/800px-Rockstar_Games_Logo.svg.png",
+    ];
+
+    return (
+        <>
+        <div className="bg-white py-12">
+          <section className="mb-0">
+            <h3 className="text-3xl md:text-4xl font-bold text-center mb-8 font-inter text-[#000000]">Today Internship's
+            </h3>
+            
+            <div className={styles.slider}>
+              <div className={styles.slideTrack}>
+                {logos.map((logo, index) => (
+                  <div key={`first-${index}`} className={styles.slide}>
+                    <div className="flex items-center justify-center h-[60px] w-[60px] mx-auto">
+                      <Image 
+                        src={logo} 
+                        height={60} 
+                        width={60} 
+                        alt="Company logo"
+                        className="object-contain" 
+                        loading="eager"
+                      />
+                    </div>
+                  </div>
+                ))}
+                
+                {logos.map((logo, index) => (
+                  <div key={`second-${index}`} className={styles.slide}>
+                    <div className="flex items-center justify-center h-[60px] w-[60px] mx-auto">
+                      <Image 
+                        src={logo} 
+                        height={60} 
+                        width={60} 
+                        alt="Company logo"
+                        className="object-contain" 
+                        loading="eager"
+                      />
+                    </div>
+                  </div>
+                ))}
+                
+                {logos.map((logo, index) => (
+                  <div key={`third-${index}`} className={styles.slide}>
+                    <div className="flex items-center justify-center h-[60px] w-[60px] mx-auto">
+                      <Image 
+                        src={logo} 
+                        height={60} 
+                        width={60} 
+                        alt="Company logo"
+                        className="object-contain" 
+                        loading="eager"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        </div>
+        
+        <div className="bg-[#F5F7FA] py-12 font-inter">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-3">
+                Empowering Students to Build Their Futures, <span className="text-[#0F3DDE]">starting with Internships</span>
+              </h2>
+              <p className="text-gray-600 max-w-3xl mx-auto">
+                There are a lot of opportunities! You just need to apply
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-12">
+              <div className="bg-white rounded-lg p-6 shadow-sm flex items-center">
+                <div className="mr-4">
+                  <Image
+                    src="/resources/New_Home.png"
+                    alt="New intern roles"
+                    width={48}
+                    height={48}
                   />
                 </div>
-              </div>
-              <div className={styles.slide}>
-                <div className="flex items-center justify-center h-[60px] w-[60px] mx-auto">
-                  <Image 
-                    src="https://images.icon-icons.com/2429/PNG/512/microsoft_logo_icon_147261.png" 
-                    height={60} 
-                    width={60} 
-                    alt="Company logo"
-                    className="object-contain" 
-                  />
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-800">1,230</h3>
+                  <p className="text-sm text-gray-500">New Intern Roles</p>
                 </div>
               </div>
-              <div className={styles.slide}>
-                <div className="flex items-center justify-center h-[60px] w-[60px] mx-auto">
-                  <Image 
-                    src="https://images.icon-icons.com/2699/PNG/512/nvidia_logo_icon_169902.png" 
-                    height={60} 
-                    width={60} 
-                    alt="Company logo"
-                    className="object-contain" 
+              
+              <div className="bg-white rounded-lg p-6 shadow-sm flex items-center">
+                <div className="mr-4">
+                  <Image
+                    src="/resources/MLPositions_Home.png"
+                    alt="Data & ML positions"
+                    width={48}
+                    height={48}
                   />
                 </div>
-              </div>
-              <div className={styles.slide}>
-                <div className="flex items-center justify-center h-[60px] w-[60px] mx-auto">
-                  <Image 
-                    src="https://1000marcas.net/wp-content/uploads/2020/03/logo-Cisco.png" 
-                    height={60} 
-                    width={60} 
-                    alt="Company logo"
-                    className="object-contain" 
-                  />
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-800">463</h3>
+                  <p className="text-sm text-gray-500">New Data & ML Positions</p>
                 </div>
               </div>
-              <div className={styles.slide}>
-                <div className="flex items-center justify-center h-[60px] w-[60px] mx-auto">
-                  <Image 
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Notion-logo.svg/1200px-Notion-logo.svg.png" 
-                    height={60} 
-                    width={60} 
-                    alt="Company logo"
-                    className="object-contain" 
+              
+              <div className="bg-white rounded-lg p-6 shadow-sm flex items-center">
+                <div className="mr-4">
+                  <Image
+                    src="/resources/RolesOpen_home.png"
+                    alt="SWE positions"
+                    width={48}
+                    height={48}
                   />
                 </div>
-              </div>
-              <div className={styles.slide}>
-                <div className="flex items-center justify-center h-[60px] w-[60px] mx-auto">
-                  <Image 
-                    src="https://upload.wikimedia.org/wikipedia/commons/7/7d/Intel_logo_%282006-2020%29.svg" 
-                    height={60} 
-                    width={60} 
-                    alt="Company logo"
-                    className="object-contain" 
-                  />
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-800">828</h3>
+                  <p className="text-sm text-gray-500">New SWE Positions</p>
                 </div>
               </div>
-              <div className={styles.slide}>
-                <div className="flex items-center justify-center h-[60px] w-[60px] mx-auto">
-                  <Image 
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Rockstar_Games_Logo.svg/800px-Rockstar_Games_Logo.svg.png" 
-                    height={60} 
-                    width={60} 
-                    alt="Company logo"
-                    className="object-contain" 
+              
+              <div className="bg-white rounded-lg p-6 shadow-sm flex items-center">
+                <div className="mr-4">
+                  <Image
+                    src="/resources/TotalOpportunities_home.png"
+                    alt="Total opportunities"
+                    width={48}
+                    height={48}
                   />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-800">13,000</h3>
+                  <p className="text-sm text-gray-500">Open Opportunities!</p>
                 </div>
               </div>
             </div>
           </div>
-        </section>
-      </div>
+        </div>
+        </>
     );
 };
 

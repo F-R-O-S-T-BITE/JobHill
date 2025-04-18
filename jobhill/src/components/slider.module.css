@@ -35,9 +35,9 @@
 }
 
 .slideTrack {
-  animation: scroll 40s linear infinite;
+  animation: scroll 20s linear infinite;
   display: flex;
-  width: calc(150px * 14);
+  width: fit-content;
 }
 
 .slide {
@@ -46,4 +46,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  will-change: transform;
 }
