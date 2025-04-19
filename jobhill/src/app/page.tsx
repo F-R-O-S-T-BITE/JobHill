@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className = "min-h-screen font-poppins">
+    <div className="min-h-screen font-poppins">
       <header className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <div className="flex items-center">
