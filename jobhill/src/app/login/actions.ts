@@ -60,14 +60,45 @@ export async function signInWithGoogle() {
     },
   })
   
-  console.log(data)
+  //console.log(data)
 
   if (error) {
-    console.log('Error signing in with Google:', error)
+    console.error('Error signing in with Google:', error)
+    redirect('/error')
+  }
+
+  if (data.url){
+    redirect(data.url)
+  }
+
+  return data
+}
+
+export async function signInWithGithub() {
+  const supabase = await createClient()
+
+
+
+  // No incluir redirectTo para usar la URL de callback por defecto de Supabase
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'github',
+    options: {
+     redirectTo:`${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+
+     queryParams:{
+      scope: 'user:email'
+     }
+    },
+  })
+  console.log("data", data)
+
+  if (error) {
+    console.log('Error signing in with Github:', error)
     redirect('/error')
   }
 
   redirect(data.url)
 
+  
   return data
 }

@@ -12,7 +12,7 @@ export default function Home() {
             <h1 className="text-[#0353A4] text-4xl font-black font-inter tracking-tight">JOBHILL</h1>
           </div>
           <div>
-            <Link href="/register" className="bg-[#0353A4] text-white px-4 py-2 rounded hover:bg-[#03459E] transition-colors font-semibold inline-block">
+            <Link href="/login" className="bg-[#0353A4] text-white px-4 py-2 rounded hover:bg-[#03459E] transition-colors font-semibold inline-block">
               Login/Register
             </Link>
           </div>
