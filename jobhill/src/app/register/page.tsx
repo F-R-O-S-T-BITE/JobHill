@@ -125,12 +125,14 @@ export default function Register() {
                 <div className="my-6 text-center text-[14px] font-poppins text-black">or</div>
                 <button 
                 onClick={handleGoogleSignIn}
+                disabled={isLoading}
                 className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins mb-3 text-black">
                     <FaGoogle className="text-red-500 mr-2" />
                     Sign in with Google
                 </button>
                 <button 
                 onClick={handleGithubSignIn}
+                disabled={isLoading}
                 className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins text-black">
                     <FaGithub className="mr-2" />
                     Sign in with Github

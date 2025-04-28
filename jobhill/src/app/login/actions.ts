@@ -8,8 +8,6 @@ import { createClient } from '@/utils/supabase/server'
 export async function login(formData: FormData) {
   const supabase = await createClient()
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
   const data = {
     email: formData.get('email') as string,
     password: formData.get('password') as string,
@@ -28,8 +26,7 @@ export async function login(formData: FormData) {
 export async function signup(formData: FormData) {
   const supabase = await createClient()
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
+
   const data = {
     email: formData.get('email') as string,
     password: formData.get('password') as string,
@@ -45,7 +42,6 @@ export async function signup(formData: FormData) {
   redirect('/')
 }
 
-// Nueva función para iniciar sesión con Google
 export async function signInWithGoogle() {
   const supabase = await createClient() 
   
@@ -77,9 +73,6 @@ export async function signInWithGoogle() {
 export async function signInWithGithub() {
   const supabase = await createClient()
 
-
-
-  // No incluir redirectTo para usar la URL de callback por defecto de Supabase
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'github',
     options: {

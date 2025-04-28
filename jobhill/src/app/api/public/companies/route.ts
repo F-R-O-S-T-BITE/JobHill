@@ -5,20 +5,18 @@ import { NextResponse } from 'next/server';
 // Configuramos el revalidate para 4 horas
 export const revalidate = 14400;
 
-// Esta ruta API puede ser llamada por cualquier usuario, incluso sin autenticación
 export async function GET(request: Request) {
   try {
     const supabase = await createClient();
     
-    // Obtenemos la fecha de hace 24 horas
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
+    const fourDaysAgo = new Date();
+    fourDaysAgo.setDate(fourDaysAgo.getDate() - 4);
     
-    // Primero obtenemos los job_offers recientes
     const { data: jobOffers, error: jobOffersError } = await supabase
       .from('job_offers')
       .select('company_id')
-      .gte('created_at', yesterday.toISOString())
+      .gte('created_at', fourDaysAgo.toISOString()) 
+      .order('created_at', { ascending: false }) 
       .eq('status', 'Open');
     
     if (jobOffersError) {
@@ -26,14 +24,12 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Failed to fetch job offers' }, { status: 500 });
     }
     
-    // Extractamos los company_ids únicos
     const companyIds = [...new Set(jobOffers.map(offer => offer.company_id))];
     
     if (companyIds.length === 0) {
       return NextResponse.json({ companies: [] });
     }
     
-    // Ahora obtenemos las compañías con esos IDs
     const { data, error } = await supabase
       .from('companies')
       .select('id, name, logo_url')

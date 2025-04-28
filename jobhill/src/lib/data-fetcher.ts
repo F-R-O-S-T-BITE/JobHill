@@ -20,16 +20,14 @@ export type JobStats = {
 export async function getRecentCompanyLogos(): Promise<CompanyLogo[]> {
   const supabase = await createClient();
   
-  // Obtenemos la fecha de hace 4 días
   const fourDaysAgo = new Date();
   fourDaysAgo.setDate(fourDaysAgo.getDate() - 4);
   
-  // Primero obtenemos los job_offers recientes
   const { data: jobOffers, error: jobOffersError } = await supabase
     .from('job_offers')
     .select('company_id')
-    .gte('created_at', fourDaysAgo.toISOString()) // Filter by the last 4 days
-    .order('created_at', { ascending: false }) // Prioritize the most recent offers
+    .gte('created_at', fourDaysAgo.toISOString()) 
+    .order('created_at', { ascending: false }) 
     .eq('status', 'Open');
   
   if (jobOffersError) {
@@ -37,14 +35,12 @@ export async function getRecentCompanyLogos(): Promise<CompanyLogo[]> {
     return [];
   }
   
-  // Extractamos los company_ids únicos
   const companyIds = [...new Set(jobOffers.map(offer => offer.company_id))];
   
   if (companyIds.length === 0) {
     return [];
   }
   
-  // Ahora obtenemos las compañías con esos IDs
   const { data, error } = await supabase
     .from('companies')
     .select('id, name, logo_url')
@@ -66,7 +62,6 @@ export async function getRecentCompanyLogos(): Promise<CompanyLogo[]> {
 export async function getWeeklyJobStats(): Promise<JobStats> {
   const supabase = await createClient();
   
-  // Obtenemos la fecha de hace una semana
   const lastWeek = new Date();
   lastWeek.setDate(lastWeek.getDate() - 7);
   const lastWeekStr = lastWeek.toISOString();
@@ -104,10 +99,8 @@ export async function getWeeklyJobStats(): Promise<JobStats> {
     };
   }
   
-  // Como mencionaste que todos son intern roles, contamos el total de ofertas semanales
   const internRoles = weeklyJobs.length;
   
-  // Contamos por categorías específicas usando los arrays
   const dataMLPositions = weeklyJobs.filter(job => 
     job.categories && (
       job.categories.includes('AI & ML') || 

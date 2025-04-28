@@ -4,7 +4,6 @@ import { updateSession } from './src/utils/supabase/middleware'
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
-  // Rutas públicas (accesibles sin autenticación)
   const publicRoutes = [
     '/login',
     '/register',
