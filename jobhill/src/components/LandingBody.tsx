@@ -63,7 +63,7 @@ async function LandingBody() {
     <>
     <div className="bg-white py-12">
       <section className="mb-0">
-      <h3 className="text-3xl md:text-4xl font-bold text-center mb-8 font-inter text-[#000000]">Today's Internship Companies
+      <h3 className="text-3xl md:text-4xl font-bold text-center mb-8 font-inter text-[#000000]">Latest Internship Companies
       </h3>
       
       <div className={styles.slider}>

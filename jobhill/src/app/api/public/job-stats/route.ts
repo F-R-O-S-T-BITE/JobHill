@@ -2,6 +2,8 @@
 import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 
+export const revalidate = 14400;
+
 export async function GET(request: Request) {
   try {
     const supabase = await createClient();
