@@ -3,6 +3,8 @@ import './globals.css';
 import LandingBody from "@/components/LandingBody";
 import Link from "next/link";
 
+export const revalidate = 14400;
+
 export default function Home() {
   return (
     <div className="min-h-screen font-poppins">

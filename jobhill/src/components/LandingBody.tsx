@@ -1,66 +1,112 @@
 import React from 'react';
 import Image from 'next/image';
 import styles from './slider.module.css';
+import { getRecentCompanyLogos, getWeeklyJobStats, CompanyLogo } from '@/lib/data-fetcher';
 
-const LandingBody = () => {
-  const logos = [
-    "https://static.vecteezy.com/system/resources/previews/046/861/647/non_2x/google-logo-transparent-background-free-png.png",
-    "https://images.icon-icons.com/2429/PNG/512/microsoft_logo_icon_147261.png",
-    "https://images.icon-icons.com/2699/PNG/512/nvidia_logo_icon_169902.png",
-    "https://1000marcas.net/wp-content/uploads/2020/03/logo-Cisco.png",
-    "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Notion-logo.svg/1200px-Notion-logo.svg.png",
-    "https://upload.wikimedia.org/wikipedia/commons/7/7d/Intel_logo_%282006-2020%29.svg",
-    "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Rockstar_Games_Logo.svg/800px-Rockstar_Games_Logo.svg.png",
-  ];
+// Imagen para usar cuando no hay suficientes logos
+const defaultLogos = [
+  { id: 'marchingant1', name: 'MarchingAnt', logo_url: '/resources/AntMarch.png' },
+  { id: 'marchingant2', name: 'MarchingAnt2', logo_url: '/resources/AntMarch.png'  },
+  { id: 'marchingant3', name: 'MarchingAnt3', logo_url: '/resources/AntMarch.png' }
+];
+
+export const revalidate = 14400;
+
+
+// Creamos una versión React Server Component de LandingBody
+async function LandingBody() {
+  // Valores por defecto para los stats en caso de error
+  let jobStats = {
+    newInternRoles: 1230,
+    newDataMLPositions: 463,
+    newSWEPositions: 828,
+    totalOpportunities: 13000
+  };
+  
+  // Inicializamos los logos con los predeterminados
+  let companyLogos = [...defaultLogos];
+  
+  try {
+    // Intentamos obtener los datos reales de Supabase
+    const fetchedCompanyLogos = await getRecentCompanyLogos();
+    const fetchedJobStats = await getWeeklyJobStats();
+    
+    // Si tenemos datos de estadísticas, los usamos
+    if (fetchedJobStats) {
+      jobStats = fetchedJobStats;
+    }
+    
+    // Si tenemos suficientes logos (5 o más), usamos los obtenidos de la base de datos
+    if (fetchedCompanyLogos && fetchedCompanyLogos.length >= 5) {
+      companyLogos = fetchedCompanyLogos;
+    } 
+    // Si tenemos algunos logos pero no suficientes, combinamos con los predeterminados
+    else if (fetchedCompanyLogos && fetchedCompanyLogos.length > 0) {
+      let combinedLogos = [...fetchedCompanyLogos];
+      
+      // Añadimos los logos por defecto evitando duplicados
+      for (const defaultLogo of defaultLogos) {
+        if (combinedLogos.length >= 7) break;
+        if (!combinedLogos.some(logo => logo.name === defaultLogo.name)) {
+          combinedLogos.push(defaultLogo);
+        }
+      }
+      
+      companyLogos = combinedLogos;
+    }
+  } catch (error) {
+    console.error("Error fetching data for landing page:", error);
+    // En caso de error, seguimos usando los valores predeterminados
+  }
 
   return (
     <>
     <div className="bg-white py-12">
       <section className="mb-0">
-      <h3 className="text-3xl md:text-4xl font-bold text-center mb-8 font-inter text-[#000000]">Today Internship's
+      <h3 className="text-3xl md:text-4xl font-bold text-center mb-8 font-inter text-[#000000]">Today's Internship Companies
       </h3>
       
       <div className={styles.slider}>
         <div className={styles.slideTrack}>
-        {logos.map((logo, index) => (
+        {companyLogos.map((company, index) => (
           <div key={`first-${index}`} className={styles.slide}>
           <div className="flex items-center justify-center h-[60px] w-[60px] mx-auto">
             <Image 
-            src={logo} 
+            src={company.logo_url} 
             height={60} 
             width={60} 
-            alt="Company logo"
-            className="object-contain" 
+            alt={`${company.name} logo`}
+            className="object-contain rounded-lg" 
             loading="eager"
             />
           </div>
           </div>
         ))}
         
-        {logos.map((logo, index) => (
+        {companyLogos.map((company, index) => (
           <div key={`second-${index}`} className={styles.slide}>
           <div className="flex items-center justify-center h-[60px] w-[60px] mx-auto">
             <Image 
-            src={logo} 
+            src={company.logo_url} 
             height={60} 
             width={60} 
-            alt="Company logo"
-            className="object-contain" 
+            alt={`${company.name} logo`}
+            className="object-contain rounded-lg" 
             loading="eager"
             />
           </div>
           </div>
         ))}
         
-        {logos.map((logo, index) => (
+        {companyLogos.map((company, index) => (
           <div key={`third-${index}`} className={styles.slide}>
           <div className="flex items-center justify-center h-[60px] w-[60px] mx-auto">
             <Image 
-            src={logo} 
+            src={company.logo_url} 
             height={60} 
             width={60} 
-            alt="Company logo"
-            className="object-contain" 
+            alt={`${company.name} logo`}
+            className="object-contain rounded-lg" 
             loading="eager"
             />
           </div>
@@ -93,8 +139,8 @@ const LandingBody = () => {
           />
         </div>
         <div>
-          <h3 className="text-2xl font-bold text-gray-800">1,230</h3>
-          <p className="text-sm text-gray-500">New Intern Roles</p>
+          <h3 className="text-2xl font-bold text-gray-800">{jobStats.newInternRoles.toLocaleString()}</h3>
+          <p className="text-sm text-gray-500">New Intern Roles  </p>
         </div>
         </div>
         
@@ -108,8 +154,8 @@ const LandingBody = () => {
           />
         </div>
         <div>
-          <h3 className="text-2xl font-bold text-gray-800">463</h3>
-          <p className="text-sm text-gray-500">New Data & ML Positions</p>
+          <h3 className="text-2xl font-bold text-gray-800">{jobStats.newDataMLPositions.toLocaleString()}</h3>
+          <p className="text-sm text-gray-500">New AI & ML Positions  </p>
         </div>
         </div>
         
@@ -123,8 +169,8 @@ const LandingBody = () => {
           />
         </div>
         <div>
-          <h3 className="text-2xl font-bold text-gray-800">828</h3>
-          <p className="text-sm text-gray-500">New SWE Positions</p>
+          <h3 className="text-2xl font-bold text-gray-800">{jobStats.newSWEPositions.toLocaleString()}</h3>
+          <p className="text-sm text-gray-500">New SWE Positions  </p>
         </div>
         </div>
         
@@ -138,7 +184,7 @@ const LandingBody = () => {
           />
         </div>
         <div>
-          <h3 className="text-2xl font-bold text-gray-800">13,000</h3>
+          <h3 className="text-2xl font-bold text-gray-800">{jobStats.totalOpportunities.toLocaleString()}</h3>
           <p className="text-sm text-gray-500">Open Opportunities!</p>
         </div>
         </div>
@@ -281,6 +327,6 @@ const LandingBody = () => {
     </div>
     </>
   );
-};
+}
 
 export default LandingBody;

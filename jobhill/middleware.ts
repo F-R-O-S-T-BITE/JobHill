@@ -2,47 +2,35 @@ import { type NextRequest } from 'next/server'
 import { updateSession } from './src/utils/supabase/middleware'
 
 export async function middleware(request: NextRequest) {
-  return await updateSession(request)
-}
+  const pathname = request.nextUrl.pathname;
 
-/*
+  // Rutas públicas (accesibles sin autenticación)
+  const publicRoutes = [
+    '/login',
+    '/register',
+    '/',
+    '/auth/callback',
+    '/auth/auth-code-error',
+    '/error',
+    '/api/public'
+  ]
 
-export async function middleware(request: NextRequest) {
+  // Verificar si es una ruta pública o estática/imagen
+  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
+  const isStaticFile = pathname.match(/\.(js|css|svg|png|jpg|jpeg|gif|webp|ico)$/)
+  const isApiRoute = pathname.startsWith('/api/')
+  const isNextRoute = pathname.startsWith('/_next/')
 
-const pathname = request.nextUrl.pathname;
-
-
-const publicRoutes = [
-  '/login',
-  '/register',
-  '/',
-  '/auth/callback',
-  '/auth/auth-code-error',
-  '/error'
-]
-
-// Verificar si es una ruta pública o estática/imagen
-const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
-const isStaticFile = pathname.match(/\.(js|css|svg|png|jpg|jpeg|gif|webp|ico)$/)
-const isApiRoute = pathname.startsWith('/api/')
-const isNextRoute = pathname.startsWith('/_next/')
-
-// Si es una ruta pública o un archivo estático, no aplicamos el middleware de sesión
+  // Si es una ruta pública o un archivo estático, no requerimos autenticación
   if (isPublicRoute || isStaticFile || isApiRoute || isNextRoute) {
-    return updateSession(request)
+    return await updateSession(request)
   }
-  
-  // Para todas las demás rutas, aplicamos verificación de sesión
+
+  // Para todas las demás rutas, aplicamos verificación de sesión completa
   return await updateSession(request)
 }
 
-export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
-}
 
-*/
 
 export const config = {
   matcher: [
@@ -53,6 +41,7 @@ export const config = {
      * - favicon.ico (favicon file)
      * Feel free to modify this pattern to include more paths.
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+   '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
+

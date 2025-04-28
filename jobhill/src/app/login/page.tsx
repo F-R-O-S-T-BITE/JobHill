@@ -141,14 +141,14 @@ export default function Login() {
                 disabled={isLoading}
                 className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins mb-3 text-black">
                     <FaGoogle className="text-red-500 mr-2" />
-                    {isLoading ? 'Processing...' : 'Sign in with Google'}
+                    Sign in with Google
                 </button>
                 <button 
                 disabled={isLoading}
                 onClick={handleGithubSignIn}
                 className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins text-black">
                     <FaGithub className="mr-2" />
-                    {isLoading ? 'Processing...' : 'Sign in with Github'}
+                    Sign in with Github
                 </button>
                 <div className="mt-6 text-center text-[14px] font-poppins text-black">
                     Don't have an account?{" "}
