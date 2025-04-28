@@ -1,4 +1,7 @@
 "use client";
+//login/page.tsx
+
+import {login, signup, signInWithGoogle, signInWithGithub} from './actions'
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { FaGoogle, FaGithub } from "react-icons/fa";
@@ -13,6 +16,7 @@ export default function Login() {
     });
     const router = useRouter();
     const [isMounted, setIsMounted] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, checked, type } = e.target;
@@ -22,10 +26,40 @@ export default function Login() {
         }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Login form submitted:", formData);
+        
+        // Crear un objeto FormData para enviar a la acción de servidor
+        const formDataToSubmit = new FormData();
+        formDataToSubmit.append('email', formData.email);
+        formDataToSubmit.append('password', formData.password);
+        
+        try {
+            await login(formDataToSubmit);
+        } catch (error) {
+            console.error("Login error:", error);
+        }
     };
+
+    const handleGoogleSignIn = async () => {
+        setIsLoading(true);
+        try {
+            await signInWithGoogle();
+        } catch (error) {
+            console.error("Google Sign-in error:", error);
+            setIsLoading(false);
+        }
+    };
+
+    const handleGithubSignIn = async () =>{
+        setIsLoading(true);
+        try {
+            await signInWithGithub();
+        } catch (error){
+            console.error("Github Sign-in error:", error)
+            setIsLoading(false)
+        }
+    }
 
     useEffect(() => {
         setIsMounted(true);
@@ -102,13 +136,19 @@ export default function Login() {
                     <span className="px-2">or</span>
                     <div className="w-1/3 h-px bg-gray-300"></div>
                 </div>
-                <button className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins mb-3 text-black">
+                <button
+                onClick={handleGoogleSignIn}
+                disabled={isLoading}
+                className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins mb-3 text-black">
                     <FaGoogle className="text-red-500 mr-2" />
                     Sign in with Google
                 </button>
-                <button className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins text-black">
+                <button 
+                disabled={isLoading}
+                onClick={handleGithubSignIn}
+                className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins text-black">
                     <FaGithub className="mr-2" />
-                    Sign in with GitHub
+                    Sign in with Github
                 </button>
                 <div className="mt-6 text-center text-[14px] font-poppins text-black">
                     Don't have an account?{" "}

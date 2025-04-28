@@ -5,6 +5,7 @@ import { FaGoogle, FaGithub } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import '../globals.css';
+import {login, signup, signInWithGoogle, signInWithGithub} from '../login/actions'
 
 export default function Register() {
     const [formData, setFormData] = useState({
@@ -15,6 +16,7 @@ export default function Register() {
     });
     const router = useRouter();
     const [isMounted, setIsMounted] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, checked, type } = e.target;
@@ -34,6 +36,26 @@ export default function Register() {
             console.error("Invalid form data");
         }
     };
+
+     const handleGoogleSignIn = async () => {
+            setIsLoading(true);
+            try {
+                await signInWithGoogle();
+            } catch (error) {
+                console.error("Google Sign-in error:", error);
+                setIsLoading(false);
+            }
+        };
+    
+        const handleGithubSignIn = async () =>{
+            setIsLoading(true);
+            try {
+                await signInWithGithub();
+            } catch (error){
+                console.error("Github Sign-in error:", error)
+                setIsLoading(false)
+            }
+        }
 
     useEffect(() => {
         setIsMounted(true);
@@ -101,11 +123,17 @@ export default function Register() {
                     </button>
                 </form>
                 <div className="my-6 text-center text-[14px] font-poppins text-black">or</div>
-                <button className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins mb-3 text-black">
+                <button 
+                onClick={handleGoogleSignIn}
+                disabled={isLoading}
+                className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins mb-3 text-black">
                     <FaGoogle className="text-red-500 mr-2" />
                     Sign in with Google
                 </button>
-                <button className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins text-black">
+                <button 
+                onClick={handleGithubSignIn}
+                disabled={isLoading}
+                className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins text-black">
                     <FaGithub className="mr-2" />
                     Sign in with Github
                 </button>
