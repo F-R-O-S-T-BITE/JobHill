@@ -31,7 +31,7 @@ export default function Register() {
         console.log("Form submitted:", formData);
 
         if (formData.email && formData.password) {
-            router.push('/dashboard');
+            router.push('/home');
         } else {
             console.error("Invalid form data");
         }
@@ -41,6 +41,7 @@ export default function Register() {
             setIsLoading(true);
             try {
                 await signInWithGoogle();
+                router.push('/home');
             } catch (error) {
                 console.error("Google Sign-in error:", error);
                 setIsLoading(false);
@@ -51,6 +52,7 @@ export default function Register() {
             setIsLoading(true);
             try {
                 await signInWithGithub();
+                router.push('/home')
             } catch (error){
                 console.error("Github Sign-in error:", error)
                 setIsLoading(false)

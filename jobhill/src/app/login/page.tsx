@@ -36,6 +36,7 @@ export default function Login() {
         
         try {
             await login(formDataToSubmit);
+            router.push('/home');
         } catch (error) {
             console.error("Login error:", error);
         }
@@ -45,6 +46,7 @@ export default function Login() {
         setIsLoading(true);
         try {
             await signInWithGoogle();
+            router.push('/home');
         } catch (error) {
             console.error("Google Sign-in error:", error);
             setIsLoading(false);
@@ -55,6 +57,7 @@ export default function Login() {
         setIsLoading(true);
         try {
             await signInWithGithub();
+            router.push('/home')
         } catch (error){
             console.error("Github Sign-in error:", error)
             setIsLoading(false)
