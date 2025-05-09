@@ -68,12 +68,16 @@ export default function Register() {
                 <p className="text-[14px] font-medium font-poppins text-black mb-6">
                     Create an account to keep track of your applications
                 </p>
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-4 text-left">
                     <div>
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                            Full Name
+                        </label>
                         <input
                             name="name"
                             type="text"
-                            placeholder="Name"
+                            id="name"
+                            placeholder="Enter your name"
                             value={formData.name}
                             onChange={handleChange}
                             required
@@ -81,10 +85,14 @@ export default function Register() {
                         />
                     </div>
                     <div>
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                            Email address
+                        </label>
                         <input
                             name="email"
                             type="email"
-                            placeholder="Email address"
+                            id="email"
+                            placeholder="Enter your email"
                             value={formData.email}
                             onChange={handleChange}
                             required
@@ -92,10 +100,14 @@ export default function Register() {
                         />
                     </div>
                     <div>
+                        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                            Password
+                        </label>
                         <input
                             name="password"
                             type="password"
-                            placeholder="Password"
+                            id="password"
+                            placeholder="Create a password"
                             value={formData.password}
                             onChange={handleChange}
                             required
@@ -122,7 +134,7 @@ export default function Register() {
                         Signup
                     </button>
                 </form>
-                <div className="my-6 text-center text-[14px] font-poppins text-black">or</div>
+                <div className="my-5 text-center text-[14px] font-poppins text-black">or</div>
                 <button 
                 onClick={handleGoogleSignIn}
                 disabled={isLoading}
@@ -134,7 +146,7 @@ export default function Register() {
                 onClick={handleGithubSignIn}
                 disabled={isLoading}
                 className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins text-black hover:bg-gray-100 transition-colors cursor-pointer">
-                    <FaGithub className="text-red-500 mr-2" />
+                    <FaGithub className="mr-2" />
                     Sign in with Github
                 </button>
                 <div className="mt-6 text-center text-[14px] font-poppins text-black">
