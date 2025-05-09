@@ -96,7 +96,7 @@ export default function Login() {
                             <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                                 Password
                             </label>
-                            <a href="#" className="text-sm text-[#0353A4] hover:underline">
+                            <a href="#" className="text-sm text-[#0353A4] hover:underline cursor-pointer">
                                 forgot password
                             </a>
                         </div>
@@ -118,7 +118,7 @@ export default function Login() {
                             id="rememberCheckbox"
                             checked={formData.rememberMe}
                             onChange={handleChange}
-                            className="h-4 w-4 text-[#0353A4] border-gray-300 rounded"
+                            className="h-4 w-4 text-[#0353A4] border-gray-300 rounded cursor-pointer"
                         />
                         <label htmlFor="rememberCheckbox" className="ml-2 text-[14px] font-poppins text-black">
                             Remember for 30 days
@@ -126,7 +126,7 @@ export default function Login() {
                     </div>
                     <button
                         type="submit"
-                        className="w-full bg-[#0353A4] text-white py-2 rounded font-poppins font-medium"
+                        className="w-full bg-[#0353A4] text-white py-2 rounded font-poppins font-medium cursor-pointer hover:bg-[#034383] transition-colors"
                     >
                         Login
                     </button>
@@ -139,20 +139,20 @@ export default function Login() {
                 <button
                 onClick={handleGoogleSignIn}
                 disabled={isLoading}
-                className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins mb-3 text-black">
+                className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins mb-3 text-black hover:bg-gray-100 transition-colors cursor-pointer">
                     <FaGoogle className="text-red-500 mr-2" />
                     Sign in with Google
                 </button>
                 <button 
                 disabled={isLoading}
                 onClick={handleGithubSignIn}
-                className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins text-black">
+                className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins text-black hover:bg-gray-100 transition-colors cursor-pointer">
                     <FaGithub className="mr-2" />
                     Sign in with Github
                 </button>
                 <div className="mt-6 text-center text-[14px] font-poppins text-black">
                     Don't have an account?{" "}
-                    <Link href="/register" className="text-[#0353A4] font-medium">
+                    <Link href="/register" className="text-[#0353A4] font-medium hover:underline">
                         Sign Up
                     </Link>
                 </div>

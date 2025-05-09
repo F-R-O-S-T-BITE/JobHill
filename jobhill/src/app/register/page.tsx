@@ -68,12 +68,16 @@ export default function Register() {
                 <p className="text-[14px] font-medium font-poppins text-black mb-6">
                     Create an account to keep track of your applications
                 </p>
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-4 text-left">
                     <div>
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                            Full Name
+                        </label>
                         <input
                             name="name"
                             type="text"
-                            placeholder="Name"
+                            id="name"
+                            placeholder="Enter your name"
                             value={formData.name}
                             onChange={handleChange}
                             required
@@ -81,10 +85,14 @@ export default function Register() {
                         />
                     </div>
                     <div>
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                            Email address
+                        </label>
                         <input
                             name="email"
                             type="email"
-                            placeholder="Email address"
+                            id="email"
+                            placeholder="Enter your email"
                             value={formData.email}
                             onChange={handleChange}
                             required
@@ -92,10 +100,14 @@ export default function Register() {
                         />
                     </div>
                     <div>
+                        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                            Password
+                        </label>
                         <input
                             name="password"
                             type="password"
-                            placeholder="Password"
+                            id="password"
+                            placeholder="Create a password"
                             value={formData.password}
                             onChange={handleChange}
                             required
@@ -109,31 +121,31 @@ export default function Register() {
                             id="termsCheckbox"
                             checked={formData.termsAccepted}
                             onChange={handleChange}
-                            className="h-4 w-4 text-[#0353A4] border-gray-300 rounded"
+                            className="h-4 w-4 text-[#0353A4] border-gray-300 rounded cursor-pointer"
                         />
                         <label htmlFor="termsCheckbox" className="ml-2 text-[12px] font-poppins text-black">
-                            I agree to the <span className="text-[#0353A4]">terms & policy</span>
+                            I agree to the <span className="text-[#0353A4] hover:underline cursor-pointer">terms & policy</span>
                         </label>
                     </div>
                     <button
                         type="submit"
-                        className="w-full bg-[#0353A4] text-white py-2 rounded font-poppins font-medium"
+                        className="w-full bg-[#0353A4] text-white py-2 rounded font-poppins font-medium cursor-pointer hover:bg-[#034383] transition-colors"
                     >
                         Signup
                     </button>
                 </form>
-                <div className="my-6 text-center text-[14px] font-poppins text-black">or</div>
+                <div className="my-5 text-center text-[14px] font-poppins text-black">or</div>
                 <button 
                 onClick={handleGoogleSignIn}
                 disabled={isLoading}
-                className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins mb-3 text-black">
+                className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins mb-3 text-black hover:bg-gray-100 transition-colors cursor-pointer">
                     <FaGoogle className="text-red-500 mr-2" />
                     Sign in with Google
                 </button>
                 <button 
                 onClick={handleGithubSignIn}
                 disabled={isLoading}
-                className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins text-black">
+                className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins text-black hover:bg-gray-100 transition-colors cursor-pointer">
                     <FaGithub className="mr-2" />
                     Sign in with Github
                 </button>
