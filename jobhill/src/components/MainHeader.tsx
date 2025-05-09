@@ -1,20 +1,34 @@
 import Link from "next/link";
 import { FaUser } from "react-icons/fa";
+import { useState } from "react";
 
 export default function MainHeader() {
+    // TODO: Replace this local state with actual route-based navigation when implementing full navigation
+    const [activeTab, setActiveTab] = useState("opportunities");
+
     return(
         <header className="bg-white shadow-sm">
             <div className="container mx-auto px-4 py-3 flex justify-between items-center">
                 <div className="flex items-center">
-                    <h1 className="text-[#0353A4] text-4xl font-black font-inter tracking-tight">JOBHILL</h1>
+                    <h1 className="text-[#0353A4] text-4xl font-black font-inter tracking-tight cursor-pointer">JOBHILL</h1>
                 </div>
                 <nav className="hidden md:flex items-center space-x-8">
-                    <Link href="/home" className="font-medium text-[#0353A4] border-b-2 border-[#0353A4] pb-1">
+                    <button 
+                        onClick={() => setActiveTab("opportunities")} 
+                        className={`font-medium text-[#0353A4] border-b-2 pb-1 transition-all duration-300 cursor-pointer ${
+                            activeTab === "opportunities" ? "border-[#0353A4]" : "border-transparent"
+                        }`}
+                    >
                         Opportunities
-                    </Link>
-                    <Link href="/my-applications" className="font-medium text-[#0353A4]">
+                    </button>
+                    <button 
+                        onClick={() => setActiveTab("applications")} 
+                        className={`font-medium text-[#0353A4] border-b-2 pb-1 transition-all duration-300 cursor-pointer ${
+                            activeTab === "applications" ? "border-[#0353A4]" : "border-transparent"
+                        }`}
+                    >
                         My Applications
-                    </Link>
+                    </button>
                 </nav>
                 <div>
                     <Link href="/profile" className="text-[#0353A4] hover:text-[#03459E] transition-colors">
