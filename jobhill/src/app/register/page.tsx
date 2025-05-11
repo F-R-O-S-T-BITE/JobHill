@@ -17,6 +17,7 @@ export default function Register() {
     const router = useRouter();
     const [isMounted, setIsMounted] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [termsError, setTermsError] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, checked, type } = e.target;
@@ -24,10 +25,20 @@ export default function Register() {
             ...prev,
             [name]: type === "checkbox" ? checked : value,
         }));
+        
+        if (name === 'termsAccepted' && checked) {
+            setTermsError(false);
+        }
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (!formData.termsAccepted) {
+            setTermsError(true);
+            return;
+        }
+
         console.log("Form submitted:", formData);
 
         if (formData.email && formData.password) {
@@ -37,31 +48,35 @@ export default function Register() {
         }
     };
 
-     const handleGoogleSignIn = async () => {
-            setIsLoading(true);
-            try {
-                await signInWithGoogle();
-                router.push('/home');
-            } catch (error) {
-                console.error("Google Sign-in error:", error);
-                setIsLoading(false);
-            }
-        };
-    
-        const handleGithubSignIn = async () =>{
-            setIsLoading(true);
-            try {
-                await signInWithGithub();
-                router.push('/home')
-            } catch (error){
-                console.error("Github Sign-in error:", error)
-                setIsLoading(false)
-            }
+    const handleGoogleSignIn = async () => {
+        setIsLoading(true);
+        try {
+            await signInWithGoogle();
+            router.push('/home');
+        } catch (error) {
+            console.error("Google Sign-in error:", error);
+            setIsLoading(false);
         }
+    };
+    
+    const handleGithubSignIn = async () => {
+        setIsLoading(true);
+        try {
+            await signInWithGithub();
+            router.push('/home');
+        } catch (error) {
+            console.error("Github Sign-in error:", error);
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
         setIsMounted(true);
     }, []);
+
+    if (!isMounted) {
+        return null;
+    }
 
     const FormSection = () => (
         <div className="w-full md:w-1/2 flex items-center justify-center bg-white h-screen overflow-auto">
@@ -116,18 +131,23 @@ export default function Register() {
                             className="w-full border border-gray-300 px-3 py-2 rounded font-poppins text-black"
                         />
                     </div>
-                    <div className="flex items-center">
-                        <input
-                            name="termsAccepted"
-                            type="checkbox"
-                            id="termsCheckbox"
-                            checked={formData.termsAccepted}
-                            onChange={handleChange}
-                            className="h-4 w-4 text-[#0353A4] border-gray-300 rounded cursor-pointer"
-                        />
-                        <label htmlFor="termsCheckbox" className="ml-2 text-[12px] font-poppins text-black">
-                            I agree to the <span className="text-[#0353A4] hover:underline cursor-pointer">terms & policy</span>
-                        </label>
+                    <div className="flex flex-col">
+                        <div className="flex items-center">
+                            <input
+                                name="termsAccepted"
+                                type="checkbox"
+                                id="termsCheckbox"
+                                checked={formData.termsAccepted}
+                                onChange={handleChange}
+                                className="h-4 w-4 text-[#0353A4] border-gray-300 rounded cursor-pointer"
+                            />
+                            <label htmlFor="termsCheckbox" className="ml-2 text-[12px] font-poppins text-black">
+                                I agree to the <span className="text-[#0353A4] hover:underline cursor-pointer">terms & policy</span>
+                            </label>
+                        </div>
+                        {termsError && (
+                            <p className="text-red-500 text-xs mt-1">You must accept the terms to continue</p>
+                        )}
                     </div>
                     <button
                         type="submit"
@@ -138,16 +158,16 @@ export default function Register() {
                 </form>
                 <div className="my-5 text-center text-[14px] font-poppins text-black">or</div>
                 <button 
-                onClick={handleGoogleSignIn}
-                disabled={isLoading}
-                className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins mb-3 text-black hover:bg-gray-100 transition-colors cursor-pointer">
+                    onClick={handleGoogleSignIn}
+                    disabled={isLoading}
+                    className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins mb-3 text-black hover:bg-gray-100 transition-colors cursor-pointer">
                     <FaGoogle className="text-red-500 mr-2" />
                     Sign in with Google
                 </button>
                 <button 
-                onClick={handleGithubSignIn}
-                disabled={isLoading}
-                className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins text-black hover:bg-gray-100 transition-colors cursor-pointer">
+                    onClick={handleGithubSignIn}
+                    disabled={isLoading}
+                    className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins text-black hover:bg-gray-100 transition-colors cursor-pointer">
                     <FaGithub className="mr-2" />
                     Sign in with Github
                 </button>
