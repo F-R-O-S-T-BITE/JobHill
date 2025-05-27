@@ -3,17 +3,18 @@ import Image from 'next/image';
 import styles from './slider.module.css';
 import { getRecentCompanyLogos, getWeeklyJobStats, CompanyLogo } from '@/lib/data-fetcher';
 
-// Imagen para usar cuando no hay suficientes logos
 const defaultLogos = [
   { id: 'marchingant1', name: 'MarchingAnt', logo_url: '/resources/AntMarch.png' },
   { id: 'marchingant2', name: 'MarchingAnt2', logo_url: '/resources/AntMarch.png'  },
-  { id: 'marchingant3', name: 'MarchingAnt3', logo_url: '/resources/AntMarch.png' }
+  { id: 'marchingant3', name: 'MarchingAnt3', logo_url: '/resources/AntMarch.png' },
+  { id: 'marchingant4', name: 'MarchingAnt4', logo_url: '/resources/AntMarch.png'  },
+  { id: 'marchingant5', name: 'MarchingAnt5', logo_url: '/resources/AntMarch.png' },
+  { id: 'marchingant6', name: 'MarchingAnt6', logo_url: '/resources/AntMarch.png' }
 ];
 
 export const revalidate = 14400;
 
 
-// Creamos una versión React Server Component de LandingBody
 async function LandingBody() {
   // Valores por defecto para los stats en caso de error
   let jobStats = {
@@ -23,28 +24,22 @@ async function LandingBody() {
     totalOpportunities: 13000
   };
   
-  // Inicializamos los logos con los predeterminados
   let companyLogos = [...defaultLogos];
   
   try {
-    // Intentamos obtener los datos reales de Supabase
     const fetchedCompanyLogos = await getRecentCompanyLogos();
     const fetchedJobStats = await getWeeklyJobStats();
     
-    // Si tenemos datos de estadísticas, los usamos
     if (fetchedJobStats) {
       jobStats = fetchedJobStats;
     }
     
-    // Si tenemos suficientes logos (5 o más), usamos los obtenidos de la base de datos
     if (fetchedCompanyLogos && fetchedCompanyLogos.length >= 5) {
       companyLogos = fetchedCompanyLogos;
     } 
-    // Si tenemos algunos logos pero no suficientes, combinamos con los predeterminados
     else if (fetchedCompanyLogos && fetchedCompanyLogos.length > 0) {
       let combinedLogos = [...fetchedCompanyLogos];
       
-      // Añadimos los logos por defecto evitando duplicados
       for (const defaultLogo of defaultLogos) {
         if (combinedLogos.length >= 7) break;
         if (!combinedLogos.some(logo => logo.name === defaultLogo.name)) {
@@ -56,7 +51,6 @@ async function LandingBody() {
     }
   } catch (error) {
     console.error("Error fetching data for landing page:", error);
-    // En caso de error, seguimos usando los valores predeterminados
   }
 
   return (
