@@ -3,7 +3,6 @@ import { FaUser } from "react-icons/fa";
 import { useState } from "react";
 
 export default function MainHeader() {
-    // TODO: Replace this local state with actual route-based navigation when implementing full navigation
     const [activeTab, setActiveTab] = useState("opportunities");
 
     return(
