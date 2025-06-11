@@ -1,15 +1,15 @@
 export interface OfferCardTag {
     label: string;
-    type: "category"|"common"
+    type: "category"|"common"|"critical"
 }
 
 export interface OfferCardProps {
     //CardInfo
     logoSrc: string; 
-    date: string;
+    publish_date: string;
     title: string;
     company: string;
-    location: string;
+    location: string[];
     tags: OfferCardTag[];
     //Actions
     onHide?: () => void;

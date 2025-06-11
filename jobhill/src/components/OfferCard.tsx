@@ -1,25 +1,26 @@
 import { OfferCardProps } from "@/interfaces/OfferCard";
 
 const OfferCardStyles = {
-    Card: "rounded-2xl shadow-md overflow-hidden flex flex-col bg-white w-[320px] sm:w-[420px] md:w-[508px] max-w-full min-h-[213px]",
-    CardTop: "flex flex-row p-4 gap-4 items-start bg-[#FAF6F6] flex-1 min-h-0",
+    Card: "rounded-2xl shadow-lg overflow-hidden flex flex-col bg-white w-[90vw] sm:w-[420px] md:w-[558px] max-w-full min-h-[213px]",
+    CardTop: "flex flex-row p-4 sm:p-5 gap-4 items-start bg-[#FAF6F6] flex-1",
     Row:"flex flex-row w-full",
-    LogoDiv:"flex flex-col justify-start items-start pr-4",
-    Logo: "w-12 h-12 rounded-full object-contain max-w-full max-h-full",
-    CardContentRow:"flex flex-col flex-1 min-w-0",
-    CardContent: "flex-1 flex flex-col gap-1 min-w-0",
-    DateText: "text-md text-[#3C3C43] mb-1 font-mono",
-    TitleText: "text-2xl font-mono font-bold text-black leading-tight truncate",
-    CompanyText: "text-lg text-[#3C3C43]",
-    LocationText: "text-lg text-[#0353A4] font-mono",
+    LogoDiv:"flex flex-col justify-start items-start pr-4 mt-3",
+    Logo: "w-[5rem] h-[5rem] sm:w-20 sm:h-20 rounded-full object-contain max-w-full max-h-full",
+    CardContentRow:"flex flex-col flex-1",
+    CardContent: "flex flex-col flex-1",
+    DateText: "text-[1rem] text-[#3C3C43] font-mono",
+    TitleText: "text-[1.5rem] font-mono font-bold text-black leading-tight truncate",
+    CompanyText: "text-[1.125rem] text-[#3C3C43]",
+    LocationText: "text-[1.125rem] text-[#0353A4] font-mono",
     FavoriteIcon: "w-[25px] h-[25px] ml-auto cursor-pointer",
-    TagsRow: "flex flex-row flex-wrap gap-4 w-full",
+    TagsRow: "flex flex-row flex-wrap gap-2 w-full",
     CategoryTag: "rounded-[100px] bg-[#3C3C43] px-3 py-1 text-md text-white font-mono",
+    CriticalTag: "rounded-[100px] border border-[#FF3D00] px-3 py-1 text-md text-[#FF3D00] font-mono",
     CommonTag: "rounded-[100px] border border-[#3C3C43] px-3 py-1 text-md text-[#3C3C43] font-mono",
     CardBottom: "flex flex-row flex-wrap items-center justify-between bg-[#D9D9D9] px-4 py-3 gap-x-2 w-full",
-    HideButton: "flex items-center gap-2 text-[#FF3D00] text-lg font-mono cursor-pointer",
+    HideButton: "flex items-center gap-2 text-[#FF3D00] text-md sm:text-lg font-mono cursor-pointer",
     HideIcon: "w-[25px] h-[25px]",
-    AddApplicationButton: "flex items-center gap-2 bg-[#0353A4] text-white px-4 py-2 rounded-lg font-mono text-lg font-semibold cursor-pointer",
+    AddApplicationButton: "flex items-center gap-2 bg-[#0353A4] text-white px-4 py-2 rounded-lg font-mono text-md sm:text-lg font-semibold cursor-pointer",
     AddIcon: "w-[22px] h-[22px]",
     ApplyButton: "flex items-center gap-2 border border-[#0353A4] text-[#0353A4] px-4 py-2 rounded-lg font-mono text-lg font-semibold bg-white cursor-pointer",
     ApplyIcon: "w-[22px] h-[22px]",
@@ -28,7 +29,7 @@ const OfferCardStyles = {
 
 
 const OfferCard: React.FC<OfferCardProps> = ({
-    logoSrc, date, title, company, location, tags,
+    logoSrc, publish_date, title, company, location, tags,
     onHide, onFavorite, onAdd, onApply,
 }) => {
 
@@ -48,10 +49,15 @@ const OfferCard: React.FC<OfferCardProps> = ({
                     {/*Info*/}
                     <div className={OfferCardStyles.CardContentRow}>
                         <div className={OfferCardStyles.CardContent}>
-                            <span className={OfferCardStyles.DateText}>{date}</span>
+                            <span className={OfferCardStyles.DateText}>{publish_date}</span>
                             <span className={OfferCardStyles.TitleText}>{title}</span>
                             <span className={OfferCardStyles.CompanyText}>{company}</span>
-                            <span className={OfferCardStyles.LocationText}>{location}</span>
+                            <span className={OfferCardStyles.LocationText}>
+                                {Array.isArray(location)
+                                ? location.length > 1
+                                    ? `+${location.length} locations`
+                                    : location[0]
+                                : location}</span>
                         </div>
                     </div>
                     {/* Favorite Button */}
@@ -78,7 +84,13 @@ const OfferCard: React.FC<OfferCardProps> = ({
                             <span key={idx} className={OfferCardStyles.CategoryTag}>
                                 {tag.label}
                             </span>
-                            ) : (
+                            ) : 
+                            tag.type === "critical" ? (
+                            <span key={idx} className={OfferCardStyles.CriticalTag}>
+                                {tag.label}
+                            </span>
+                            ) : 
+                            (
                             <span key={idx} className={OfferCardStyles.CommonTag}>
                                 {tag.label}
                             </span>
