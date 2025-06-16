@@ -65,7 +65,7 @@ async function LandingBody() {
         {companyLogos.map((company, index) => (
           <div key={`first-${index}`} className={styles.slide}>
           <div className="flex items-center justify-center h-[60px] w-[60px] mx-auto">
-            <Image 
+            <img 
             src={company.logo_url} 
             height={60} 
             width={60} 
