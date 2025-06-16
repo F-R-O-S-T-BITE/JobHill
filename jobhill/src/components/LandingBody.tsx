@@ -4,12 +4,12 @@ import styles from './slider.module.css';
 import { getRecentCompanyLogos, getWeeklyJobStats, CompanyLogo } from '@/lib/data-fetcher';
 
 const defaultLogos = [
-  { id: 'marchingant1', name: 'MarchingAnt', logo_url: '/resources/AntMarch.png' },
-  { id: 'marchingant2', name: 'MarchingAnt2', logo_url: '/resources/AntMarch.png'  },
-  { id: 'marchingant3', name: 'MarchingAnt3', logo_url: '/resources/AntMarch.png' },
-  { id: 'marchingant4', name: 'MarchingAnt4', logo_url: '/resources/AntMarch.png'  },
-  { id: 'marchingant5', name: 'MarchingAnt5', logo_url: '/resources/AntMarch.png' },
-  { id: 'marchingant6', name: 'MarchingAnt6', logo_url: '/resources/AntMarch.png' }
+  { id: 'marchingant1', name: 'MarchingAnt', logo_url: '/resources/ants/AntMarch.png' },
+  { id: 'marchingant2', name: 'MarchingAnt2', logo_url: '/resources/ants/AntMarch.png'  },
+  { id: 'marchingant3', name: 'MarchingAnt3', logo_url: '/resources/ants/AntMarch.png' },
+  { id: 'marchingant4', name: 'MarchingAnt4', logo_url: '/resources/ants/AntMarch.png'  },
+  { id: 'marchingant5', name: 'MarchingAnt5', logo_url: '/resources/ants/AntMarch.png' },
+  { id: 'marchingant6', name: 'MarchingAnt6', logo_url: '/resources/ants/AntMarch.png' }
 ];
 
 export const revalidate = 14400;
@@ -271,7 +271,7 @@ async function LandingBody() {
           <div className="md:w-1/2 flex justify-center items-center">
             <div className="w-full md:w-10/12">
               <Image
-                src="/resources/Ant_table_info_home.png"
+                src="/resources/ants/Ant_table_info_home.png"
                 alt="Application tracker visualization"
                 width={300}
                 height={220}
