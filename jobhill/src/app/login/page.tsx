@@ -1,10 +1,9 @@
 "use client";
 //login/page.tsx
-
-import {login, signup, signInWithGoogle, signInWithGithub} from './actions'
+import {loginPE, signInWithGoogle, signInWithGithub} from './actions'
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { FaGoogle, FaGithub } from "react-icons/fa";
+import { FaGoogle, FaGithub, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import '../globals.css';
 
@@ -12,6 +11,8 @@ export default function Login() {
     const router = useRouter();
     const [isMounted, setIsMounted] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
     const [formData, setFormData] = useState({
         email: "",
         password: "",
@@ -24,17 +25,30 @@ export default function Login() {
             ...prev,
             [name]: type === "checkbox" ? checked : value,
         }));
-    }, []);
+        
+        // Limpiar mensaje de error cuando el usuario empiece a escribir
+        if (errorMessage) {
+            setErrorMessage("");
+        }
+    }, [errorMessage]);
 
-    const handleSubmit = useCallback((e: React.FormEvent) => {
+    const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        
-        setTimeout(() => {
-            router.push('/home');
-        }, 500);
-        
-    }, [router]);
+        setErrorMessage(""); 
+
+        const form = new FormData();
+        form.append('email', formData.email);
+        form.append('password', formData.password);
+
+        try {
+            await loginPE(form);
+        } catch (error){
+            console.error("Login Error:", error)
+            setErrorMessage("Invalid email or password. Please try again.");
+            setIsLoading(false)
+        }
+    }, [formData]);
 
     const handleGoogleSignIn = useCallback(async () => {
         setIsLoading(true);
@@ -84,6 +98,11 @@ export default function Login() {
                         Enter your Credentials to access your account
                     </p>
                     <form onSubmit={handleSubmit} className="space-y-4 text-left">
+                        {errorMessage && (
+                            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded text-sm">
+                                {errorMessage}
+                            </div>
+                        )}
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                                 Email address
@@ -108,16 +127,25 @@ export default function Login() {
                                     forgot password
                                 </a>
                             </div>
-                            <input
-                                name="password"
-                                type="password"
-                                id="password"
-                                placeholder="••••••••"
-                                value={formData.password}
-                                onChange={handleChange}
-                                required
-                                className="w-full border border-gray-300 px-3 py-2 rounded font-poppins text-black"
-                            />
+                            <div className="relative">
+                                <input
+                                    name="password"
+                                    type={showPassword ? "text" : "password"}
+                                    id="password"
+                                    placeholder="••••••••"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full border border-gray-300 px-3 py-2 pr-10 rounded font-poppins text-black"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                                >
+                                    {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+                                </button>
+                            </div>
                         </div>
                         <div className="flex items-center">
                             <input

@@ -6,7 +6,7 @@ import { FaGoogle, FaGithub, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import '../globals.css';
-import {login, signup, signInWithGoogle, signInWithGithub} from '../login/actions'
+import { signup, signInWithGoogle, signInWithGithub} from '../login/actions'
 
 export default function Register() {
     const router = useRouter();
