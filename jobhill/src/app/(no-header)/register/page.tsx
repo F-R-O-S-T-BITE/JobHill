@@ -1,4 +1,4 @@
-//app/register/page
+//(no-header))/register/page
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";

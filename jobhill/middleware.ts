@@ -8,6 +8,7 @@ export async function middleware(request: NextRequest) {
     '/login',
     '/register',
     '/',
+    '/opportunities',  
     '/auth/callback',
     '/auth/auth-code-error',
     '/error',
