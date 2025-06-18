@@ -6,12 +6,10 @@ import { FaUser } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import { createClient } from '@/utils/supabase/client';
 import { User } from '@supabase/supabase-js';
+import { useAuthModal } from '@/contexts/AuthModalContext';
 
-interface HeaderWrapperProps {
-  onLoginClick?: () => void;
-}
-
-export default function HeaderWrapper({ onLoginClick }: HeaderWrapperProps) {
+export default function HeaderWrapper() {
+  const { openLoginModal } = useAuthModal();
   const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -38,7 +36,7 @@ export default function HeaderWrapper({ onLoginClick }: HeaderWrapperProps) {
   const handleProtectedClick = (e: React.MouseEvent, path: string) => {
     if (!user && (path === '/my-applications' || path === '/profile')) {
       e.preventDefault();
-      onLoginClick?.();
+      openLoginModal();
     }
   };
 

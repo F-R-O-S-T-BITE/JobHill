@@ -1,5 +1,5 @@
 import Image from "next/image"
-import '../globals.css';
+import './globals.css';
 import LandingBody from "@/components/LandingBody";
 import Link from "next/link";
 

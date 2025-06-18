@@ -2,50 +2,46 @@
 
 import { useRouter } from 'next/navigation';
 import { X } from 'lucide-react';
+import { useAuthModal } from '@/contexts/AuthModalContext';
 
-interface LoginModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
+export default function LoginModal() {
+  const { showLoginModal, closeLoginModal } = useAuthModal();
   const router = useRouter();
 
-  if (!isOpen) return null;
+  if (!showLoginModal) return null;
 
   const handleLogin = () => {
     router.push('/login');
-    onClose();
+    closeLoginModal();
   };
 
   const handleRegister = () => {
     router.push('/register');
-    onClose();
+    closeLoginModal();
   };
 
   return (
     <>
-      {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-black bg-opacity-50 z-40"
-        onClick={onClose}
+        className="fixed inset-0 bg-white/50 bg-opacity-50 z-40"
+        onClick={closeLoginModal}
       />
       
       {/* Modal */}
       <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl z-50 p-8 max-w-md w-full mx-4">
         <button
-          onClick={onClose}
+          onClick={closeLoginModal}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
         >
           <X size={24} />
         </button>
         
         <h2 className="text-2xl font-bold text-gray-800 mb-4">
-          Log in to continue
+          Sign in to continue
         </h2>
         
         <p className="text-gray-600 mb-6">
-          You need to be logged in to access this feature. Please log in or create an account to continue.
+          You need to be logged in to access this feature. Please sign in or create an account to continue.
         </p>
         
         <div className="space-y-3">
