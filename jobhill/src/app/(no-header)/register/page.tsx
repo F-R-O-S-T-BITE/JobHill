@@ -5,7 +5,7 @@ import Link from "next/link";
 import { FaGoogle, FaGithub, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import '../globals.css';
+import '../../globals.css';
 import { signup, signInWithGoogle, signInWithGithub} from '../login/actions'
 
 export default function Register() {
@@ -13,6 +13,7 @@ export default function Register() {
     const [isMounted, setIsMounted] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [termsError, setTermsError] = useState(false);
+    const [showVerificationMessage, setShowVerificationMessage] = useState(false);
     const [passwordValidation, setPasswordValidation] = useState({
         length: false,
         lowercase: false,
@@ -78,6 +79,8 @@ export default function Register() {
         
         try {
             await signup(form);
+            setShowVerificationMessage(true);
+            setIsLoading(false);
         } catch (error) {
             console.error('Signup error:', error);
             setIsLoading(false);
@@ -114,6 +117,36 @@ export default function Register() {
 
     return (
         <div className="flex flex-col md:flex-row h-screen w-full bg-white overflow-hidden">
+            {/* Modal de verificación de correo */}
+            {showVerificationMessage && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 text-center">
+                        <div className="mb-4">
+                            <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 7.89a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-800 mb-2 font-inter">
+                                Check your email
+                            </h3>
+                            <p className="text-gray-600 mb-6 font-poppins">
+                                We sent a verification link to <strong>{formData.email}</strong>. Please check your email and click the link to verify your account.
+                            </p>
+                            <button
+                                onClick={() => {
+                                    setShowVerificationMessage(false);
+                                    router.push('/');
+                                }}
+                                className="w-full bg-[#0353A4] text-white py-2 rounded font-poppins font-medium hover:bg-[#034383] transition-colors"
+                            >
+                                Got it
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
             <div className="w-full md:w-1/2 flex items-center justify-center bg-white h-screen overflow-auto">
                 <div className="max-w-md w-full p-4 text-center">
                     <h1 className="text-[50px] md:text-[60px] font-black font-inter text-[#0353A4] leading-tight">JOBHILL</h1>

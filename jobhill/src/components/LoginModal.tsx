@@ -41,11 +41,11 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         </button>
         
         <h2 className="text-2xl font-bold text-gray-800 mb-4">
-          Sign in to continue
+          Log in to continue
         </h2>
         
         <p className="text-gray-600 mb-6">
-          You need to be logged in to access this feature. Please sign in or create an account to continue.
+          You need to be logged in to access this feature. Please log in or create an account to continue.
         </p>
         
         <div className="space-y-3">
