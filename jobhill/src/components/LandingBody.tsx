@@ -126,7 +126,7 @@ async function LandingBody() {
         <div className="bg-white rounded-lg p-6 shadow-sm flex items-center">
         <div className="mr-4">
           <Image
-          src="/resources/New_Home.png"
+          src="/resources/home/New_Home.png"
           alt="New intern roles"
           width={48}
           height={48}
@@ -141,7 +141,7 @@ async function LandingBody() {
         <div className="bg-white rounded-lg p-6 shadow-sm flex items-center">
         <div className="mr-4">
           <Image
-          src="/resources/MLPositions_Home.png"
+          src="/resources/home/MLPositions_Home.png"
           alt="Data & ML positions"
           width={48}
           height={48}
@@ -156,7 +156,7 @@ async function LandingBody() {
         <div className="bg-white rounded-lg p-6 shadow-sm flex items-center">
         <div className="mr-4">
           <Image
-          src="/resources/RolesOpen_home.png"
+          src="/resources/home/RolesOpen_home.png"
           alt="SWE positions"
           width={48}
           height={48}
@@ -171,7 +171,7 @@ async function LandingBody() {
         <div className="bg-white rounded-lg p-6 shadow-sm flex items-center">
         <div className="mr-4">
           <Image
-          src="/resources/TotalOpportunities_home.png"
+          src="/resources/home/TotalOpportunities_home.png"
           alt="Total opportunities"
           width={48}
           height={48}
@@ -201,7 +201,7 @@ async function LandingBody() {
           <div className="text-center px-6">
             <div className="inline-block bg-blue-100 p-4 rounded-lg mb-5">
               <Image
-                src="/resources/suitcase_home.png"
+                src="/resources/home/suitcase_home.png"
                 alt="Daily opportunities"
                 width={48}
                 height={48}
@@ -219,7 +219,7 @@ async function LandingBody() {
           <div className="text-center px-6">
             <div className="inline-block bg-blue-100 p-4 rounded-lg mb-5">
               <Image
-                src="/resources/checklist_home.png"
+                src="/resources/home/checklist_home.png"
                 alt="Track applications"
                 width={48}
                 height={48}
@@ -237,7 +237,7 @@ async function LandingBody() {
           <div className="text-center px-6">
             <div className="inline-block bg-blue-100 p-4 rounded-lg mb-5">
               <Image
-                src="/resources/autocomplete_home.png"
+                src="/resources/home/autocomplete_home.png"
                 alt="Apply faster"
                 width={48}
                 height={48}
@@ -290,7 +290,7 @@ async function LandingBody() {
           <div className="md:w-1/2 flex justify-center items-center mb-8 md:mb-0 order-2 md:order-1">
             <div className="w-full md:w-10/12">
               <Image
-                src="/resources/Extension_Home.png"
+                src="/resources/ants/Extension_Home.png"
                 alt="Chrome extension for job applications"
                 width={400}
                 height={320}

@@ -290,7 +290,7 @@ export default function Register() {
             <div 
                 className="hidden md:block md:w-1/2 bg-cover bg-center bg-no-repeat h-screen" 
                 style={{
-                    backgroundImage: "url('/resources/Register_background.png')",
+                    backgroundImage: "url('/resources/ants/Register_background.png')",
                     transform: "translateZ(0)"
                 }}
             />

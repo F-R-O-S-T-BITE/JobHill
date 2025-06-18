@@ -83,7 +83,7 @@ export default function Login() {
             <div 
                 className="hidden md:block md:w-1/2 bg-cover bg-center bg-no-repeat h-screen" 
                 style={{
-                    backgroundImage: "url('/resources/Login_background.png')",
+                    backgroundImage: "url('/resources/ants/Login_background.png')",
                     transform: "translateZ(0)"
                 }}
             />

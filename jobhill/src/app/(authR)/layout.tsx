@@ -5,7 +5,6 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // El middleware ya se encarga de verificar autenticación
   return (
     <>
       <HeaderWrapper />
