@@ -1,17 +1,26 @@
+//app/register/page
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { FaGoogle, FaGithub } from "react-icons/fa";
+import { FaGoogle, FaGithub, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import '../globals.css';
-import {login, signup, signInWithGoogle, signInWithGithub} from '../login/actions'
+import { signup, signInWithGoogle, signInWithGithub} from '../login/actions'
 
 export default function Register() {
     const router = useRouter();
     const [isMounted, setIsMounted] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [termsError, setTermsError] = useState(false);
+    const [passwordValidation, setPasswordValidation] = useState({
+        length: false,
+        lowercase: false,
+        uppercase: false,
+        digit: false,
+        symbol: false
+    });
+    const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -30,23 +39,50 @@ export default function Register() {
         if (name === 'termsAccepted' && checked) {
             setTermsError(false);
         }
+        
+        if (name === 'password') {
+            const validation = {
+                length: value.length >= 8,
+                lowercase: /[a-z]/.test(value),
+                uppercase: /[A-Z]/.test(value),
+                digit: /\d/.test(value),
+                symbol: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(value)
+            };
+            
+            setPasswordValidation(validation);
+        }
     }, []);
 
-    const handleSubmit = useCallback((e: React.FormEvent) => {
+    const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
         
         if (!formData.termsAccepted) {
             setTermsError(true);
             return;
         }
+        
+        if (formData.password.length < 8 || 
+            !/[a-z]/.test(formData.password) ||
+            !/[A-Z]/.test(formData.password) ||
+            !/\d/.test(formData.password) ||
+            !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(formData.password)) {
+            return;
+        }
 
         setIsLoading(true);
         
-        setTimeout(() => {
-            router.push('/home');
-        }, 500);
+        const form = new FormData();
+        form.append('email', formData.email);
+        form.append('password', formData.password);
+        form.append('name', formData.name);
         
-    }, [formData.termsAccepted, router]);
+        try {
+            await signup(form);
+        } catch (error) {
+            console.error('Signup error:', error);
+            setIsLoading(false);
+        }
+    }, [formData]);
 
     const handleGoogleSignIn = useCallback(async () => {
         setIsLoading(true);
@@ -119,16 +155,54 @@ export default function Register() {
                             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                                 Password
                             </label>
-                            <input
-                                name="password"
-                                type="password"
-                                id="password"
-                                placeholder="Create a password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                required
-                                className="w-full border border-gray-300 px-3 py-2 rounded font-poppins text-black"
-                            />
+                            <div className="relative">
+                                <input
+                                    name="password"
+                                    type={showPassword ? "text" : "password"}
+                                    id="password"
+                                    placeholder="Create a password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    required
+                                    className="w-full border border-gray-300 px-3 py-2 pr-10 rounded font-poppins text-black"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                                >
+                                    {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+                                </button>
+                            </div>
+                            {formData.password.length > 0 && (
+                                <div className="mt-2 space-y-1">
+                                    <div className="flex items-center space-x-2">
+                                        <span className={`text-xs ${passwordValidation.length ? 'text-green-600' : 'text-red-500'}`}>
+                                            {passwordValidation.length ? '✓' : '○'} At least 8 characters
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <span className={`text-xs ${passwordValidation.lowercase ? 'text-green-600' : 'text-red-500'}`}>
+                                            {passwordValidation.lowercase ? '✓' : '○'} Lowercase letter
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <span className={`text-xs ${passwordValidation.uppercase ? 'text-green-600' : 'text-red-500'}`}>
+                                            {passwordValidation.uppercase ? '✓' : '○'} Uppercase letter
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <span className={`text-xs ${passwordValidation.digit ? 'text-green-600' : 'text-red-500'}`}>
+                                            {passwordValidation.digit ? '✓' : '○'} Digit
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <span className={`text-xs ${passwordValidation.symbol ? 'text-green-600' : 'text-red-500'}`}>
+                                            {passwordValidation.symbol ? '✓' : '○'} Symbol (!@#$%^&*...)
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                         <div className="flex flex-col">
                             <div className="flex items-center">
@@ -150,8 +224,8 @@ export default function Register() {
                         </div>
                         <button
                             type="submit"
-                            disabled={isLoading}
-                            className="w-full bg-[#0353A4] text-white py-2 rounded font-poppins font-medium cursor-pointer hover:bg-[#034383] transition-colors disabled:bg-opacity-70"
+                            disabled={isLoading || !Object.values(passwordValidation).every(Boolean)}
+                            className="w-full bg-[#0353A4] text-white py-2 rounded font-poppins font-medium cursor-pointer hover:bg-[#034383] transition-colors disabled:bg-opacity-70 disabled:cursor-not-allowed"
                         >
                             {isLoading ? 'Creating account...' : 'Signup'}
                         </button>

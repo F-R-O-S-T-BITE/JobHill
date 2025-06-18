@@ -43,7 +43,7 @@ export default function Home() {
             
             <div className="hidden md:flex md:w-1/2 justify-end pr-4">
               <Image
-                src="/resources/Banner_Home.png"
+                src="/resources/ants/Banner_Home.png"
                 alt="Internship illustration"
                 width={400}
                 height={400}
