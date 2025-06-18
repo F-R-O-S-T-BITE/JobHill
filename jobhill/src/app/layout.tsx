@@ -1,6 +1,8 @@
+import './globals.css';
+
 export const metadata = {
   title: 'Jobhill',
-  description: 'Helping you find your next oportunity',
+  description: 'Helping you find your next opportunity',
 }
 
 export default function RootLayout({
