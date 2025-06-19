@@ -18,7 +18,7 @@ export async function loginPE(formData: FormData) {
   }
 
   revalidatePath('/', 'layout')
-  redirect('/')
+  redirect('/opportunities')
 }
 
 export async function signup(formData: FormData) {
@@ -39,8 +39,7 @@ export async function signup(formData: FormData) {
     throw new Error(error.message || 'Error creating account')
   }
 
-  revalidatePath('/', 'layout')
-  redirect('/')
+  return { success: true }
 }
 
 export async function signInWithGoogle() {
