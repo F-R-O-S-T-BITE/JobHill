@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react";
-import MainHeader from "@/components/MainHeader";
+import HeaderWrapper from "@/components/HeaderWrapper";
 import OfferCardHolder from "@/components/OfferCardHolder";
 import { OfferCardProps } from "@/interfaces/OfferCard";
 
@@ -115,24 +115,20 @@ const Offers: OfferCardProps[] = [
     },
 ];
 
+export default function OpportunitiesPage() {
+  return (
+    <div className="bg-white min-h-screen">
 
-
-export default function Homepage() {
-    return (
-        <div className="bg-white min-h-screen">
-            <MainHeader />
-
-            
-            <div className="flex flex-wrap gap-8 max-w-[1700px] mx-auto px-4">
-                {/* Placeholder a la izquierda */}
-                <div className="mt-10 py-10 px-8 w-full md:w-[350px] max-w-full border-2 border-dashed border-blue-400 rounded-xl h-[400px] md:h-[925px] bg-white flex items-center justify-center">
-                    <span className="text-blue-400 font-mono text-lg">Placeholder</span>
-                </div>
-                {/* OfferCardHolder a la derecha */}
-                <div className="w-full md:flex-1">
-                    <OfferCardHolder offers={Offers} />
-                </div>
-            </div>
+      <div className="flex flex-wrap gap-8 max-w-[1700px] mx-auto px-4">
+        {/* Placeholder a la izquierda */}
+        <div className="mt-10 py-10 px-8 w-full md:w-[350px] max-w-full border-2 border-dashed border-blue-400 rounded-xl h-[400px] md:h-[925px] bg-white flex items-center justify-center">
+          <span className="text-blue-400 font-mono text-lg">Placeholder</span>
         </div>
-    )
+        {/* OfferCardHolder a la derecha */}
+        <div className="w-full md:flex-1">
+          <OfferCardHolder offers={Offers} />
+        </div>
+      </div>
+    </div>
+  )
 }

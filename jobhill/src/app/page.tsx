@@ -8,18 +8,6 @@ export const revalidate = 14400;
 export default function Home() {
   return (
     <div className="min-h-screen font-poppins">
-      <header className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-          <div className="flex items-center">
-            <h1 className="text-[#0353A4] text-4xl font-black font-inter tracking-tight">JOBHILL</h1>
-          </div>
-          <div>
-            <Link href="/login" className="bg-[#0353A4] text-white px-4 py-2 rounded hover:bg-[#03459E] transition-colors font-semibold inline-block">
-              Login/Register
-            </Link>
-          </div>
-        </div>
-      </header>
 
       <section className="w-full bg-[#FDF5E9] py-12 md:py-16">
         <div className="container mx-auto px-4">

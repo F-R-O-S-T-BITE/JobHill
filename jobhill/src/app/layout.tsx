@@ -1,8 +1,9 @@
-import '../app/globals.css'
+import './globals.css';
+import ClientLayout from '@/components/ClientLayout';
 
 export const metadata = {
   title: 'Jobhill',
-  description: 'Helping you find your next oportunity',
+  description: 'Helping you find your next opportunity',
 }
 
 export default function RootLayout({
@@ -12,7 +13,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <ClientLayout>
+          {children}
+        </ClientLayout>
+      </body>
     </html>
   )
 }
