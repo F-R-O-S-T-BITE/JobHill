@@ -5,7 +5,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { FaGoogle, FaGithub, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useRouter } from "next/navigation";
-import '../globals.css';
 
 export default function Login() {
     const router = useRouter();

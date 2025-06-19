@@ -1,3 +1,5 @@
+import '../app/globals.css'
+
 export const metadata = {
   title: 'Jobhill',
   description: 'Helping you find your next oportunity',
