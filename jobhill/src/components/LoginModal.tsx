@@ -23,7 +23,7 @@ export default function LoginModal() {
   return (
     <>
       <div 
-        className="fixed inset-0 bg-white/50 bg-opacity-50 z-40"
+        className="fixed inset-0 bg-white/50 z-40"
         onClick={closeLoginModal}
       />
       

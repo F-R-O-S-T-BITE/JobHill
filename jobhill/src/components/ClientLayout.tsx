@@ -8,13 +8,13 @@ import LoginModal from '@/components/LoginModal';
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   
-  // Rutas donde NO queremos mostrar el header
+  // Rutas donde no mostrar el header
   const authRoutes = ['/login', '/register'];
   const shouldShowHeader = !authRoutes.some(route => pathname.startsWith(route));
 
   return (
     <AuthModalProvider>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-white">
         {shouldShowHeader && <HeaderWrapper />}
         <main className={shouldShowHeader ? 'pt-4' : ''}>
           {children}
