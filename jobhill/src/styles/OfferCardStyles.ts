@@ -7,7 +7,7 @@ export const OfferCardStyles = {
     CardContentRow: "flex flex-col flex-1",
     CardContent: "flex flex-col flex-1",
     DateText: "text-sm sm:text-[1rem] text-[#3C3C43] font-mono",
-    TitleText: "text-base xm:text-[1.25rem] sm:text-[1.5rem] font-mono font-bold text-black leading-tight",
+    TitleText: "text-base xm:text-[1.125rem] sm:text-[1.125rem] font-mono font-bold text-black leading-tight",
     CompanyText: "text-sm xm:text-[1.125rem] text-[#3C3C43]",
     LocationText: "text-sm xm:text-[1.125rem] text-[#0353A4] font-mono",
     FavoriteIcon: "w-[20px] h-[20px] ml-auto cursor-pointer hidden sm:block",
@@ -27,5 +27,5 @@ export const OfferCardStyles = {
 
 export const OfferCardHolderStyles = {
     Wrapper: "mt-6 w-full max-w-[95vw] lg:max-w-[1250px]  mx-auto px-4 md:px-6 lg:px-8 lg:max-h-[940px] xl:max-h-[1200px] lg:overflow-y-auto border rounded-xl p-10 shadow-md",
-    Grid: "grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 lg:gap-8  justify-items-center"
+    Grid: "grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 lg:gap-8  justify-items-center flex-grow"
 };
