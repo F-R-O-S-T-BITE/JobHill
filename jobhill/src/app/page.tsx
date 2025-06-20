@@ -1,7 +1,7 @@
 import Image from "next/image"
 import './globals.css';
 import LandingBody from "@/components/LandingBody";
-import Link from "next/link";
+import GetStartedButton from "@/components/GetStartedButton";
 
 export const revalidate = 14400;
 
@@ -24,9 +24,7 @@ export default function Home() {
                 <span className="text-[#0353A4]"> start your journey</span> by
                 signing in or creating an account.
               </p>
-              <Link href="/register" className="mt-4 bg-[#0353A4] text-white px-6 py-3 rounded hover:bg-[#03459E] transition-colors font-semibold inline-block">
-                Get Started
-              </Link>
+              <GetStartedButton />
             </div>
             
             <div className="hidden md:flex md:w-1/2 justify-end pr-4">

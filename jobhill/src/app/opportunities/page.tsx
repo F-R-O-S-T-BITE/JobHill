@@ -3,7 +3,9 @@
 import React, { useState, useEffect } from "react";
 import HeaderWrapper from "@/components/HeaderWrapper";
 import OfferCardHolder from "@/components/OfferCardHolder";
+import DataFilterPanel from "@/components/DataFilter";
 import { OfferCardProps } from "@/interfaces/OfferCard";
+
 
 const Offers: OfferCardProps[] = [
     {
@@ -14,9 +16,9 @@ const Offers: OfferCardProps[] = [
         location: ["San Francisco, CA"],
         tags: [
             { label: "Software", type: "category" },
-            { label: "Full Time", type: "common" },
-            { label: "On Site", type: "common" },
-            { label: "Full Stack", type: "common" },
+            { label: "Full Time", type: "hours_job_type" },
+            { label: "On Site", type: "modality" },
+            { label: "Full Stack", type: "work_branch" },
         ],
     },
     {
@@ -27,9 +29,9 @@ const Offers: OfferCardProps[] = [
         location: ["San Francisco, CA"],
         tags: [
             { label: "Software", type: "category" },
-            { label: "Full Time", type: "common" },
-            { label: "On Site", type: "common" },
-            { label: "Computer Science", type: "common" },
+            { label: "Full Time", type: "hours_job_type" },
+            { label: "On Site", type: "modality" },
+            { label: "Computer Science", type: "work_branch" },
         ],
     },
     {
@@ -40,10 +42,10 @@ const Offers: OfferCardProps[] = [
         location: ["San Francisco, CA","San Francisco, CA","San Francisco, CA","San Francisco, CA"],
         tags: [
             { label: "Software", type: "category" },
-            { label: "Full Time", type: "common" },
-            { label: "Remote", type: "common" },
-            { label: "Full Stack", type: "common" },
-            { label: "No Sponsorship", type: "critical" },
+            { label: "Full Time", type: "hours_job_type" },
+            { label: "Remote", type: "modality" },
+            { label: "Full Stack", type: "work_branch" },
+            { label: "No Sponsorship", type: "extra_critical_requirements" },
         ],
     },
     {
@@ -54,10 +56,10 @@ const Offers: OfferCardProps[] = [
         location: ["San Francisco, CA"],
         tags: [
             { label: "Software", type: "category" },
-            { label: "Full Time", type: "common" },
-            { label: "On Site", type: "common" },
-            { label: "Full Stack", type: "common" },
-            { label: "US Citizenship", type: "critical" },
+            { label: "Full Time", type: "hours_job_type" },
+            { label: "On Site", type: "modality" },
+            { label: "Full Stack", type: "work_branch" },
+            { label: "US Citizenship", type: "extra_critical_requirements" },
         ],
     },
     {
@@ -68,9 +70,9 @@ const Offers: OfferCardProps[] = [
         location: ["San Francisco, CA"],
         tags: [
             { label: "Software", type: "category" },
-            { label: "Full Time", type: "common" },
-            { label: "On Site", type: "common" },
-            { label: "Other", type: "common" },
+            { label: "Full Time", type: "hours_job_type" },
+            { label: "On Site", type: "modality" },
+            { label: "Other", type: "work_branch" },
         ],
     },
     {
@@ -81,9 +83,9 @@ const Offers: OfferCardProps[] = [
         location: ["San Francisco, CA"],
         tags: [
             { label: "Software", type: "category" },
-            { label: "Full Time", type: "common" },
-            { label: "On Site", type: "common" },
-            { label: "AI", type: "common" },
+            { label: "Full Time", type: "hours_job_type" },
+            { label: "On Site", type: "modality" },
+            { label: "AI", type: "work_branch" },
         ],
     },
     {
@@ -94,9 +96,9 @@ const Offers: OfferCardProps[] = [
         location: ["San Francisco, CA"],
         tags: [
             { label: "Software", type: "category" },
-            { label: "Full Time", type: "common" },
-            { label: "On Site", type: "common" },
-            { label: "ComputerScience", type: "common" },
+            { label: "Full Time", type: "hours_job_type" },
+            { label: "On Site", type: "modality" },
+            { label: "ComputerScience", type: "work_branch" },
         ],
     },
     {
@@ -107,28 +109,42 @@ const Offers: OfferCardProps[] = [
         location: ["San Francisco, CA"],
         tags: [
             { label: "Software", type: "category" },
-            { label: "Full Time", type: "common" },
-            { label: "On Site", type: "common" },
-            { label: "Computer Science", type: "common" },
-            { label: "No Sponsorship", type: "critical"},
+            { label: "Full Time", type: "hours_job_type" },
+            { label: "On Site", type: "modality" },
+            { label: "Computer Science", type: "work_branch" },
+            { label: "No Sponsorship", type: "extra_critical_requirements"},
         ],
     },
 ];
 
 export default function OpportunitiesPage() {
-  return (
-    <div className="bg-white min-h-screen">
+    const [filteredOffers, setFilteredOffers] = useState<OfferCardProps[]>(Offers);
 
-      <div className="flex flex-wrap gap-8 max-w-[1700px] mx-auto px-4">
-        {/* Placeholder a la izquierda */}
-        <div className="mt-10 py-10 px-8 w-full md:w-[350px] max-w-full border-2 border-dashed border-blue-400 rounded-xl h-[400px] md:h-[925px] bg-white flex items-center justify-center">
-          <span className="text-blue-400 font-mono text-lg">Placeholder</span>
+    return (
+        <div className="bg-white min-h-screen">
+            <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 max-w-screen-2xl mx-auto px-4">
+    
+                {/* Placeholder */}
+                <div className="flex lg:w-[40vw] xl:w-[25vw] flex justify-center mb-12">
+                    <DataFilterPanel data={Offers} onFilter={setFilteredOffers} />
+                </div>
+
+                {/* Cards */}
+                {filteredOffers.length === 0 ?(
+                    <div className="w-full flex items-center justify-center mb-12 h-[400px]">
+                        <span 
+                        className="text-base xm:text-[1.25rem] sm:text-[1.5rem] font-mono font-bold text-black leading-tight">
+                            No offers to show
+                        </span>
+                    </div>
+                ):(
+                    <div className="flex w-full flex justify-center mb-12"> 
+                        <OfferCardHolder offers={filteredOffers} />
+                    </div>
+                )}
+                
+
+            </div>
         </div>
-        {/* OfferCardHolder a la derecha */}
-        <div className="w-full md:flex-1">
-          <OfferCardHolder offers={Offers} />
-        </div>
-      </div>
-    </div>
-  )
+    );
 }

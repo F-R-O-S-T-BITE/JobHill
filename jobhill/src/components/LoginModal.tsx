@@ -30,6 +30,7 @@ export default function LoginModal() {
       {/* Modal */}
       <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl z-50 p-8 max-w-md w-full mx-4">
         <button
+          aria-label="Close-Login-Modal"
           onClick={closeLoginModal}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
         >

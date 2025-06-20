@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import "../../globals.css"
+import "../globals.css"
 
 export default function AccountConfirmed() {
   const [isVisible, setIsVisible] = useState(false);

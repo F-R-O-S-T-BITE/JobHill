@@ -16,7 +16,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     <AuthModalProvider>
       <div className="min-h-screen bg-white">
         {shouldShowHeader && <HeaderWrapper />}
-        <main className={shouldShowHeader ? 'pt-4' : ''}>
+        <main >
           {children}
         </main>
         <LoginModal />
