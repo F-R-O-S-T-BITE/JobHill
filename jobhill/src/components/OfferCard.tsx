@@ -65,7 +65,7 @@ const OfferCard = ({card,userPreferences}:{card:OfferCardProps,userPreferences:U
             </div>
             
             {/*Tags*/}
-            <div className={OfferCardStyles.CardTop}>
+            <div className={`flex flex-col gap-3 items-start sm:flex-row flex-1 bg-[#FAF6F6] pl-3 sm:px-4 pb-2 `}>
                 <div className={OfferCardStyles.TagsRow}>
                     {card.tags.map((tag, idx) =>
                         tag.type === "category" ? (

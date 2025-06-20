@@ -121,8 +121,8 @@ export default function OpportunitiesPage() {
     const [filteredOffers, setFilteredOffers] = useState<OfferCardProps[]>(Offers);
 
     return (
-        <div className="bg-white min-h-screen">
-            <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 max-w-screen-2xl mx-auto px-4">
+        <div className="bg-white min-h-screen flex flex-col">
+            <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 px-4 sm:px-6 xl:px-20 3xl:px-40 w-full max-w-[1700px] mx-auto">
     
                 {/* Placeholder */}
                 <div className="flex lg:w-[40vw] xl:w-[25vw] flex justify-center mb-12">
@@ -138,7 +138,7 @@ export default function OpportunitiesPage() {
                         </span>
                     </div>
                 ):(
-                    <div className="flex w-full flex justify-center mb-12"> 
+                    <div className="flex w-full flex justify-center mb-12 flex-grow"> 
                         <OfferCardHolder offers={filteredOffers} />
                     </div>
                 )}
