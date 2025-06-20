@@ -55,20 +55,20 @@ async function LandingBody() {
 
   return (
     <>
-    <div className="bg-white py-12">
+    <div className="bg-white py-8">
       <section className="mb-0">
-      <h3 className="text-3xl md:text-4xl font-bold text-center mb-8 font-inter text-[#000000]">Recent Internship Opportunities
+      <h3 className="text-3xl md:text-4xl font-bold text-center mb-3 font-inter text-[#000000]">Recent Internship Opportunities
       </h3>
       
       <div className={styles.slider}>
         <div className={styles.slideTrack}>
         {companyLogos.map((company, index) => (
           <div key={`first-${index}`} className={styles.slide}>
-          <div className="flex items-center justify-center h-[60px] w-[60px] mx-auto">
+          <div className="flex items-center justify-center h-[80px] w-[80px] mx-auto">
             <img 
             src={company.logo_url} 
-            height={60} 
-            width={60} 
+            height={80} 
+            width={80} 
             alt={`${company.name} logo`}
             className="object-contain rounded-lg" 
             loading="eager"
@@ -79,26 +79,11 @@ async function LandingBody() {
         
         {companyLogos.map((company, index) => (
           <div key={`second-${index}`} className={styles.slide}>
-          <div className="flex items-center justify-center h-[60px] w-[60px] mx-auto">
+          <div className="flex items-center justify-center h-[80px] w-[80px] mx-auto">
             <img 
             src={company.logo_url} 
-            height={60} 
-            width={60} 
-            alt={`${company.name} logo`}
-            className="object-contain rounded-lg" 
-            loading="eager"
-            />
-          </div>
-          </div>
-        ))}
-        
-        {companyLogos.map((company, index) => (
-          <div key={`third-${index}`} className={styles.slide}>
-          <div className="flex items-center justify-center h-[60px] w-[60px] mx-auto">
-            <img 
-            src={company.logo_url} 
-            height={60} 
-            width={60} 
+            height={80} 
+            width={80} 
             alt={`${company.name} logo`}
             className="object-contain rounded-lg" 
             loading="eager"
