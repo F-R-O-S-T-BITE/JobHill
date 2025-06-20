@@ -1,11 +1,22 @@
-import { OfferCardProps } from "@/interfaces/OfferCard";
+import { useOfferCardLogic } from "@/hooks/useOfferCardLogic";
+import { OfferCardProps, UserPreferences } from "@/interfaces/OfferCard";
 import { OfferCardStyles } from "@/styles/OfferCardStyles";
 
 
-const OfferCard: React.FC<OfferCardProps> = ({
-    logoSrc, publish_date, title, company, location, tags,
-    onHide, onFavorite, onAdd, onApply,
-}) => {
+const OfferCard = ({card,userPreferences}:{card:OfferCardProps,userPreferences:UserPreferences} ) => {
+
+    const OfferCardLogic ={
+        card:card,
+        userPreferences:userPreferences
+    }
+
+    const { 
+        isFavorite,
+        handleHideClick, 
+        handleFavoriteClick, 
+        handleAddClick, 
+        handleApplyClick 
+    } = useOfferCardLogic(OfferCardLogic);
 
     return  (
         <div className={OfferCardStyles.Card}>
@@ -15,7 +26,7 @@ const OfferCard: React.FC<OfferCardProps> = ({
                     {/* Logo*/}
                     <div className={OfferCardStyles.LogoDiv}>
                         <img
-                            src={logoSrc}
+                            src={card.logoSrc}
                             alt="Company Logo"
                             className={OfferCardStyles.Logo}
                         />
@@ -23,26 +34,29 @@ const OfferCard: React.FC<OfferCardProps> = ({
                     {/*Info*/}
                     <div className={OfferCardStyles.CardContentRow}>
                         <div className={OfferCardStyles.CardContent}>
-                            <span className={OfferCardStyles.DateText}>{publish_date}</span>
-                            <span className={OfferCardStyles.TitleText}>{title}</span>
-                            <span className={OfferCardStyles.CompanyText}>{company}</span>
+                            <span className={OfferCardStyles.DateText}>{card.publish_date}</span>
+                            <span className={OfferCardStyles.TitleText}>{card.title}</span>
+                            <span className={OfferCardStyles.CompanyText}>{card.company}</span>
                             <span className={OfferCardStyles.LocationText}>
-                                {Array.isArray(location)
-                                ? location.length > 1
-                                    ? `+${location.length} locations`
-                                    : location[0]
-                                : location}</span>
+                                {Array.isArray(card.location)
+                                ? card.location.length > 1
+                                    ? `+${card.location.length} locations`
+                                    : card.location[0]
+                                : card.location}</span>
                         </div>
                     </div>
                     {/* Favorite Button */}
                     <button
                         aria-label="Favorite-Button"
                         className={OfferCardStyles.FavoriteIcon}
-                        onClick={onFavorite}
+                        onClick={handleFavoriteClick}
                         type="button"
                     >
                         <img
-                            src="/resources/Icons/Cards/Favorite_Selected_Cards.png"
+                            src={isFavorite 
+                                ? "/resources/Icons/Cards/Favorite_Selected_Cards.png"
+                                : "/resources/Icons/Cards/Favorite_NOTSelected_Cards.png"
+                            }
                             alt="Favorite"
                             className={OfferCardStyles.FavoriteIcon}
                         />
@@ -53,13 +67,13 @@ const OfferCard: React.FC<OfferCardProps> = ({
             {/*Tags*/}
             <div className={OfferCardStyles.CardTop}>
                 <div className={OfferCardStyles.TagsRow}>
-                    {tags.map((tag, idx) =>
+                    {card.tags.map((tag, idx) =>
                         tag.type === "category" ? (
                             <span key={idx} className={OfferCardStyles.CategoryTag}>
                                 {tag.label}
                             </span>
                             ) : 
-                            tag.type === "critical" ? (
+                            tag.type === "extra_critical_requirements" ? (
                             <span key={idx} className={OfferCardStyles.CriticalTag}>
                                 {tag.label}
                             </span>
@@ -77,7 +91,7 @@ const OfferCard: React.FC<OfferCardProps> = ({
                 {/* Hide Button */}
                 <button
                     className={OfferCardStyles.HideButton}
-                    onClick={onHide}
+                    onClick={handleHideClick}
                     aria-label="Hide"
                     type="button"
                 >
@@ -93,7 +107,7 @@ const OfferCard: React.FC<OfferCardProps> = ({
                     <button
                         aria-label="Add Application"
                         className={OfferCardStyles.AddApplicationButton}
-                        onClick={onAdd}
+                        onClick={handleAddClick}
                         type="button"
                     >
                         <img
@@ -107,7 +121,7 @@ const OfferCard: React.FC<OfferCardProps> = ({
                     <button
                         aria-label="Apply-Button"
                         className={OfferCardStyles.ApplyButton}
-                        onClick={onApply}
+                        onClick={handleApplyClick}
                         type="button"
                     >
                         <img

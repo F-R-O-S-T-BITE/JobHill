@@ -1,3 +1,4 @@
+"use-client"
 import { useState, useCallback, useEffect } from "react";
 import { loginPE, signup, signInWithGoogle, signInWithGithub } from "@/app/(auth)/login/actions";
 
@@ -29,7 +30,7 @@ export function useLoginRegister(type: "login" | "register") {
 
     const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, checked, type } = e.target;
-        setFormData(prev => ({
+        setFormData((prev: typeof formData) => ({
             ...prev,
             [name]: type === "checkbox" ? checked : value,
         }));
