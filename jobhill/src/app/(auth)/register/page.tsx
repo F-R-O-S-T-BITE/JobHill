@@ -1,17 +1,13 @@
-//(no-header))/register/page
 "use client";
 
 //React and Next Libraries
-import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 //Styles
 import { FaGoogle, FaGithub, FaEye, FaEyeSlash } from "react-icons/fa";
 import { RegisterStyles } from "@/styles/RegisterStyles";
 import '../../globals.css';
 //Hooks and Actions
-import { signup, signInWithGoogle, signInWithGithub} from '../login/actions'
 import { useLoginRegister } from "@/hooks/useLoginRegister";
 
 

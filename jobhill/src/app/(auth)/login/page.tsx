@@ -1,7 +1,6 @@
 "use client";
 //login/page.tsx
-//React and Next Libraries
-import React, { useState, useEffect, useCallback } from "react";
+// Next Libraries
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 //Styles

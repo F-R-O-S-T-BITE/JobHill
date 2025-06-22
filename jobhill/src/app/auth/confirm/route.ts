@@ -1,6 +1,6 @@
-//auth/callback/confirm.ts
+//auth/conrfirm/route.ts
 import { type EmailOtpType } from '@supabase/supabase-js'
-import { type NextRequest } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
