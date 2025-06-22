@@ -1,8 +1,9 @@
+//src/hooks/useLoginRegister.ts
 "use-client"
 import { useState, useCallback, useEffect } from "react";
-import { loginPE, signup, signInWithGoogle, signInWithGithub } from "@/app/(auth)/login/actions";
+import { loginPE, signup, signInWithGoogle, signInWithGithub, resetPasswordForEmail, updatePassword } from "@/app/(auth)/login/actions";
 
-export function useLoginRegister(type: "login" | "register") {
+export function useLoginRegister(type: "login" | "register" | "forgot-password" | "reset-password") {
     const [isMounted, setIsMounted] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
@@ -104,6 +105,54 @@ export function useLoginRegister(type: "login" | "register") {
             setIsLoading(false);
         }
     }, []);
+
+    const handleForgotPassword = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setErrorMessage("");
+
+    const form = new FormData();
+    form.append("email", formData.email);
+
+    try {
+        await resetPasswordForEmail(form);
+        return { success: true };
+    } catch (error: any) {
+        setErrorMessage(error.message || "Error sending reset email. Please try again.");
+        setIsLoading(false);
+        throw error;
+    }
+}, [formData.email]);
+
+const handleResetPassword = useCallback(async (e: React.FormEvent, confirmPassword: string) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setErrorMessage("");
+
+    if (formData.password !== confirmPassword) {
+        setErrorMessage("Passwords don't match");
+        setIsLoading(false);
+        return;
+    }
+
+    if (!Object.values(passwordValidation).every(Boolean)) {
+        setErrorMessage("Password doesn't meet all requirements");
+        setIsLoading(false);
+        return;
+    }
+
+    const form = new FormData();
+    form.append("password", formData.password);
+
+    try {
+        await updatePassword(form);
+    } catch (error: any) {
+        setErrorMessage(error.message || "Error updating password. Please try again.");
+        setIsLoading(false);
+    }
+}, [formData.password, passwordValidation]);
+
+
 
     return {
         isMounted,
