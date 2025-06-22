@@ -1,8 +1,6 @@
 "use client";
 //login/page.tsx
-
-//React and Next Libraries
-import React, { useState, useEffect, useCallback } from "react";
+// Next Libraries
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 //Styles
@@ -10,7 +8,6 @@ import '../../globals.css';
 import { FaGoogle, FaGithub, FaEye, FaEyeSlash } from "react-icons/fa";
 import { LoginStyles } from '@/styles/LoginStyles';
 //Hooks and Actions
-import {loginPE, signInWithGoogle, signInWithGithub} from './actions'
 import { useLoginRegister } from '@/hooks/useLoginRegister';
 
 
@@ -74,9 +71,9 @@ export default function Login() {
                                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                                     Password
                                 </label>
-                                <a href="#" className="text-sm text-[#0353A4] hover:underline cursor-pointer">
+                                <Link href="/forgot-password" className="text-sm text-[#0353A4] hover:underline cursor-pointer">
                                     forgot password
-                                </a>
+                                </Link>
                             </div>
                             <div className="relative">
                                 <input

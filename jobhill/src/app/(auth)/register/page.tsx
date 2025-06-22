@@ -1,21 +1,20 @@
-//(no-header))/register/page
 "use client";
 
 //React and Next Libraries
-import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { useState } from "react";
 //Styles
 import { FaGoogle, FaGithub, FaEye, FaEyeSlash } from "react-icons/fa";
 import { RegisterStyles } from "@/styles/RegisterStyles";
 import '../../globals.css';
 //Hooks and Actions
-import { signup, signInWithGoogle, signInWithGithub} from '../login/actions'
 import { useLoginRegister } from "@/hooks/useLoginRegister";
 
 
 export default function Register() {
+    const [emailSent, setEmailSent] = useState(false);
+
     const router = useRouter();
     const {
         isMounted,
@@ -35,6 +34,66 @@ export default function Register() {
         return null;
     }
 
+    const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.termsAccepted) {
+        return;
+    }
+    
+    try {
+        await handleSubmit(e);
+        setEmailSent(true);
+    } catch (error) {
+    }
+};
+
+    if (emailSent) {
+    return (
+        <div className={RegisterStyles.container}>
+            <div className={RegisterStyles.leftPanel}>
+                <div className={RegisterStyles.box}>
+                    <h1 className={RegisterStyles.title}>JOBHILL</h1>
+                    <p className="text-[18px] font-medium font-poppins text-black mb-2">Check your email!</p>
+                    <p className={RegisterStyles.text}>
+                        We've sent a verification link to <strong>{formData.email}</strong>
+                    </p>
+                    
+                    <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded text-sm mb-6">
+                        Click the link in your email to verify your account and complete the registration.
+                    </div>
+
+                    <div className="text-center space-y-4">
+                        <p className="text-sm text-gray-600">
+                            Didn't receive the email? Check your spam folder or{" "}
+                            <button 
+                                onClick={() => setEmailSent(false)}
+                                className="text-[#0353A4] hover:underline"
+                            >
+                                try again
+                            </button>
+                        </p>
+                        
+                        <Link 
+                            href="/login" 
+                            className="text-[#0353A4] font-medium hover:underline"
+                        >
+                            ← Back to Login
+                        </Link>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                className={RegisterStyles.rightPanel}
+                style={{
+                    backgroundImage: "url('/resources/ants/Register_background.png')",
+                    transform: "translateZ(0)",
+                }}
+            />
+        </div>
+    );
+}
+
     return (
         <div className={RegisterStyles.container}>
             <div className={RegisterStyles.leftPanel}>
@@ -44,7 +103,7 @@ export default function Register() {
                         Create an account to keep track of your applications
                     </p>
 
-                    <form onSubmit={handleSubmit} className="space-y-4 text-left">
+                    <form onSubmit={onSubmit} className="space-y-4 text-left">
                         <div>
                             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                                 Full Name
