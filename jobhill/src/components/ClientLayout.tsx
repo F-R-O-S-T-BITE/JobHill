@@ -9,7 +9,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const pathname = usePathname();
   
   // Rutas donde no mostrar el header
-  const authRoutes = ['/login', '/register','/forgot-password', '/reset-password'];
+  const authRoutes = ['/login', '/register','/forgot-password', '/auth/reset-password'];
   const shouldShowHeader = !authRoutes.some(route => pathname.startsWith(route));
 
   return (
