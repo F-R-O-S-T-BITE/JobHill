@@ -166,6 +166,8 @@ const handleResetPassword = useCallback(async (e: React.FormEvent, confirmPasswo
         handleChange,
         handleSubmit,
         handleGoogleSignIn,
-        handleGithubSignIn,
+        handleGithubSignIn,  
+        handleForgotPassword,
+        handleResetPassword,
     };
 }
