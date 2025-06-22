@@ -6,9 +6,14 @@ import { createClient } from '@/utils/supabase/server'
 
 export async function loginPE(formData: FormData) {
   const supabase = await createClient()
+  const captchaToken = formData.get('captchaToken') as string
+
   const data = {
     email: formData.get('email') as string,
     password: formData.get('password') as string,
+    options: {
+      captchaToken: captchaToken
+    }
   }
   const { error } = await supabase.auth.signInWithPassword(data)
 
@@ -23,13 +28,15 @@ export async function loginPE(formData: FormData) {
 
 export async function signup(formData: FormData) {
   const supabase = await createClient()
+  const captchaToken = formData.get('captchaToken') as string
   const data = {
       email: formData.get('email') as string,
       password: formData.get('password') as string,
       options: {
         data: {
           display_name: formData.get('name') as string,
-        }
+        },
+        captchaToken: captchaToken
       }
     }
   const { error } = await supabase.auth.signUp(data)
@@ -91,9 +98,11 @@ export async function signInWithGithub() {
 export async function resetPasswordForEmail(formData: FormData) {
   const supabase = await createClient()
   const email = formData.get('email') as string
+  const captchaToken = formData.get('captchaToken') as string
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+    captchaToken: captchaToken
   })
 
   if (error) {
