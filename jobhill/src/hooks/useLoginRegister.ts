@@ -76,7 +76,11 @@ export function useLoginRegister(type: "login" | "register" | "forgot-password" 
 
         try {
             if (type === "login") await loginPE(form);
-            if (type === "register") await signup(form);
+            if (type === "register"){
+                await signup(form);
+                setIsLoading(false);
+                return
+            }
         } catch (error) {
             setErrorMessage(type === "login"
                 ? "Invalid email or password. Please try again."
