@@ -14,6 +14,7 @@ export async function loginPE(formData: FormData) {
     options: {
       captchaToken: captchaToken
     }
+    
   }
   const { error } = await supabase.auth.signInWithPassword(data)
 

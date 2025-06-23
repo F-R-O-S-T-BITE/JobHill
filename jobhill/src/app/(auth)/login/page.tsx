@@ -3,12 +3,14 @@
 // Next Libraries
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-//Styles
+//Styles and Components
 import '../../globals.css';
 import { FaGoogle, FaGithub, FaEye, FaEyeSlash } from "react-icons/fa";
 import { LoginStyles } from '@/styles/LoginStyles';
+import CaptchaModal from "@/components/CaptchaModal";
 //Hooks and Actions
 import { useLoginRegister } from '@/hooks/useLoginRegister';
+
 
 
 export default function Login() {
@@ -23,7 +25,10 @@ export default function Login() {
         handleChange,
         handleSubmit,
         handleGoogleSignIn,
-        handleGithubSignIn
+        handleGithubSignIn,
+        showCaptchaModal,
+        handleCaptchaVerify,
+        handleCloseCaptchaModal
     } = useLoginRegister("login");
 
     if (!isMounted) {
@@ -147,6 +152,22 @@ export default function Login() {
                             Sign Up
                         </Link>
                     </div>
+
+                    <CaptchaModal
+                        isOpen={showCaptchaModal}
+                        onClose={handleCloseCaptchaModal}
+                        onVerify={async (token) => {
+                            try {
+                                await handleCaptchaVerify(token);
+                            } catch (error) {
+                            }
+                        }}
+                        title="Verify you're human"
+                        description="Complete the verification to sign in"
+                        isLoading={isLoading}
+                    />
+
+
                 </div>
             </div>
         </div>
