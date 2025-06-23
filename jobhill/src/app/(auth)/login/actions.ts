@@ -6,9 +6,15 @@ import { createClient } from '@/utils/supabase/server'
 
 export async function loginPE(formData: FormData) {
   const supabase = await createClient()
+  const captchaToken = formData.get('captchaToken') as string
+
   const data = {
     email: formData.get('email') as string,
     password: formData.get('password') as string,
+    options: {
+      captchaToken: captchaToken
+    }
+    
   }
   const { error } = await supabase.auth.signInWithPassword(data)
 
@@ -23,13 +29,15 @@ export async function loginPE(formData: FormData) {
 
 export async function signup(formData: FormData) {
   const supabase = await createClient()
+  const captchaToken = formData.get('captchaToken') as string
   const data = {
       email: formData.get('email') as string,
       password: formData.get('password') as string,
       options: {
         data: {
           display_name: formData.get('name') as string,
-        }
+        },
+        captchaToken: captchaToken
       }
     }
   const { error } = await supabase.auth.signUp(data)
@@ -86,4 +94,39 @@ export async function signInWithGithub() {
   }
   redirect(data.url)
   return data
+}
+
+export async function resetPasswordForEmail(formData: FormData) {
+  const supabase = await createClient()
+  const email = formData.get('email') as string
+  const captchaToken = formData.get('captchaToken') as string
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+    captchaToken: captchaToken
+  })
+
+  if (error) {
+    console.log("reset password error", error)
+    throw new Error(error.message || 'Error sending reset email')
+  }
+
+  return { success: true }
+}
+
+export async function updatePassword(formData: FormData) {
+  const supabase = await createClient()
+  const password = formData.get('password') as string
+
+  const { error } = await supabase.auth.updateUser({
+    password: password
+  })
+
+  if (error) {
+    console.log("update password error", error)
+    throw new Error(error.message || 'Error updating password')
+  }
+
+  revalidatePath('/', 'layout')
+  redirect('/login')
 }

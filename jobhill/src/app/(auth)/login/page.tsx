@@ -1,17 +1,16 @@
 "use client";
 //login/page.tsx
-
-//React and Next Libraries
-import React, { useState, useEffect, useCallback } from "react";
+// Next Libraries
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-//Styles
+//Styles and Components
 import '../../globals.css';
 import { FaGoogle, FaGithub, FaEye, FaEyeSlash } from "react-icons/fa";
 import { LoginStyles } from '@/styles/LoginStyles';
+import CaptchaModal from "@/components/CaptchaModal";
 //Hooks and Actions
-import {loginPE, signInWithGoogle, signInWithGithub} from './actions'
 import { useLoginRegister } from '@/hooks/useLoginRegister';
+
 
 
 export default function Login() {
@@ -26,7 +25,10 @@ export default function Login() {
         handleChange,
         handleSubmit,
         handleGoogleSignIn,
-        handleGithubSignIn
+        handleGithubSignIn,
+        showCaptchaModal,
+        handleCaptchaVerify,
+        handleCloseCaptchaModal
     } = useLoginRegister("login");
 
     if (!isMounted) {
@@ -62,6 +64,7 @@ export default function Login() {
                                 name="email"
                                 type="email"
                                 id="email"
+                                autoComplete="email"
                                 placeholder="Enter your email"
                                 value={formData.email}
                                 onChange={handleChange}
@@ -74,15 +77,16 @@ export default function Login() {
                                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                                     Password
                                 </label>
-                                <a href="#" className="text-sm text-[#0353A4] hover:underline cursor-pointer">
+                                <Link href="/forgot-password" className="text-sm text-[#0353A4] hover:underline cursor-pointer">
                                     forgot password
-                                </a>
+                                </Link>
                             </div>
                             <div className="relative">
                                 <input
                                     name="password"
                                     type={showPassword ? "text" : "password"}
                                     id="password"
+                                    autoComplete="current-password"
                                     placeholder="••••••••"
                                     value={formData.password}
                                     onChange={handleChange}
@@ -150,6 +154,22 @@ export default function Login() {
                             Sign Up
                         </Link>
                     </div>
+
+                    <CaptchaModal
+                        isOpen={showCaptchaModal}
+                        onClose={handleCloseCaptchaModal}
+                        onVerify={async (token) => {
+                            try {
+                                await handleCaptchaVerify(token);
+                            } catch (error) {
+                            }
+                        }}
+                        title="Verify you're human"
+                        description="Complete the verification to sign in"
+                        isLoading={isLoading}
+                    />
+
+
                 </div>
             </div>
         </div>
