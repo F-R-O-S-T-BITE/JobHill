@@ -6,6 +6,7 @@ import Link from "next/link";
 import '../../globals.css';
 import { LoginStyles } from '@/styles/LoginStyles';
 import { useLoginRegister } from '@/hooks/useLoginRegister';
+import CaptchaModal from "@/components/CaptchaModal";
 
 export default function ForgotPassword() {
 
@@ -16,13 +17,15 @@ export default function ForgotPassword() {
         errorMessage,
         formData,
         handleChange,
-        handleForgotPassword
+        handleSubmit,
+        showCaptchaModal,
+        handleCaptchaVerify,
+        handleCloseCaptchaModal
     } = useLoginRegister("forgot-password");
 
     const onSubmit = async (e: React.FormEvent) => {
         try {
-            await handleForgotPassword(e);
-            setEmailSent(true);
+            await handleSubmit(e);
         } catch (error) {
            
         }
@@ -109,6 +112,7 @@ export default function ForgotPassword() {
                                 name="email"
                                 type="email"
                                 id="email"
+                                autoComplete="email"
                                 placeholder="Enter your email"
                                 value={formData.email}
                                 onChange={handleChange}
@@ -134,6 +138,23 @@ export default function ForgotPassword() {
                     </div>
                 </div>
             </div>
+
+            <CaptchaModal
+                isOpen={showCaptchaModal}
+                onClose={handleCloseCaptchaModal}
+                onVerify={async (token) => {
+                    try {
+                        await handleCaptchaVerify(token);
+                        setEmailSent(true); // ← Solo después del éxito del CAPTCHA
+                    } catch (error) {
+                        // Error ya manejado en el hook
+                    }
+                }}
+                title="Verify you're human"
+                description="Complete the verification to send the reset email"
+                isLoading={isLoading}
+            />
+
         </div>
     );
 }

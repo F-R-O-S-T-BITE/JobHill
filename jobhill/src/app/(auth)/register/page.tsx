@@ -4,9 +4,10 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-//Styles
+//Styles and Components
 import { FaGoogle, FaGithub, FaEye, FaEyeSlash } from "react-icons/fa";
 import { RegisterStyles } from "@/styles/RegisterStyles";
+import CaptchaModal from "@/components/CaptchaModal";
 import '../../globals.css';
 //Hooks and Actions
 import { useLoginRegister } from "@/hooks/useLoginRegister";
@@ -27,7 +28,10 @@ export default function Register() {
         handleSubmit,
         handleGoogleSignIn,
         handleGithubSignIn,
-        passwordValidation
+        passwordValidation, 
+        showCaptchaModal,
+        handleCaptchaVerify,
+        handleCloseCaptchaModal
     } = useLoginRegister("register");
     
     if (!isMounted) {
@@ -35,17 +39,11 @@ export default function Register() {
     }
 
     const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.termsAccepted) {
-        return;
-    }
-    
-    try {
-        await handleSubmit(e);
-        setEmailSent(true);
-    } catch (error) {
-    }
-};
+        try {
+            await handleSubmit(e);
+        } catch (error) {
+        }
+    };
 
     if (emailSent) {
     return (
@@ -112,6 +110,7 @@ export default function Register() {
                                 name="name"
                                 type="text"
                                 id="name"
+                                autoComplete="name"
                                 placeholder="Enter your name"
                                 value={formData.name}
                                 onChange={handleChange}
@@ -127,6 +126,7 @@ export default function Register() {
                                 name="email"
                                 type="email"
                                 id="email"
+                                autoComplete="email"
                                 placeholder="Enter your email"
                                 value={formData.email}
                                 onChange={handleChange}
@@ -143,6 +143,7 @@ export default function Register() {
                                     name="password"
                                     type={showPassword ? "text" : "password"}
                                     id="password"
+                                    autoComplete="new-password"
                                     placeholder="Create a password"
                                     value={formData.password}
                                     onChange={handleChange}
@@ -252,6 +253,21 @@ export default function Register() {
                     backgroundImage: "url('/resources/ants/Register_background.png')",
                     transform: "translateZ(0)",
                 }}
+            />
+
+            <CaptchaModal
+                isOpen={showCaptchaModal}
+                onClose={handleCloseCaptchaModal}
+                onVerify={async (token) => {
+                    try {
+                        await handleCaptchaVerify(token);
+                        setEmailSent(true);
+                    } catch (error) {
+                    }
+                }}
+                title="Verify you're human"
+                description="Complete the verification to create your account"
+                isLoading={isLoading}
             />
         </div>
     );
