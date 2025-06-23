@@ -78,7 +78,7 @@ export function useLoginRegister(type: "login" | "register" | "forgot-password" 
             return;
         }
     }, [formData, type]);
-    
+
     const handleCaptchaVerify = useCallback(async (token: string) => {
         setIsLoading(true);
 
@@ -161,23 +161,6 @@ export function useLoginRegister(type: "login" | "register" | "forgot-password" 
         }
     }, []);
 
-    const handleForgotPassword = useCallback(async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-        setErrorMessage("");
-
-        const form = new FormData();
-        form.append("email", formData.email);
-
-        try {
-            await resetPasswordForEmail(form);
-            return { success: true };
-        } catch (error: any) {
-            setErrorMessage(error.message || "Error sending reset email. Please try again.");
-            setIsLoading(false);
-            throw error;
-        }
-    }, [formData.email]);
 
     const handleResetPassword = useCallback(async (e: React.FormEvent, confirmPassword: string) => {
         e.preventDefault();
@@ -222,7 +205,6 @@ export function useLoginRegister(type: "login" | "register" | "forgot-password" 
         handleSubmit,
         handleGoogleSignIn,
         handleGithubSignIn,  
-        handleForgotPassword,
         handleResetPassword,
         showCaptchaModal,
         handleCaptchaVerify,
