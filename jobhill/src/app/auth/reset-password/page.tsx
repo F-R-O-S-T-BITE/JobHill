@@ -62,6 +62,7 @@ export default function ResetPassword() {
                                     name="password"
                                     type={showPassword ? "text" : "password"}
                                     id="password"
+                                    autoComplete="new-password"
                                     placeholder="Create a new password"
                                     value={formData.password}
                                     onChange={handleChange}
@@ -117,6 +118,7 @@ export default function ResetPassword() {
                                     name="confirmPassword"
                                     type={showConfirmPassword ? "text" : "password"}
                                     id="confirmPassword"
+                                    autoComplete="new-password"
                                     placeholder="Confirm your new password"
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}

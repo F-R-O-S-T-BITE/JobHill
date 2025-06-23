@@ -110,6 +110,7 @@ export default function Register() {
                                 name="name"
                                 type="text"
                                 id="name"
+                                autoComplete="name"
                                 placeholder="Enter your name"
                                 value={formData.name}
                                 onChange={handleChange}
@@ -125,6 +126,7 @@ export default function Register() {
                                 name="email"
                                 type="email"
                                 id="email"
+                                autoComplete="email"
                                 placeholder="Enter your email"
                                 value={formData.email}
                                 onChange={handleChange}
@@ -141,6 +143,7 @@ export default function Register() {
                                     name="password"
                                     type={showPassword ? "text" : "password"}
                                     id="password"
+                                    autoComplete="new-password"
                                     placeholder="Create a password"
                                     value={formData.password}
                                     onChange={handleChange}

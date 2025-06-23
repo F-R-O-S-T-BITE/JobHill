@@ -64,6 +64,7 @@ export default function Login() {
                                 name="email"
                                 type="email"
                                 id="email"
+                                autoComplete="email"
                                 placeholder="Enter your email"
                                 value={formData.email}
                                 onChange={handleChange}
@@ -85,6 +86,7 @@ export default function Login() {
                                     name="password"
                                     type={showPassword ? "text" : "password"}
                                     id="password"
+                                    autoComplete="current-password"
                                     placeholder="••••••••"
                                     value={formData.password}
                                     onChange={handleChange}
