@@ -1,13 +1,16 @@
 "use client"
 
-import React, { useState, useEffect } from "react";
-import HeaderWrapper from "@/components/HeaderWrapper";
+import React, { useState, useMemo } from "react";
 import OfferCardHolder from "@/components/OfferCardHolder";
 import DataFilterPanel from "@/components/DataFilter";
 import { OfferCardProps } from "@/interfaces/OfferCard";
+import { useJobOffers } from "@/hooks/useJobOffers";
+import { formatPublishDate, createJobTags } from "@/utils/jobUtils";
+import type { JobOffersFilters } from "@/interfaces/JobOffer";
 
 
-const Offers: OfferCardProps[] = [
+// Removed hardcoded offers - now using API data
+/* const Offers: OfferCardProps[] = [
     {
         logoSrc: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png",
         publish_date: "1 day ago",
@@ -115,35 +118,119 @@ const Offers: OfferCardProps[] = [
             { label: "No Sponsorship", type: "extra_critical_requirements"},
         ],
     },
-];
+]; */
 
 export default function OpportunitiesPage() {
-    const [filteredOffers, setFilteredOffers] = useState<OfferCardProps[]>(Offers);
+    const [filters, setFilters] = useState<JobOffersFilters>({
+        page: 1,
+        limit: 20
+    });
+    const [localFilters, setLocalFilters] = useState<OfferCardProps[]>([]);
+    
+    // Fetch job offers using TanStack Query
+    const { data: jobOffersData, isLoading, error, isError } = useJobOffers(filters);
+    
+    // Transform API data to UI format directly
+    const adaptedOffers = useMemo(() => {
+        if (!jobOffersData?.jobs) return [];
+        
+        return jobOffersData.jobs.map(job => ({
+            id: job.id,
+            logoSrc: job.company.logo_url || '/resources/Icons/default-company-logo.svg',
+            publish_date: formatPublishDate(job.created_at),
+            title: job.job_title,
+            company: job.company.name,
+            location: job.location || [],
+            tags: createJobTags(job),
+            isHidden: false,
+            isFavorite: job.is_favorite || false,
+            isApplied: job.is_applied || false,
+            applicationLink: job.application_link,
+            companyId: job.company_id,
+            preferenceScore: job.preference_score || 0
+        } as OfferCardProps));
+    }, [jobOffersData?.jobs]);
+    
+    // Handle client-side filtering from DataFilterPanel
+    const displayOffers = localFilters.length > 0 ? localFilters : adaptedOffers;
+
+    // Loading state
+    if (isLoading) {
+        return (
+            <div className="bg-white min-h-screen flex flex-col">
+                <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 px-4 sm:px-6 xl:px-20 3xl:px-40 w-full max-w-[1700px] mx-auto">
+                    <div className="w-full flex items-center justify-center mb-12 h-[400px]">
+                        <div className="flex flex-col items-center gap-4">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0353A4]"></div>
+                            <span className="text-base font-mono text-gray-600">Loading job opportunities...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Error state
+    if (isError) {
+        return (
+            <div className="bg-white min-h-screen flex flex-col">
+                <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 px-4 sm:px-6 xl:px-20 3xl:px-40 w-full max-w-[1700px] mx-auto">
+                    <div className="w-full flex items-center justify-center mb-12 h-[400px]">
+                        <div className="flex flex-col items-center gap-4">
+                            <div className="text-red-500 text-6xl">⚠️</div>
+                            <span className="text-base font-mono text-red-600">
+                                {error?.message || "Failed to load job opportunities"}
+                            </span>
+                            <button 
+                                onClick={() => window.location.reload()}
+                                className="px-4 py-2 bg-[#0353A4] text-white rounded-md hover:bg-blue-700 transition-colors"
+                            >
+                                Retry
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div className="bg-white min-h-screen flex flex-col">
-            <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 px-4 sm:px-6 xl:px-20 3xl:px-40 w-full max-w-[1700px] mx-auto">
+        <div className="bg-white min-h-screen">
+            <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 px-4 sm:px-6 xl:px-20 3xl:px-40 w-full max-w-[1700px] mx-auto py-6">
     
-                {/* Placeholder */}
-                <div className="flex lg:w-[40vw] xl:w-[25vw] flex justify-center mb-12">
-                    <DataFilterPanel data={Offers} onFilter={setFilteredOffers} />
+                {/* Filter Panel - Sticky on large screens */}
+                <div className="lg:w-[350px] lg:flex-shrink-0">
+                    <div className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
+                        <DataFilterPanel 
+                            data={adaptedOffers} 
+                            onFilter={setLocalFilters} 
+                        />
+                    </div>
                 </div>
 
-                {/* Cards */}
-                {filteredOffers.length === 0 ?(
-                    <div className="w-full flex items-center justify-center mb-12 h-[400px]">
-                        <span 
-                        className="text-base xm:text-[1.25rem] sm:text-[1.5rem] font-mono font-bold text-black leading-tight">
-                            No offers to show
-                        </span>
-                    </div>
-                ):(
-                    <div className="flex w-full flex justify-center mb-12 flex-grow"> 
-                        <OfferCardHolder offers={filteredOffers} />
-                    </div>
-                )}
-                
-
+                {/* Job Cards */}
+                <div className="flex-1 min-w-0">
+                    {displayOffers.length === 0 ? (
+                        <div className="flex items-center justify-center h-[400px]">
+                            <div className="flex flex-col items-center gap-4">
+                                <div className="text-gray-400 text-6xl">🔍</div>
+                                <span className="text-base xm:text-[1.25rem] sm:text-[1.5rem] font-mono font-bold text-black leading-tight text-center">
+                                    No job opportunities match your filters
+                                </span>
+                                <span className="text-sm text-gray-600 text-center max-w-md">
+                                    Try adjusting your search criteria or clear some filters
+                                </span>
+                            </div>
+                        </div>
+                    ) : (
+                        <OfferCardHolder 
+                            offers={displayOffers}
+                            totalCount={jobOffersData?.total || 0}
+                            currentPage={filters.page || 1}
+                            onPageChange={(page) => setFilters(prev => ({ ...prev, page }))}
+                        />
+                    )}
+                </div>
             </div>
         </div>
     );
