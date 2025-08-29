@@ -1,5 +1,6 @@
 import './globals.css';
 import ClientLayout from '@/components/ClientLayout';
+import { QueryProvider } from '@/providers/QueryProvider';
 
 export const metadata = {
   title: 'Jobhill',
@@ -14,9 +15,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ClientLayout>
-          {children}
-        </ClientLayout>
+        <QueryProvider>
+          <ClientLayout>
+            {children}
+          </ClientLayout>
+        </QueryProvider>
       </body>
     </html>
   )
