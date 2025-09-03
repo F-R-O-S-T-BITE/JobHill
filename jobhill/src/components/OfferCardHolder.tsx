@@ -4,49 +4,31 @@ import { OfferCardProps } from "@/interfaces/OfferCard";
 import './slider.module.css'
 import { OfferCardHolderStyles } from "@/styles/OfferCardStyles";
 
-
 interface OfferCardHolderProps {
     offers: OfferCardProps[];
-    totalCount?: number;
-    currentPage?: number;
-    onPageChange?: (page: number) => void;
 }
 
 const OfferCardHolder: React.FC<OfferCardHolderProps> = ({ 
-    offers, 
-    totalCount, 
-    currentPage: externalCurrentPage, 
-    onPageChange 
+    offers
 }) => {
-    const [internalCurrentPage, setInternalCurrentPage] = useState(1);
-    const pageSize = 20; // Fixed page size
-
-    // Use external pagination if provided, otherwise use internal
-    const currentPage = externalCurrentPage || internalCurrentPage;
-    const isExternalPagination = !!onPageChange;
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 50; 
     
-    // For internal pagination, slice the offers
+    // Client-side pagination
     const startIndex = (currentPage - 1) * pageSize;
     const endIndex = startIndex + pageSize;
-    const paginatedOffers = isExternalPagination ? offers : offers.slice(startIndex, endIndex);
-
-    // Calculate total pages based on whether we're using external data
-    const totalPages = isExternalPagination && totalCount 
-        ? Math.ceil(totalCount / pageSize)
-        : Math.ceil(offers.length / pageSize);
-
-    // Handle page changes
+    const paginatedOffers = offers.slice(startIndex, endIndex);
+    const totalPages = Math.ceil(offers.length / pageSize);
+    
     const handlePageChange = (newPage: number) => {
-        if (isExternalPagination && onPageChange) {
-            onPageChange(newPage);
-        } else {
-            setInternalCurrentPage(newPage);
-        }
+        setCurrentPage(newPage);
+        // Scroll to top when changing pages
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
   return (
     <div className={OfferCardHolderStyles.Wrapper}>
-        {/* Grid de Tarjetas */}
+        {/* Card Grid */}
         <div className={OfferCardHolderStyles.Grid}>
             {paginatedOffers.map((offer, idx) => (
             <OfferCard key={idx} card={offer} userPreferences={{ showAddModal: true }} />
@@ -78,7 +60,6 @@ const OfferCardHolder: React.FC<OfferCardHolderProps> = ({
             </div>
         )}
     </div>
-    
   );
 };
 
