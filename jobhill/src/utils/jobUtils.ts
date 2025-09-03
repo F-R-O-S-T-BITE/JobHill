@@ -1,7 +1,6 @@
 import { JobOfferResponse } from '@/interfaces/JobOffer'
 import { OfferCardTag } from '@/interfaces/OfferCard'
 
-// Función simple para formatear fechas
 export function formatPublishDate(dateString: string): string {
   const publishDate = new Date(dateString)
   const now = new Date()
@@ -21,7 +20,6 @@ export function formatPublishDate(dateString: string): string {
   }
 }
 
-// Solo mapear categorías que realmente necesitan cambios
 function getCategoryLabel(category: string): string {
   const categoryMap: Record<string, string> = {
     'SWE': 'Software',
@@ -32,11 +30,9 @@ function getCategoryLabel(category: string): string {
   return categoryMap[category] || category
 }
 
-// Función para crear tags de un job offer
 export function createJobTags(jobOffer: JobOfferResponse): OfferCardTag[] {
   const tags: OfferCardTag[] = []
   
-  // Categorías
   if (jobOffer.categories?.length) {
     jobOffer.categories.forEach(category => {
       tags.push({
@@ -46,7 +42,6 @@ export function createJobTags(jobOffer: JobOfferResponse): OfferCardTag[] {
     })
   }
   
-  // Período de trabajo
   if (jobOffer.period) {
     tags.push({
       label: jobOffer.period,
@@ -54,7 +49,6 @@ export function createJobTags(jobOffer: JobOfferResponse): OfferCardTag[] {
     })
   }
   
-  // Modalidad (sin mapeo, se usa tal como viene)
   if (jobOffer.modality) {
     tags.push({
       label: jobOffer.modality,
@@ -62,7 +56,6 @@ export function createJobTags(jobOffer: JobOfferResponse): OfferCardTag[] {
     })
   }
   
-  // Requisitos críticos
   if (jobOffer.noSponsor === 1) {
     tags.push({
       label: 'No Sponsorship',
