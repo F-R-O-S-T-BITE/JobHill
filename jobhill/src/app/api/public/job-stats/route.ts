@@ -2,7 +2,7 @@
 import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 
-export const revalidate = 14400;
+export const revalidate = 21600; // Cada 6 horas
 
 export async function GET(request: Request) {
   try {
