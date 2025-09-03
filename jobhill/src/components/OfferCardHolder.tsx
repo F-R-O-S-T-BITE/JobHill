@@ -63,5 +63,4 @@ const OfferCardHolder: React.FC<OfferCardHolderProps> = ({
   );
 };
 
-
 export default OfferCardHolder;

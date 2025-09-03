@@ -1,65 +1,37 @@
 import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 import type { 
-  JobOfferResponse, 
-  JobOffersFilters, 
-  JobOffersApiResponse
+  JobOfferResponse
 } from '@/interfaces/JobOffer';
 
 export const revalidate = 21600; // 6 horas 
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const supabase = await createClient();
-    const url = new URL(request.url);
     
-    // Parse query parameters
-    const filters: JobOffersFilters = {
-      categories: url.searchParams.get('categories')?.split(',').filter(Boolean),
-      modality: url.searchParams.get('modality')?.split(',').filter(Boolean),
-      location: url.searchParams.get('location')?.split(',').filter(Boolean),
-      company: url.searchParams.get('company')?.split(',').filter(Boolean),
-      period: url.searchParams.get('period')?.split(',').filter(Boolean),
-      search: url.searchParams.get('search') || undefined,
-      page: parseInt(url.searchParams.get('page') || '1'),
-      limit: parseInt(url.searchParams.get('limit') || '20'),
-    };
-
     // Check if user is authenticated
     const { data: { user } } = await supabase.auth.getUser();
-    
     if (user) {
-      return await getFilteredJobsForUser(supabase, user.id, filters);
+      return await getFilteredJobsForUser(supabase, user.id);
     } else {
-      return await getPublicJobs(supabase, filters);
+      return await getPublicJobs(supabase);
     }
   } catch (error) {
     console.error('Error in job offers API route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-async function getPublicJobs(supabase: any, filters: JobOffersFilters) {
-  let query = supabase
+// Fetch all open jobs for unauthenticated users 
+async function getPublicJobs(supabase: any) {
+  const { data, error, count } = await supabase
     .from('job_offers')
     .select(`
       *,
       company:companies(id, name, logo_url)
     `, { count: 'exact' })
-    .eq('status', 'Open');
-
-  // Apply basic filters
-  query = applyBasicFilters(query, filters);
-
-  // Apply pagination
-  const from = ((filters.page || 1) - 1) * (filters.limit || 20);
-  const to = from + (filters.limit || 20) - 1;
-  query = query.range(from, to);
-
-  // Order by created_at desc for public users
-  query = query.order('created_at', { ascending: false });
-
-  const { data, error, count } = await query;
+    .eq('status', 'Open')
+    .order('created_at', { ascending: false });
 
   if (error) {
     console.error('Error fetching public jobs:', error);
@@ -76,15 +48,12 @@ async function getPublicJobs(supabase: any, filters: JobOffersFilters) {
   return NextResponse.json({
     jobs: jobOffers,
     total: count || 0,
-    page: filters.page || 1,
-    totalPages: Math.ceil((count || 0) / (filters.limit || 20)),
   });
 }
 
 async function getFilteredJobsForUser(
   supabase: any, 
-  userId: string, 
-  filters: JobOffersFilters
+  userId: string
 ) {
   // Get user preferences
   const { data: preferences, error: preferencesError } = await supabase
@@ -99,6 +68,8 @@ async function getFilteredJobsForUser(
   }
 
   // Get user's applications to exclude applied jobs
+  // TODO: When we create a useApplications hook, we should use that instead 
+  // to avoid duplicate calls due to RLS policies
   const { data: applications, error: applicationsError } = await supabase
     .from('applications')
     .select('job_offer_id')
@@ -147,14 +118,6 @@ async function getFilteredJobsForUser(
     }
   }
 
-  // Apply basic filters
-  query = applyBasicFilters(query, filters);
-
-  // Apply pagination
-  const from = ((filters.page || 1) - 1) * (filters.limit || 20);
-  const to = from + (filters.limit || 20) - 1;
-  query = query.range(from, to);
-
   const { data, error, count } = await query;
 
   if (error) {
@@ -202,37 +165,6 @@ async function getFilteredJobsForUser(
   return NextResponse.json({
     jobs: jobOffers,
     total: count || 0,
-    page: filters.page || 1,
-    totalPages: Math.ceil((count || 0) / (filters.limit || 20)),
     userPreferences: preferences,
   });
-}
-
-function applyBasicFilters(query: any, filters: JobOffersFilters) {
-  // Category filter
-  if (filters.categories && filters.categories.length > 0) {
-    query = query.overlaps('categories', filters.categories);
-  }
-
-  // Modality filter
-  if (filters.modality && filters.modality.length > 0) {
-    query = query.in('modality', filters.modality);
-  }
-
-  // Location filter (array overlap)
-  if (filters.location && filters.location.length > 0) {
-    query = query.overlaps('location', filters.location);
-  }
-
-  // Period filter
-  if (filters.period && filters.period.length > 0) {
-    query = query.in('period', filters.period);
-  }
-
-  // Search filter (job title or company name)
-  if (filters.search) {
-    query = query.or(`job_title.ilike.%${filters.search}%,company.name.ilike.%${filters.search}%`);
-  }
-
-  return query;
 }

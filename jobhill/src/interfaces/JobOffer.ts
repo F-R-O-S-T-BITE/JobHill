@@ -36,15 +36,13 @@ export interface JobOffersFilters {
   company?: string[];
   period?: string[];
   search?: string;
-  page?: number;
-  limit?: number;
+  // Removed page and limit since we're not doing server-side pagination
 }
 
 export interface JobOffersApiResponse {
   jobs: JobOfferResponse[];
   total: number;
-  page: number;
-  totalPages: number;
+  // Removed page and totalPages since we're fetching all jobs at once
   userPreferences?: UserPreferences;
 }
 
