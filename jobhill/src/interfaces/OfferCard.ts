@@ -4,15 +4,19 @@ export interface OfferCardTag {
 }
 
 export interface OfferCardProps {
-    //CardInfo
-    logoSrc: string; //URL of the company's logo
-    publish_date: string; //Publication date of the offer
-    title: string;  //Title of the offer (e.g. Software Engineer)
-    company: string; //Company name
-    location: string[]; //Location of the inter ship/work
-    tags: OfferCardTag[]; //Related tags to the position
-    isHidden?:boolean;
+    id?: string; 
+    logoSrc: string; 
+    publish_date: string; 
+    title: string; 
+    company: string; 
+    location: string[];
+    tags: OfferCardTag[]; 
+    isHidden?: boolean;
     isFavorite?: boolean;
+    isApplied?: boolean;
+    applicationLink?: string;
+    companyId?: number;
+    preferenceScore?: number; 
 }
 
 export interface UserPreferences {

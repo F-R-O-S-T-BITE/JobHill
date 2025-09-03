@@ -1,58 +1,38 @@
+'use client'
+
 import React from 'react';
 import Image from 'next/image';
 import styles from './slider.module.css';
-import { getRecentCompanyLogos, getWeeklyJobStats, CompanyLogo } from '@/lib/data-fetcher';
+import { useLandingData } from '@/hooks/useLandingData';
 
-const defaultLogos = [
-  { id: 'marchingant1', name: 'MarchingAnt', logo_url: '/resources/ants/AntMarch.png' },
-  { id: 'marchingant2', name: 'MarchingAnt2', logo_url: '/resources/ants/AntMarch.png'  },
-  { id: 'marchingant3', name: 'MarchingAnt3', logo_url: '/resources/ants/AntMarch.png' },
-  { id: 'marchingant4', name: 'MarchingAnt4', logo_url: '/resources/ants/AntMarch.png'  },
-  { id: 'marchingant5', name: 'MarchingAnt5', logo_url: '/resources/ants/AntMarch.png' },
-  { id: 'marchingant6', name: 'MarchingAnt6', logo_url: '/resources/ants/AntMarch.png' }
-];
-
-export const revalidate = 14400;
-
-
-async function LandingBody() {
-  // Valores por defecto para los stats en caso de error
-  let jobStats = {
-    newInternRoles: 1230,
-    newDataMLPositions: 463,
-    newSWEPositions: 828,
-    totalOpportunities: 13000
-  };
+function LandingBody() {
+  const { companyLogos, jobStats, isLoading } = useLandingData();
   
-  let companyLogos = [...defaultLogos];
-  
-  try {
-    const fetchedCompanyLogos = await getRecentCompanyLogos();
-    const fetchedJobStats = await getWeeklyJobStats();
+  // Show loading state if data is still being fetched
+  if (isLoading) {
+    const defaultLogos = [
+      { id: 'marchingant1', name: 'MarchingAnt', logo_url: '/resources/ants/AntMarch.png' },
+      { id: 'marchingant2', name: 'MarchingAnt2', logo_url: '/resources/ants/AntMarch.png' },
+      { id: 'marchingant3', name: 'MarchingAnt3', logo_url: '/resources/ants/AntMarch.png' },
+      { id: 'marchingant4', name: 'MarchingAnt4', logo_url: '/resources/ants/AntMarch.png' },
+      { id: 'marchingant5', name: 'MarchingAnt5', logo_url: '/resources/ants/AntMarch.png' },
+      { id: 'marchingant6', name: 'MarchingAnt6', logo_url: '/resources/ants/AntMarch.png' }
+    ];
     
-    if (fetchedJobStats) {
-      jobStats = fetchedJobStats;
-    }
+    const defaultStats = {
+      newInternRoles: 1230,
+      newDataMLPositions: 463,
+      newSWEPositions: 828,
+      totalOpportunities: 13000
+    };
     
-    if (fetchedCompanyLogos && fetchedCompanyLogos.length >= 5) {
-      companyLogos = fetchedCompanyLogos;
-    } 
-    else if (fetchedCompanyLogos && fetchedCompanyLogos.length > 0) {
-      let combinedLogos = [...fetchedCompanyLogos];
-      
-      for (const defaultLogo of defaultLogos) {
-        if (combinedLogos.length >= 7) break;
-        if (!combinedLogos.some(logo => logo.name === defaultLogo.name)) {
-          combinedLogos.push(defaultLogo);
-        }
-      }
-      
-      companyLogos = combinedLogos;
-    }
-  } catch (error) {
-    console.error("Error fetching data for landing page:", error);
+    return renderLandingContent(defaultLogos, defaultStats);
   }
+  
+  return renderLandingContent(companyLogos, jobStats);
+}
 
+function renderLandingContent(companyLogos: any[], jobStats: any) {
   return (
     <>
     <div className="bg-white py-8">
