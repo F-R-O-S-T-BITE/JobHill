@@ -18,10 +18,10 @@ export default function OpportunitiesPage() {
         
         return jobOffersData.jobs.map(job => ({
             id: job.id,
-            logoSrc: job.company.logo_url || '/resources/Icons/default-company-logo.svg',
+            logoSrc: job.company?.logo_url || '/resources/Icons/default-company-logo.svg',
             publish_date: formatPublishDate(job.created_at),
             title: job.job_title,
-            company: job.company.name,
+            company: job.company?.name || 'Unknown Company',
             location: job.location || [],
             tags: createJobTags(job),
             isHidden: false,

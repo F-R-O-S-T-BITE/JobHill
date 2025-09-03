@@ -38,12 +38,14 @@ async function getPublicJobs(supabase: any) {
     return NextResponse.json({ error: 'Failed to fetch job offers' }, { status: 500 });
   }
 
-  const jobOffers: JobOfferResponse[] = data.map((job: any) => ({
-    ...job,
-    is_applied: false,
-    is_favorite: false,
-    preference_score: 0,
-  }));
+  const jobOffers: JobOfferResponse[] = data
+    .filter((job: any) => job.company) // Filter out jobs without company data
+    .map((job: any) => ({
+      ...job,
+      is_applied: false,
+      is_favorite: false,
+      preference_score: 0,
+    }));
 
   return NextResponse.json({
     jobs: jobOffers,
@@ -126,14 +128,16 @@ async function getFilteredJobsForUser(
   }
 
   // Process jobs with user-specific data and custom sorting
-  const jobOffers: JobOfferResponse[] = data.map((job: any) => {
-    let preferenceScore = 0;
-    
-    if (preferences) {
-      // Higher score for preferred companies
-      if (preferences.preferred_companies?.includes(job.company.name)) {
-        preferenceScore += 100;
-      }
+  const jobOffers: JobOfferResponse[] = data
+    .filter((job: any) => job.company) // Filter out jobs without company data
+    .map((job: any) => {
+      let preferenceScore = 0;
+      
+      if (preferences) {
+        // Higher score for preferred companies
+        if (preferences.preferred_companies?.includes(job.company.name)) {
+          preferenceScore += 100;
+        }
       
       // Higher score for preferred categories
       if (preferences.preferred_categories && job.categories) {
