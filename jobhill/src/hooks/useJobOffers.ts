@@ -1,6 +1,6 @@
 'use client'
 
-import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { JobOffersFilters, JobOffersApiResponse, JobOfferResponse } from '@/interfaces/JobOffer'
 
 async function fetchJobOffers(filters?: JobOffersFilters): Promise<JobOffersApiResponse> {
@@ -13,8 +13,6 @@ async function fetchJobOffers(filters?: JobOffersFilters): Promise<JobOffersApiR
     if (filters.company?.length) params.set('company', filters.company.join(','))
     if (filters.period?.length) params.set('period', filters.period.join(','))
     if (filters.search) params.set('search', filters.search)
-    if (filters.page) params.set('page', filters.page.toString())
-    if (filters.limit) params.set('limit', filters.limit.toString())
   }
 
   const response = await fetch(`/api/job-offers?${params.toString()}`)
@@ -38,25 +36,8 @@ export function useJobOffers(filters?: JobOffersFilters) {
   return useQuery({
     queryKey: jobOffersKeys.list(filters),
     queryFn: () => fetchJobOffers(filters),
-    staleTime: 6 * 60 * 60 * 1000, //
-    placeholderData: (previousData) => previousData, // Mantener datos anteriores mientras se actualizan
-  })
-}
-
-// Hook for infinite scrolling job offers
-export function useInfiniteJobOffers(filters?: Omit<JobOffersFilters, 'page'>) {
-  return useInfiniteQuery({
-    queryKey: [...jobOffersKeys.lists(), 'infinite', filters],
-    queryFn: ({ pageParam = 1 }) => 
-      fetchJobOffers({ ...filters, page: pageParam }),
-    getNextPageParam: (lastPage) => {
-      if (lastPage.page < lastPage.totalPages) {
-        return lastPage.page + 1
-      }
-      return undefined
-    },
-    initialPageParam: 1,
-    staleTime: 6 * 60 * 60 * 1000, // 6 hours
+    staleTime: 6 * 60 * 60 * 1000,
+    placeholderData: (previousData) => previousData, 
   })
 }
 
@@ -86,10 +67,6 @@ export function useCreateApplication() {
       return response.json()
     },
     onSuccess: (_, variables) => {
-      // Invalidate and refetch job offers to update is_applied status
-      queryClient.invalidateQueries({ queryKey: jobOffersKeys.lists() })
-      
-      // Optimistically update the specific job offer
       queryClient.setQueriesData(
         { queryKey: jobOffersKeys.lists() },
         (oldData: JobOffersApiResponse | undefined) => {
@@ -105,9 +82,6 @@ export function useCreateApplication() {
           }
         }
       )
-      
-      // Also invalidate user applications query if it exists
-      queryClient.invalidateQueries({ queryKey: ['user-applications'] })
     },
   })
 }
@@ -169,8 +143,7 @@ export function useToggleFavorite() {
       )
     },
     onSettled: () => {
-      // Always refetch after error or success
-      queryClient.invalidateQueries({ queryKey: jobOffersKeys.lists() })
+      // No invalidation needed - optimistic updates handle the UI
     },
   })
 }
