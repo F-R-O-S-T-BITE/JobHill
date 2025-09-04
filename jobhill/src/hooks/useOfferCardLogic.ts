@@ -6,8 +6,9 @@ import { OfferCardLogic } from "@/interfaces/OfferCard";
 
 export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
     const [isFavorite,setIsFavorite] = useState(false);
-    const [isConfirmationAddModalOpen,setIsConfirmationAddModalOpen] = useState(false);
-    const [isAddModalOpen,setIsAddModalOpen] = useState(false);
+    const [isConfirmationAppliedModalOpen,setisConfirmationAppliedModalOpen] = useState(false); //Modal for asking if user applied to the job, after redirecting
+    const [isAddModalOpen,setIsAddModalOpen] = useState(false); //Modal for adding new application
+
 
 
     const handleHideClick= useCallback(() => {
@@ -36,11 +37,8 @@ export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
     }, []);
 
     const handleApplyClick = useCallback(() => {
-        // TODO: Apply button logic
-        // FrontLogic
         window.open(CardLogic.card.applicationLink);
-        
-        // BackendLogic
+        setisConfirmationAppliedModalOpen(true); 
     }, []);
 
     const handleShowConfirmationAddModal = useCallback(() => {
@@ -52,19 +50,14 @@ export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
     },[]);
 
     const handleCancelShowConfirmationAddModal = useCallback(() => {
-        // TODO: Cancel ShowModal Logic
-        // FrontendLogic:
+        setisConfirmationAppliedModalOpen(false);
     },[]);
 
     const handleShowAddModal = useCallback(() => {
-        // TODO: Open AddModal Component to user
-        // FrontendLogic:
+        setIsAddModalOpen(true);
     },[]);
-
     const handleCancelShowAddModal = useCallback(() => {
-        // TODO: Cancel ShowModal Logic
-        // FrontendLogic:
-
+        setIsAddModalOpen(false);
     },[]);
 
     const _addLogic = () => {
@@ -73,7 +66,7 @@ export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
 
     return { 
         isFavorite,                            //Boolean value for style changing in favorite icon
-        isConfirmationAddModalOpen,            //Boolean value for opening confirmation add modal
+        isConfirmationAppliedModalOpen,            //Boolean value for opening confirmation add modal
         isAddModalOpen,                        //Boolean value for opening add modal
         handleHideClick,                       //Function for hiding a card offer 
         handleFavoriteClick,                   //Function for including a card offer to favorites
