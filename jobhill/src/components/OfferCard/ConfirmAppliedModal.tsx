@@ -1,6 +1,6 @@
 import { OfferCardModalStyles } from "@/styles/OfferCardStyles"
 
-export default function ConfirmAppliedModal({onClose}:{onClose:()=>void}) {
+export default function ConfirmAppliedModal({onClose, onAdd}:{onClose:()=>void, onAdd:()=>void}) {
   return (
     <div className={OfferCardModalStyles.Overlay}>
         <div className={OfferCardModalStyles.Modal}>
@@ -9,7 +9,7 @@ export default function ConfirmAppliedModal({onClose}:{onClose:()=>void}) {
                 Add it to your applications!
             </p>
             <div className={OfferCardModalStyles.ButtonRow}>
-                <button className={OfferCardModalStyles.ConfirmButton} onClick={() => {onClose()}}>
+                <button className={OfferCardModalStyles.ConfirmButton} onClick={() => {onAdd()}}>
                     Add
                 </button>
                 <button className={OfferCardModalStyles.CancelButton} onClick={() => {onClose()}}>

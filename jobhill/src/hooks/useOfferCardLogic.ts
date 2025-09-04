@@ -1,15 +1,12 @@
 "use-client"
 
 import { useState,useCallback } from "react";
-import { OfferCardProps } from "@/interfaces/OfferCard";
 import { OfferCardLogic } from "@/interfaces/OfferCard";
 
 export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
     const [isFavorite,setIsFavorite] = useState(false);
     const [isConfirmationAppliedModalOpen,setisConfirmationAppliedModalOpen] = useState(false); //Modal for asking if user applied to the job, after redirecting
     const [isAddModalOpen,setIsAddModalOpen] = useState(false); //Modal for adding new application
-
-
 
     const handleHideClick= useCallback(() => {
         // TODO: Implement hide logic
@@ -52,8 +49,8 @@ export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
     const handleCancelShowConfirmationAddModal = useCallback(() => {
         setisConfirmationAppliedModalOpen(false);
     },[]);
-
     const handleShowAddModal = useCallback(() => {
+        setisConfirmationAppliedModalOpen(false);
         setIsAddModalOpen(true);
     },[]);
     const handleCancelShowAddModal = useCallback(() => {

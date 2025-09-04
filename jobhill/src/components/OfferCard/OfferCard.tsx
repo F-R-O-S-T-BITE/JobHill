@@ -145,6 +145,7 @@ const OfferCard = ({card,userPreferences}:{card:OfferCardProps,userPreferences:U
             {isConfirmationAppliedModalOpen && ( 
                 <ConfirmAppliedModal
                     onClose={handleCancelShowConfirmationAddModal}
+                    onAdd={handleShowAddModal}
                 />
             )}
         </div>
