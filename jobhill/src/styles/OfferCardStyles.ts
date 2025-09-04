@@ -29,3 +29,14 @@ export const OfferCardHolderStyles = {
     Wrapper: "mt-6 w-full max-w-[95vw] lg:max-w-[1250px]  mx-auto px-4 md:px-6 lg:px-8 lg:max-h-[940px] xl:max-h-[1200px] lg:overflow-y-auto border rounded-xl p-10 shadow-md",
     Grid: "grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 lg:gap-8  justify-items-center flex-grow"
 };
+
+
+export const OfferCardModalStyles = {
+    Overlay: "fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4",
+    Modal: "bg-white rounded-xl shadow-lg p-4 sm:p-6 md:p-8 w-full sm:w-[80%] md:w-[60%] lg:w-1/2 max-w-2xl text-center flex flex-col",
+    Title: "text-xl sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-4 text-[#023E7D]",
+    Subtitle: "text-base sm:text-lg font-semibold text-black",
+    ButtonRow: "flex flex-col sm:flex-row gap-3 justify-center mt-4 sm:mt-6",
+    ConfirmButton: "w-full sm:w-auto bg-[#0353A4] text-white px-4 sm:px-8 py-2 sm:py-3 rounded-xl hover:bg-[#03459E] transition-colors cursor-pointer text-sm sm:text-base",
+    CancelButton: "w-full sm:w-auto bg-white border text-black px-4 sm:px-6 py-2 rounded-xl hover:bg-gray-100 transition-colors border-black outline cursor-pointer text-sm sm:text-base"
+};
