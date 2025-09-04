@@ -1,7 +1,7 @@
 import { useState } from "react";
 import OfferCard from "./OfferCard";
 import { OfferCardProps } from "@/interfaces/OfferCard";
-import './slider.module.css'
+import '../slider.module.css'
 import { OfferCardHolderStyles } from "@/styles/OfferCardStyles";
 
 interface OfferCardHolderProps {

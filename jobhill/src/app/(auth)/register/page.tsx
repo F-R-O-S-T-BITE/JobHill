@@ -7,7 +7,7 @@ import { useState } from "react";
 //Styles and Components
 import { FaGoogle, FaGithub, FaEye, FaEyeSlash } from "react-icons/fa";
 import { RegisterStyles } from "@/styles/RegisterStyles";
-import CaptchaModal from "@/components/CaptchaModal";
+import CaptchaModal from "@/components/Modals/CaptchaModal";
 import '../../globals.css';
 //Hooks and Actions
 import { useLoginRegister } from "@/hooks/useLoginRegister";

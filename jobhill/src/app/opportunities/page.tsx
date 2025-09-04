@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useMemo } from "react";
-import OfferCardHolder from "@/components/OfferCardHolder";
+import OfferCardHolder from "@/components/OfferCard/OfferCardHolder";
 import DataFilterPanel from "@/components/DataFilter";
 import { OfferCardProps } from "@/interfaces/OfferCard";
 import { useJobOffers } from "@/hooks/useJobOffers";

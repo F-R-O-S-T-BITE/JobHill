@@ -38,6 +38,7 @@ export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
     const handleApplyClick = useCallback(() => {
         // TODO: Apply button logic
         // FrontLogic
+        window.open(CardLogic.card.applicationLink);
         
         // BackendLogic
     }, []);

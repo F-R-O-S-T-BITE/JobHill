@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import '../../globals.css';
 import { FaGoogle, FaGithub, FaEye, FaEyeSlash } from "react-icons/fa";
 import { LoginStyles } from '@/styles/LoginStyles';
-import CaptchaModal from "@/components/CaptchaModal";
+import CaptchaModal from "@/components/Modals/CaptchaModal";
 //Hooks and Actions
 import { useLoginRegister } from '@/hooks/useLoginRegister';
 
