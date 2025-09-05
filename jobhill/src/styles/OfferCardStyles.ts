@@ -40,3 +40,27 @@ export const OfferCardModalStyles = {
     ConfirmButton: "w-full sm:w-auto bg-[#0353A4] text-white px-4 sm:px-8 py-2 sm:py-3 rounded-xl hover:bg-[#03459E] transition-colors cursor-pointer text-sm sm:text-base",
     CancelButton: "w-full sm:w-auto bg-white border text-black px-4 sm:px-6 py-2 rounded-xl hover:bg-gray-100 transition-colors border-black outline cursor-pointer text-sm sm:text-base"
 };
+
+export const AddAppModalStyles = {
+    Overlay: "fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4",
+    Modal: "bg-white rounded-xl shadow-lg w-full max-w-sm flex flex-col max-h-[85vh] overflow-y-auto relative",
+    Header: "bg-[#023E7D] text-center px-6 pt-6 pb-2 relative rounded-t-xl",
+    Title: "text-xl md:text-2xl font-bold text-white",
+    CloseButton: "absolute top-2 right-2 w-8 h-8 flex items-center justify-center cursor-pointer hover:bg-white/10 rounded-full transition-colors",
+    CloseIcon: "w-5 h-5 mt-0.5" ,
+    FormSection: "p-6 flex-1 overflow-y-auto",
+    SectionTitle: "text-lg font-bold text-[#84878E] mb-2 flex items-center gap-2",
+    CompanyRow: "flex items-center gap-3 p-3 bg-gray-50 rounded-lg",
+    CompanyLogo: "w-12 h-12 rounded-full object-contain",
+    CompanyInfo: "flex-1",
+    CompanyName: "text-lg font-semibold text-black",
+    JobTitle: "text-sm text-gray-600",
+    FormRow: "flex items-center gap-4 mb-4 last:mb-0",
+    FormGroup: "flex-1",
+    FormLabel: "block text-sm font-semibold text-[#84878E] mb-1",
+    FormInput: "w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#99BDE2] focus:border-transparent text-black",
+    FormSelect: "w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#99BDE2] focus:border-transparent bg-white cursor-pointer text-black",
+    ButtonRow: "flex flex-row gap-3 justify-center border-t border-gray-200 p-4 shrink-0",
+    SaveButton: "w-full sm:w-auto bg-[#0353A4] text-white px-8 py-3 rounded-xl hover:bg-[#03459E] transition-colors cursor-pointer text-base font-semibold",
+    CancelButton: "w-full sm:w-auto bg-white border border-gray-300 text-gray-700 px-6 py-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer text-base font-semibold"
+};

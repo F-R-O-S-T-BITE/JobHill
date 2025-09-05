@@ -26,11 +26,11 @@ export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
     }, []);
 
     const handleAddClick = useCallback(() => {
-        // TODO: Add Application button logic
-        // FrontLogic
-        // ? Show add application confirmation modal component
-        // ? If not user does not want to continue seeing that modal
-        // ? Hide it and continue directly to the Add Modal, else show it until the user clicks in Add or Cancel 
+        setIsAddModalOpen(true);
+    }, []);
+
+    const handleRegisterNewApplication = useCallback(() => {
+        //Logic to add users application to its list of applications
     }, []);
 
     const handleApplyClick = useCallback(() => {

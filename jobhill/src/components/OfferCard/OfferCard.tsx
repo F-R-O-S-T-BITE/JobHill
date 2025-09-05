@@ -2,6 +2,7 @@ import { useOfferCardLogic } from "@/hooks/useOfferCardLogic";
 import { OfferCardProps, UserPreferences } from "@/interfaces/OfferCard";
 import { OfferCardStyles } from "@/styles/OfferCardStyles";
 import ConfirmAppliedModal from "./ConfirmAppliedModal";
+import AddAppModal from "./AddAppModal";
 
 
 const OfferCard = ({card,userPreferences}:{card:OfferCardProps,userPreferences:UserPreferences} ) => {
@@ -146,6 +147,16 @@ const OfferCard = ({card,userPreferences}:{card:OfferCardProps,userPreferences:U
                 <ConfirmAppliedModal
                     onClose={handleCancelShowConfirmationAddModal}
                     onAdd={handleShowAddModal}
+                />
+            )}
+
+            {isAddModalOpen && (
+                <AddAppModal
+                    onClose={handleCancelShowAddModal}
+                    onSave={()=>{}}
+                    companyName= {card.company}
+                    jobTitle={card.title}
+                    companyLogo={card.logoSrc}
                 />
             )}
         </div>
