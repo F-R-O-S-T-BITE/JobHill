@@ -2,11 +2,22 @@
 
 import { useState,useCallback } from "react";
 import { OfferCardLogic } from "@/interfaces/OfferCard";
+import { useAuthModal } from "@/contexts/AuthModalContext";
 
 export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
     const [isFavorite,setIsFavorite] = useState(false);
     const [isConfirmationAppliedModalOpen,setisConfirmationAppliedModalOpen] = useState(false); //Modal for asking if user applied to the job, after redirecting
     const [isAddModalOpen,setIsAddModalOpen] = useState(false); //Modal for adding new application
+    const {user, openLoginModal} = useAuthModal();
+
+    const requireAuth = useCallback((action: () => void) => {
+        if (!user) {
+            openLoginModal();
+            return;
+        }
+        action();
+    }, [user, openLoginModal]);
+    
 
     const handleHideClick= useCallback(() => {
         // TODO: Implement hide logic
@@ -26,7 +37,8 @@ export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
     }, []);
 
     const handleAddClick = useCallback(() => {
-        setIsAddModalOpen(true);
+        return requireAuth(() => setIsAddModalOpen(true));
+    
     }, []);
 
     const handleRegisterNewApplication = useCallback(() => {
@@ -38,20 +50,14 @@ export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
         setisConfirmationAppliedModalOpen(true); 
     }, []);
 
-    const handleShowConfirmationAddModal = useCallback(() => {
-        // TODO: Open ConfirmationAddModal Component to user
-        // FrontendLogic:
-        // ? If user opens it for the first time then always show
-        // ? If user does not have set to not show it, show it 
-        // ? If user clicks in not show again call backend to update its preferences
-    },[]);
-
     const handleCancelShowConfirmationAddModal = useCallback(() => {
         setisConfirmationAppliedModalOpen(false);
     },[]);
     const handleShowAddModal = useCallback(() => {
-        setisConfirmationAppliedModalOpen(false);
-        setIsAddModalOpen(true);
+        return requireAuth(() => {
+            setisConfirmationAppliedModalOpen(false);
+            setIsAddModalOpen(true);
+        });
     },[]);
     const handleCancelShowAddModal = useCallback(() => {
         setIsAddModalOpen(false);
@@ -68,7 +74,6 @@ export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
         handleHideClick,                       //Function for hiding a card offer 
         handleFavoriteClick,                   //Function for including a card offer to favorites
         handleAddClick,                        //Function for starting the add process in 
-        handleShowConfirmationAddModal,        //Function for showing the confirmation add modal to the user when starting the add process
         handleCancelShowConfirmationAddModal,  //Function for closing the confirmation add modal 
         handleShowAddModal,                    //Function for showing the  add modal to the user when clicking add or having for default add process 
         handleCancelShowAddModal,              //Function for cancel the adding card offer process final step

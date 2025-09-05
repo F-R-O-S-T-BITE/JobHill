@@ -20,7 +20,6 @@ const OfferCard = ({card,userPreferences}:{card:OfferCardProps,userPreferences:U
         handleApplyClick,
         isConfirmationAppliedModalOpen,
         handleCancelShowConfirmationAddModal,
-        handleShowConfirmationAddModal,
         isAddModalOpen,
         handleCancelShowAddModal,
         handleShowAddModal
