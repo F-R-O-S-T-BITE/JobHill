@@ -42,7 +42,11 @@ export default function ResetPassword() {
             />
             <div className={LoginStyles.rightPanel}>
                 <div className={LoginStyles.box}>
-                    <h1 className={LoginStyles.title}>JOBHILL</h1>
+
+                            <Link href="/">
+                                  <h1 className={LoginStyles.title}>JOBHILL</h1>
+                    </Link>
+          
                     <p className={LoginStyles.subtitle}>Reset Password</p>
                     <p className={LoginStyles.text}>Enter your new password</p>
 

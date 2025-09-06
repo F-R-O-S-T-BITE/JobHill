@@ -50,6 +50,7 @@ export default function Register() {
         <div className={RegisterStyles.container}>
             <div className={RegisterStyles.leftPanel}>
                 <div className={RegisterStyles.box}>
+                    
                     <h1 className={RegisterStyles.title}>JOBHILL</h1>
                     <p className="text-[18px] font-medium font-poppins text-black mb-2">Check your email!</p>
                     <p className={RegisterStyles.text}>
@@ -96,7 +97,10 @@ export default function Register() {
         <div className={RegisterStyles.container}>
             <div className={RegisterStyles.leftPanel}>
                 <div className={RegisterStyles.box}>
+                        <Link href="/" >
+                        
                     <h1 className={RegisterStyles.title}>JOBHILL</h1>
+                    </Link>
                     <p className={RegisterStyles.text}>
                         Create an account to keep track of your applications
                     </p>
