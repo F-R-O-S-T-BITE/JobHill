@@ -11,8 +11,10 @@ import type { JobOffersFilters } from "@/interfaces/JobOffer";
 export default function OpportunitiesPage() {
     const [filters] = useState<JobOffersFilters>({});
     const [localFilters, setLocalFilters] = useState<OfferCardProps[]>([]);
+    const [showCompanies, setShowCompanies] =useState<boolean>(false);
     const { data: jobOffersData, isLoading, error, isError } = useJobOffers(filters);
     
+
     const adaptedOffers = useMemo(() => {
         if (!jobOffersData?.jobs) return [];
         
@@ -82,30 +84,39 @@ export default function OpportunitiesPage() {
                     <div className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
                         <DataFilterPanel 
                             data={adaptedOffers} 
-                            onFilter={setLocalFilters} 
+                            onFilter={setLocalFilters}
+                            setShowCompanies={setShowCompanies}
                         />
                     </div>
                 </div>
 
-                {/* Job Cards */}
+                {/* Job Cards and Companies Cards*/}
                 <div className="flex-1 min-w-0">
-                    {displayOffers.length === 0 ? (
-                        <div className="flex items-center justify-center h-[400px]">
-                            <div className="flex flex-col items-center gap-4">
-                                <div className="text-gray-400 text-6xl">🔍</div>
-                                <span className="text-base xm:text-[1.25rem] sm:text-[1.5rem] font-mono font-bold text-black leading-tight text-center">
-                                    No job opportunities match your filters
-                                </span>
-                                <span className="text-sm text-gray-600 text-center max-w-md">
-                                    Try adjusting your search criteria or clear some filters
-                                </span>
+                {!showCompanies ? (   
+                    <>                
+                        {displayOffers.length === 0 ? (
+                            <div className="flex items-center justify-center h-[400px]">
+                                <div className="flex flex-col items-center gap-4">
+                                    <div className="text-gray-400 text-6xl">🔍</div>
+                                    <span className="text-base xm:text-[1.25rem] sm:text-[1.5rem] font-mono font-bold text-black leading-tight text-center">
+                                        No job opportunities match your filters
+                                    </span>
+                                    <span className="text-sm text-gray-600 text-center max-w-md">
+                                        Try adjusting your search criteria or clear some filters
+                                    </span>
+                                </div>
                             </div>
-                        </div>
-                    ) : (
-                        <OfferCardHolder 
-                            offers={displayOffers}
-                        />
-                    )}
+                        
+                        ) : (
+                            <OfferCardHolder 
+                                offers={displayOffers}
+                            />
+                        )}
+                    </>
+                ):(
+                    <p>Hola</p>
+                )}    
+
                 </div>
             </div>
         </div>
