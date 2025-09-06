@@ -17,8 +17,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     <AuthModalProvider>
       <Toaster
         position="bottom-right"
+        reverseOrder={true}
         toastOptions={{
-          duration: 7000,
+          duration: 6500,
           style: {
             background: '#fff',
             color: '#000',
