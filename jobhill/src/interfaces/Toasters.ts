@@ -3,5 +3,6 @@ export interface HideJobToastProps {
   jobTitle: string;
   companyName: string;
   onUndo: () => void;
+  onExpire?: () => void;
   toastId: string;
 }

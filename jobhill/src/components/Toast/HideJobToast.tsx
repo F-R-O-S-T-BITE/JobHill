@@ -1,5 +1,5 @@
 import { toast } from 'react-hot-toast';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { HideJobToastStyles } from '@/styles/OfferCardStyles';
 import { HideJobToastProps } from '@/interfaces/Toasters';
 
@@ -8,11 +8,13 @@ export default function HideJobToast({
   jobTitle, 
   companyName, 
   onUndo, 
+  onExpire,
   toastId 
 }: HideJobToastProps) {
   
   const [progress, setProgress] = useState(100);
   const [secondsLeft, setSecondsLeft] = useState(7);
+  const hasExpiredRef = useRef(false);
   
   const handleUndo = () => {
     onUndo();
@@ -27,7 +29,11 @@ export default function HideJobToast({
         setSecondsLeft(newSecondsLeft);
         
         // Auto-dismiss toast when timer reaches 0
-        if (newProgress <= 0) {
+        if (newProgress <= 0 && !hasExpiredRef.current) {
+          hasExpiredRef.current = true;
+          if (onExpire) {
+            onExpire();
+          }
           setTimeout(() => toast.dismiss(toastId), 0);
           return 0;
         }
@@ -106,7 +112,8 @@ export function showHideJobToast({
   companyLogo,
   jobTitle,
   companyName,
-  onUndo
+  onUndo,
+  onExpire
 }: Omit<HideJobToastProps, 'toastId'>) {
   
   return toast.custom((t) => (
@@ -115,6 +122,7 @@ export function showHideJobToast({
       jobTitle={jobTitle}
       companyName={companyName}
       onUndo={onUndo}
+      onExpire={onExpire}
       toastId={t.id}
     />
   ), {
