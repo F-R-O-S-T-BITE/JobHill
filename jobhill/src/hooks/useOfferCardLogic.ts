@@ -6,6 +6,7 @@ import { useAuthModal } from "@/contexts/AuthModalContext";
 import { showHideJobToast } from "@/components/Toast/HideJobToast";
 import { hideJob, unhideJob } from "@/components/OfferCard/OfferCardHolder";
 import { useUserPreferences, useFavoriteJob, useUnfavoriteJob, useHideJobPreference } from "@/hooks/useUserPreferences";
+import { useCreateApplication } from "@/hooks/useJobOffers";
 
 export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
     const [isConfirmationAppliedModalOpen,setisConfirmationAppliedModalOpen] = useState(false); //Modal for asking if user applied to the job, after redirecting
@@ -17,6 +18,7 @@ export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
     const favoriteJobMutation = useFavoriteJob();
     const unfavoriteJobMutation = useUnfavoriteJob();
     const hideJobMutation = useHideJobPreference();
+    const createApplicationMutation = useCreateApplication();
     
     // Check if job is favorited based on cached preferences
     const isFavorite = useMemo(() => {
@@ -77,9 +79,38 @@ export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
         return requireAuth(() => setIsAddModalOpen(true));
     }, []);
 
-    const handleRegisterNewApplication = useCallback(() => {
-        //Logic to add users application to its list of applications
-    }, []);
+    const handleRegisterNewApplication = useCallback((applicationData: {
+        dateApplied: string;
+        referralType: 'Cold Apply' | 'Referred';
+        status: string;
+    }) => {
+        return requireAuth(async () => {
+            if (!CardLogic.card.id) {
+                console.error('Job ID is missing');
+                return;
+            }
+
+            try {
+                await createApplicationMutation.mutateAsync({
+                    job_offer_id: CardLogic.card.id,
+                    company_name: CardLogic.card.company,
+                    role: CardLogic.card.title,
+                    referral_type: applicationData.referralType,
+                    application_link: CardLogic.card.applicationLink || '',
+                    location: Array.isArray(CardLogic.card.location) 
+                        ? CardLogic.card.location.join(', ') 
+                        : CardLogic.card.location
+                });
+
+                setIsAddModalOpen(false);
+                
+                console.log('Application registered successfully');
+                
+            } catch (error) {
+                console.error('Failed to register application:', error);
+            }
+        });
+    }, [CardLogic.card.id, CardLogic.card.company, CardLogic.card.title, CardLogic.card.applicationLink, CardLogic.card.location, requireAuth, createApplicationMutation]);
 
     const handleApplyClick = useCallback(() => {
         window.open(CardLogic.card.applicationLink);
@@ -98,10 +129,6 @@ export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
         setIsAddModalOpen(false);
     },[]);
 
-    const _addLogic = () => {
-
-    }
-
     return { 
         isFavorite,                            
         isConfirmationAppliedModalOpen,        
@@ -112,6 +139,7 @@ export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
         handleCancelShowConfirmationAddModal,  
         handleShowAddModal,                    
         handleCancelShowAddModal,              
-        handleApplyClick                       
+        handleApplyClick,
+        handleRegisterNewApplication                       
     };                         
 }

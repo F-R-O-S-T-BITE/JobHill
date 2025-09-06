@@ -22,7 +22,8 @@ const OfferCard = ({card,userPreferences}:{card:OfferCardProps,userPreferences:U
         handleCancelShowConfirmationAddModal,
         isAddModalOpen,
         handleCancelShowAddModal,
-        handleShowAddModal
+        handleShowAddModal,
+        handleRegisterNewApplication
     } = useOfferCardLogic(OfferCardLogic);
 
     return  (
@@ -152,8 +153,8 @@ const OfferCard = ({card,userPreferences}:{card:OfferCardProps,userPreferences:U
             {isAddModalOpen && (
                 <AddAppModal
                     onClose={handleCancelShowAddModal}
-                    onSave={()=>{}}
-                    companyName= {card.company}
+                    onSave={handleRegisterNewApplication}
+                    companyName={card.company}
                     jobTitle={card.title}
                     companyLogo={card.logoSrc}
                 />
