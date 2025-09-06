@@ -1,18 +1,30 @@
 "use client"
 
-import { useState,useCallback } from "react";
+import { useState,useCallback, useMemo } from "react";
 import { OfferCardLogic } from "@/interfaces/OfferCard";
 import { useAuthModal } from "@/contexts/AuthModalContext";
 import { showHideJobToast } from "@/components/Toast/HideJobToast";
 import { hideJob, unhideJob } from "@/components/OfferCard/OfferCardHolder";
-import { useHideJob } from "@/hooks/useJobOffers";
+import { useUserPreferences, useFavoriteJob, useUnfavoriteJob, useHideJobPreference } from "@/hooks/useUserPreferences";
 
 export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
-    const [isFavorite,setIsFavorite] = useState(false);
     const [isConfirmationAppliedModalOpen,setisConfirmationAppliedModalOpen] = useState(false); //Modal for asking if user applied to the job, after redirecting
     const [isAddModalOpen,setIsAddModalOpen] = useState(false); //Modal for adding new application
     const {user, openLoginModal} = useAuthModal();
-    const hideJobMutation = useHideJob();
+    
+    // Get user preferences and mutations
+    const { data: userPreferencesData } = useUserPreferences();
+    const favoriteJobMutation = useFavoriteJob();
+    const unfavoriteJobMutation = useUnfavoriteJob();
+    const hideJobMutation = useHideJobPreference();
+    
+    // Check if job is favorited based on cached preferences
+    const isFavorite = useMemo(() => {
+        if (!CardLogic.card.id || !userPreferencesData?.preferences?.favorite_jobs) {
+            return false;
+        }
+        return userPreferencesData.preferences.favorite_jobs.includes(CardLogic.card.id);
+    }, [CardLogic.card.id, userPreferencesData?.preferences?.favorite_jobs]);
 
     const requireAuth = useCallback((action: () => void) => {
         if (!user) {
@@ -50,16 +62,16 @@ export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
     }, [CardLogic.card.logoSrc, CardLogic.card.title, CardLogic.card.company, CardLogic.card.id, requireAuth, hideJobMutation]);
 
     const handleFavoriteClick = useCallback(() => {
-        // TODO: Save to favorites logic
-        // FrontLogic
         return requireAuth(() => {
-            setIsFavorite(prev => !prev);
+            if (!CardLogic.card.id) return;
+            
+            if (isFavorite) {
+                unfavoriteJobMutation.mutate(CardLogic.card.id);
+            } else {
+                favoriteJobMutation.mutate(CardLogic.card.id);
+            }
         });
-        
-        // BackendLogic
-        // ? Handle logic process of DB logic to mark as favorite
-        // ? Handle logic process of DB logic to mark as not favorite if it is already a favorite card
-    }, []);
+    }, [CardLogic.card.id, isFavorite, requireAuth, favoriteJobMutation, unfavoriteJobMutation]);
 
     const handleAddClick = useCallback(() => {
         return requireAuth(() => setIsAddModalOpen(true));
@@ -102,5 +114,4 @@ export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
         handleCancelShowAddModal,              
         handleApplyClick                       
     };                         
-
 }
