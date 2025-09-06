@@ -1,87 +1,150 @@
-"use-client"
+"use client"
 
-import { useState,useCallback } from "react";
-import { OfferCardProps } from "@/interfaces/OfferCard";
+import { useState,useCallback, useMemo } from "react";
 import { OfferCardLogic } from "@/interfaces/OfferCard";
+import { useAuthModal } from "@/contexts/AuthModalContext";
+import { showHideJobToast } from "@/components/Toast/HideJobToast";
+import { showApplicationSuccessToast } from "@/components/Toast/ApplicationSuccessToast";
+import { hideJob, unhideJob } from "@/components/OfferCard/OfferCardHolder";
+import { useUserPreferences, useFavoriteJob, useUnfavoriteJob, useHideJobPreference } from "@/hooks/useUserPreferences";
+import { useCreateApplication } from "@/hooks/useJobOffers";
 
 export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
-    const [isFavorite,setIsFavorite] = useState(false);
-    const [isConfirmationAddModalOpen,setIsConfirmationAddModalOpen] = useState(false);
-    const [isAddModalOpen,setIsAddModalOpen] = useState(false);
+    const [isConfirmationAppliedModalOpen,setisConfirmationAppliedModalOpen] = useState(false); //Modal for asking if user applied to the job, after redirecting
+    const [isAddModalOpen,setIsAddModalOpen] = useState(false); //Modal for adding new application
+    const {user, openLoginModal} = useAuthModal();
+    
+    // Get user preferences and mutations
+    const { data: userPreferencesData } = useUserPreferences();
+    const favoriteJobMutation = useFavoriteJob();
+    const unfavoriteJobMutation = useUnfavoriteJob();
+    const hideJobMutation = useHideJobPreference();
+    const createApplicationMutation = useCreateApplication();
+    
+    // Check if job is favorited based on cached preferences
+    const isFavorite = useMemo(() => {
+        if (!CardLogic.card.id || !userPreferencesData?.preferences?.favorite_jobs) {
+            return false;
+        }
+        return userPreferencesData.preferences.favorite_jobs.includes(CardLogic.card.id);
+    }, [CardLogic.card.id, userPreferencesData?.preferences?.favorite_jobs]);
 
+    const requireAuth = useCallback((action: () => void) => {
+        if (!user) {
+            openLoginModal();
+            return;
+        }
+        action();
+    }, [user, openLoginModal]);
+    
 
     const handleHideClick= useCallback(() => {
-        // TODO: Implement hide logic
-        // FrontLogic
-        
-        // BackendLogic
-         
-    }, []);
+        return requireAuth(() => {
+            const jobId = CardLogic.card.id || `${CardLogic.card.title}-${CardLogic.card.company}`;
+            // Hide job UI 
+            hideJob(jobId);
+            // Update the grid display
+            if ((window as any).updateOfferCardHolder) {
+                (window as any).updateOfferCardHolder();
+            }
+            showHideJobToast({
+                companyLogo: CardLogic.card.logoSrc,
+                jobTitle: CardLogic.card.title,
+                companyName: CardLogic.card.company,
+                onUndo: () => {
+                    unhideJob(jobId);
+                    if ((window as any).updateOfferCardHolder) {
+                        (window as any).updateOfferCardHolder();
+                    }
+                },
+                onExpire: () => {
+                    hideJobMutation.mutate(jobId);
+                }
+            });
+        });
+    }, [CardLogic.card.logoSrc, CardLogic.card.title, CardLogic.card.company, CardLogic.card.id, requireAuth, hideJobMutation]);
 
     const handleFavoriteClick = useCallback(() => {
-        // TODO: Save to favorites logic
-        // FrontLogic
-        setIsFavorite(prev => !prev);
-        // BackendLogic
-        // ? Handle logic process of DB logic to mark as favorite
-        // ? Handle logic process of DB logic to mark as not favorite if it is already a favorite card
-    }, []);
+        return requireAuth(() => {
+            if (!CardLogic.card.id) return;
+            
+            if (isFavorite) {
+                unfavoriteJobMutation.mutate(CardLogic.card.id);
+            } else {
+                favoriteJobMutation.mutate(CardLogic.card.id);
+            }
+        });
+    }, [CardLogic.card.id, isFavorite, requireAuth, favoriteJobMutation, unfavoriteJobMutation]);
 
     const handleAddClick = useCallback(() => {
-        // TODO: Add Application button logic
-        // FrontLogic
-        // ? Show add application confirmation modal component
-        // ? If not user does not want to continue seeing that modal
-        // ? Hide it and continue directly to the Add Modal, else show it until the user clicks in Add or Cancel 
+        return requireAuth(() => setIsAddModalOpen(true));
     }, []);
+
+    const handleRegisterNewApplication = useCallback((applicationData: {
+        dateApplied: string;
+        referralType: 'Cold Apply' | 'Referred';
+        status: string;
+    }) => {
+        return requireAuth(async () => {
+            if (!CardLogic.card.id) {
+                console.error('Job ID is missing');
+                return;
+            }
+
+            try {
+                await createApplicationMutation.mutateAsync({
+                    job_offer_id: CardLogic.card.id,
+                    company_name: CardLogic.card.company,
+                    role: CardLogic.card.title,
+                    referral_type: applicationData.referralType,
+                    application_link: CardLogic.card.applicationLink || '',
+                    location: Array.isArray(CardLogic.card.location) 
+                        ? CardLogic.card.location.join(', ') 
+                        : CardLogic.card.location
+                });
+
+                setIsAddModalOpen(false);
+                
+                showApplicationSuccessToast({
+                    companyLogo: CardLogic.card.logoSrc,
+                    jobTitle: CardLogic.card.title,
+                    companyName: CardLogic.card.company
+                });
+                
+            } catch (error) {
+                console.error('Failed to register application:', error);
+            }
+        });
+    }, [CardLogic.card.id, CardLogic.card.company, CardLogic.card.title, CardLogic.card.applicationLink, CardLogic.card.location, requireAuth, createApplicationMutation]);
 
     const handleApplyClick = useCallback(() => {
-        // TODO: Apply button logic
-        // FrontLogic
-        
-        // BackendLogic
+        window.open(CardLogic.card.applicationLink);
+        setisConfirmationAppliedModalOpen(true); 
     }, []);
-
-    const handleShowConfirmationAddModal = useCallback(() => {
-        // TODO: Open ConfirmationAddModal Component to user
-        // FrontendLogic:
-        // ? If user opens it for the first time then always show
-        // ? If user does not have set to not show it, show it 
-        // ? If user clicks in not show again call backend to update its preferences
-    },[]);
-
     const handleCancelShowConfirmationAddModal = useCallback(() => {
-        // TODO: Cancel ShowModal Logic
-        // FrontendLogic:
+        setisConfirmationAppliedModalOpen(false);
     },[]);
-
     const handleShowAddModal = useCallback(() => {
-        // TODO: Open AddModal Component to user
-        // FrontendLogic:
+        return requireAuth(() => {
+            setisConfirmationAppliedModalOpen(false);
+            setIsAddModalOpen(true);
+        });
     },[]);
-
     const handleCancelShowAddModal = useCallback(() => {
-        // TODO: Cancel ShowModal Logic
-        // FrontendLogic:
-
+        setIsAddModalOpen(false);
     },[]);
-
-    const _addLogic = () => {
-
-    }
 
     return { 
-        isFavorite,                            //Boolean value for style changing in favorite icon
-        isConfirmationAddModalOpen,            //Boolean value for opening confirmation add modal
-        isAddModalOpen,                        //Boolean value for opening add modal
-        handleHideClick,                       //Function for hiding a card offer 
-        handleFavoriteClick,                   //Function for including a card offer to favorites
-        handleAddClick,                        //Function for starting the add process in 
-        handleShowConfirmationAddModal,        //Function for showing the confirmation add modal to the user when starting the add process
-        handleCancelShowConfirmationAddModal,  //Function for closing the confirmation add modal 
-        handleShowAddModal,                    //Function for showing the  add modal to the user when clicking add or having for default add process 
-        handleCancelShowAddModal,              //Function for cancel the adding card offer process final step
-        handleApplyClick                       //Function for applying to an card offer
+        isFavorite,                            
+        isConfirmationAppliedModalOpen,        
+        isAddModalOpen,                        
+        handleHideClick,                      
+        handleFavoriteClick,                   
+        handleAddClick,                       
+        handleCancelShowConfirmationAddModal,  
+        handleShowAddModal,                    
+        handleCancelShowAddModal,              
+        handleApplyClick,
+        handleRegisterNewApplication                       
     };                         
-
 }

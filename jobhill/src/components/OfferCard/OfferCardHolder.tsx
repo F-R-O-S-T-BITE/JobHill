@@ -1,24 +1,69 @@
 import { useState } from "react";
 import OfferCard from "./OfferCard";
 import { OfferCardProps } from "@/interfaces/OfferCard";
-import './slider.module.css'
+import '../slider.module.css'
 import { OfferCardHolderStyles } from "@/styles/OfferCardStyles";
 
 interface OfferCardHolderProps {
     offers: OfferCardProps[];
 }
 
+let globalHiddenJobs = new Set<string>();
+let globalAppliedJobs = new Set<string>();
+
+export const hideJob = (jobId: string) => {
+    globalHiddenJobs.add(jobId);
+};
+
+export const unhideJob = (jobId: string) => {
+    globalHiddenJobs.delete(jobId);
+};
+
+export const isJobHidden = (jobId: string) => {
+    return globalHiddenJobs.has(jobId);
+};
+
+export const markJobAsApplied = (jobId: string) => {
+    globalAppliedJobs.add(jobId);
+};
+
+export const isJobApplied = (jobId: string) => {
+    return globalAppliedJobs.has(jobId);
+};
+
 const OfferCardHolder: React.FC<OfferCardHolderProps> = ({ 
     offers
 }) => {
     const [currentPage, setCurrentPage] = useState(1);
+    const [, forceUpdate] = useState({});
     const pageSize = 50; 
     
-    // Client-side pagination
+    const visibleOffers = offers.filter(offer => {
+        const jobId = offer.id || `${offer.title}-${offer.company}`;
+        return !isJobHidden(jobId);
+    });
     const startIndex = (currentPage - 1) * pageSize;
     const endIndex = startIndex + pageSize;
-    const paginatedOffers = offers.slice(startIndex, endIndex);
-    const totalPages = Math.ceil(offers.length / pageSize);
+    const paginatedOffers = visibleOffers.slice(startIndex, endIndex);
+    const totalPages = Math.ceil(visibleOffers.length / pageSize);
+    
+  
+    const handleForceUpdate = () => {
+        forceUpdate({});
+        
+        const newTotalPages = Math.ceil(visibleOffers.length / pageSize);
+        if (currentPage > newTotalPages && newTotalPages > 0) {
+            setCurrentPage(newTotalPages);
+        }
+    };
+    
+    const markJobAsAppliedAndUpdate = (jobId: string) => {
+        markJobAsApplied(jobId);
+        handleForceUpdate();
+    };
+    
+    (window as any).updateOfferCardHolder = handleForceUpdate;
+    (window as any).markJobAsAppliedAndUpdate = markJobAsAppliedAndUpdate;
     
     const handlePageChange = (newPage: number) => {
         setCurrentPage(newPage);
@@ -31,12 +76,12 @@ const OfferCardHolder: React.FC<OfferCardHolderProps> = ({
         {/* Card Grid */}
         <div className={OfferCardHolderStyles.Grid}>
             {paginatedOffers.map((offer, idx) => (
-            <OfferCard key={idx} card={offer} userPreferences={{ showAddModal: true }} />
+                <OfferCard key={offer.id || `${offer.title}-${offer.company}-${idx}`} card={offer} userPreferences={{ showAddModal: true }} />
             ))}
         </div>
 
         {/* Pagination */}
-        {offers.length > 0 && totalPages > 1 && (
+        {visibleOffers.length > 0 && totalPages > 1 && (
             <div className="flex justify-center items-center gap-4 mt-8 mb-4">
                 <button
                     disabled={currentPage === 1}

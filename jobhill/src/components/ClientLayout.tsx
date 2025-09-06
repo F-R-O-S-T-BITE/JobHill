@@ -3,7 +3,8 @@
 import { usePathname } from 'next/navigation';
 import { AuthModalProvider } from '@/contexts/AuthModalContext';
 import HeaderWrapper from '@/components/HeaderWrapper';
-import LoginModal from '@/components/LoginModal';
+import LoginModal from '@/components/Modals/LoginModal';
+import { Toaster } from 'react-hot-toast';
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -14,6 +15,17 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
   return (
     <AuthModalProvider>
+      <Toaster
+        position="bottom-right"
+        reverseOrder={true}
+        toastOptions={{
+          duration: 6500,
+          style: {
+            background: '#fff',
+            color: '#000',
+          },
+        }}
+      />
       <div className="min-h-screen bg-white">
         {shouldShowHeader && <HeaderWrapper />}
         <main >

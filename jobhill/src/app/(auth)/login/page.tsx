@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import '../../globals.css';
 import { FaGoogle, FaGithub, FaEye, FaEyeSlash } from "react-icons/fa";
 import { LoginStyles } from '@/styles/LoginStyles';
-import CaptchaModal from "@/components/CaptchaModal";
+import CaptchaModal from "@/components/Modals/CaptchaModal";
 //Hooks and Actions
 import { useLoginRegister } from '@/hooks/useLoginRegister';
 
@@ -46,7 +46,10 @@ export default function Login() {
             />
             <div className={LoginStyles.rightPanel}>
                 <div className={LoginStyles.box}>
-                    <h1 className={LoginStyles.title}>JOBHILL</h1>
+                              <Link href="/" >
+            <h1 className={LoginStyles.title}>JOBHILL</h1>
+          </Link>
+                    
                     <p className={LoginStyles.subtitle}>Welcome back!</p>
                     <p className={LoginStyles.text}>Enter your Credentials to access your account</p>
 

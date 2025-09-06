@@ -67,32 +67,34 @@ export function useCreateApplication() {
       return response.json()
     },
     onSuccess: (_, variables) => {
-      queryClient.setQueriesData(
-        { queryKey: jobOffersKeys.lists() },
-        (oldData: JobOffersApiResponse | undefined) => {
-          if (!oldData) return oldData
-          
-          return {
-            ...oldData,
-            jobs: oldData.jobs.map((job) =>
-              job.id === variables.job_offer_id
-                ? { ...job, is_applied: true }
-                : job
-            ),
+      if ((window as any).markJobAsAppliedAndUpdate) {
+        (window as any).markJobAsAppliedAndUpdate(variables.job_offer_id);
+      }
+      
+      // Update cache to remove job after animation completes
+      setTimeout(() => {
+        queryClient.setQueriesData(
+          { queryKey: jobOffersKeys.lists() },
+          (oldData: JobOffersApiResponse | undefined) => {
+            if (!oldData) return oldData
+            
+            return {
+              ...oldData,
+              jobs: oldData.jobs.filter(job => job.id !== variables.job_offer_id),
+              total: oldData.total - 1,
+            }
           }
-        }
-      )
+        )
+      }, 1000);
     },
   })
 }
 
-// Hook for toggling job favorites (placeholder - implement when favorites are added)
 export function useToggleFavorite() {
   const queryClient = useQueryClient()
   
   return useMutation({
     mutationFn: async ({ jobId, isFavorite }: { jobId: string; isFavorite: boolean }) => {
-      // TODO: Implement favorites API endpoint
       const response = await fetch(`/api/favorites/${jobId}`, {
         method: isFavorite ? 'DELETE' : 'POST',
       })
@@ -106,7 +108,6 @@ export function useToggleFavorite() {
     onMutate: async ({ jobId, isFavorite }) => {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: jobOffersKeys.lists() })
-      
       // Optimistically update the UI
       queryClient.setQueriesData(
         { queryKey: jobOffersKeys.lists() },
@@ -142,13 +143,9 @@ export function useToggleFavorite() {
         }
       )
     },
-    onSettled: () => {
-      // No invalidation needed - optimistic updates handle the UI
-    },
   })
 }
 
-// Hook for hiding jobs (adds to user preferences hidden_jobs array)
 export function useHideJob() {
   const queryClient = useQueryClient()
   
@@ -167,19 +164,20 @@ export function useHideJob() {
       return response.json()
     },
     onSuccess: (_, jobId) => {
-      // Remove the job from all job offer queries
-      queryClient.setQueriesData(
-        { queryKey: jobOffersKeys.lists() },
-        (oldData: JobOffersApiResponse | undefined) => {
-          if (!oldData) return oldData
-          
-          return {
-            ...oldData,
-            jobs: oldData.jobs.filter(job => job.id !== jobId),
-            total: oldData.total - 1,
+      setTimeout(() => {
+        queryClient.setQueriesData(
+          { queryKey: jobOffersKeys.lists() },
+          (oldData: JobOffersApiResponse | undefined) => {
+            if (!oldData) return oldData
+            
+            return {
+              ...oldData,
+              jobs: oldData.jobs.filter(job => job.id !== jobId),
+              total: oldData.total - 1,
+            }
           }
-        }
-      )
+        )
+      }, 1000); 
     },
   })
 }
