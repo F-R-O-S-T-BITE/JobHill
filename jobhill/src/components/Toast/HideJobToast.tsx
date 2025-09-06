@@ -28,7 +28,7 @@ export default function HideJobToast({
         
         // Auto-dismiss toast when timer reaches 0
         if (newProgress <= 0) {
-          toast.dismiss(toastId);
+          setTimeout(() => toast.dismiss(toastId), 0);
           return 0;
         }
         
