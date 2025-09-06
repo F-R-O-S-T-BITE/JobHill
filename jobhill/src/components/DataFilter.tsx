@@ -1,9 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DataFilterStyles } from "@/styles/DataFilterStyles";
 import { useDataFilterLogic } from "@/hooks/useDataFilterLogic";
 import { OfferCardProps } from "@/interfaces/OfferCard";
-import { InputWithIcons, SelectWithIcon } from "./InputFilter";
+import { InputWithIcons, SelectWithIcon, MultiSelectDropdown } from "./InputFilter";
 import { getUniqueTagsByType, getUniqueValues } from "@/utils/getUniqueValues";
 import { DateFilterButton } from "./DateFilterButton";
 
@@ -19,6 +19,7 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter }) => 
     const locations = getUniqueValues(data, "location");
     const categories = getUniqueTagsByType(data, "category");
     const modalities = getUniqueTagsByType(data, "modality");
+    const newGrads = ["New Grad", "Emerging Talent"]
 
     const {
         filteredData,
@@ -30,6 +31,9 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter }) => 
         setShowHiddenOnly,
     } = useDataFilterLogic(data);
 
+    useEffect(()=>{
+        handleApply()
+    },[filteredData])
 
     const handleApply = () => {
         onFilter(filteredData);
@@ -41,10 +45,11 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter }) => 
         setFilters({
         company: "",
         role: "",
-        category: "",
+        category: [] as string[],
         modality: "",
         location: "",
         order: "newest",
+        newGrad: "",
         });
         setShowFavoritesOnly(false);
         setShowHiddenOnly(false);
@@ -68,16 +73,7 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter }) => 
                 />
                 Show Favorites Only
             </label>
-
-            <label className={DataFilterStyles.Checkbox}>
-                <input
-                type="checkbox"
-                checked={showHiddenOnly}
-                onChange={() => setShowHiddenOnly(!showHiddenOnly)}
-                />
-                Show Hidden Only
-            </label> 
-
+    
             <InputWithIcons
                 placeholder="Company"
                 value={filters.company}
@@ -97,13 +93,26 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter }) => 
             />
             
             <SelectWithIcon
-                aria_label="Category"
+                aria_label="New Grad"
+                iconSrc="resources/Icons/Components_Cards/category_icon_cards.png"
+                altText="New Grad"
+                value={filters.newGrad}
+                onChange={(val) => setFilters({ ...filters, newGrad: val })}
+                options={newGrads}
+                placeholder="Type"
+            />
+
+            <MultiSelectDropdown
                 iconSrc="resources/Icons/Components_Cards/category_icon_cards.png"
                 altText="Category"
-                value={filters.category}
-                onChange={(val) => setFilters({ ...filters, category: val })}
-                options={categories}
                 placeholder="Category"
+                options={categories}
+                value={filters.category} 
+                aria_label="Category"
+                inputClassName="w-[1.5rem] h-[1.5rem]"
+                onChange={(selectedCategories: string[]) => 
+                    setFilters({ ...filters, category: selectedCategories }) 
+                }
             />
 
             <SelectWithIcon
@@ -126,13 +135,12 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter }) => 
                 placeholder="Location"
             />
             
-            
             <DateFilterButton
                 value={filters.order as "newest"|"oldest"}
                 onChange={(val) => setFilters({ ...filters, order: val })}
             />
 
-            <button className={DataFilterStyles.ButtonPrimary} onClick={handleApply}>
+            <button className={DataFilterStyles.ButtonPrimary} onClick={()=>{}}>
                 Show Companies
             </button>
             <button className={DataFilterStyles.ButtonSecondary} onClick={handleReset}>

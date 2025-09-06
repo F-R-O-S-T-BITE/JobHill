@@ -17,3 +17,14 @@ export interface SelectWithIconProps {
   aria_label:string;
   inputClassName?: string;
 }
+
+export interface MultiSelectProps {
+  iconSrc: string;
+  altText: string;
+  placeholder: string;
+  options: string[];
+  value: string[]; 
+  aria_label:string;
+  inputClassName?: string;
+  onChange: (selected: string[]) => void; 
+}

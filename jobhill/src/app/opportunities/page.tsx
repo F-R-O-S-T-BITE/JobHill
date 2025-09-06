@@ -33,8 +33,7 @@ export default function OpportunitiesPage() {
         } as OfferCardProps));
     }, [jobOffersData?.jobs]);
     
-    // Handle client-side filtering from DataFilterPanel
-    const displayOffers = localFilters.length > 0 ? localFilters : adaptedOffers;
+    const displayOffers = localFilters.length >= 0 ? localFilters : adaptedOffers;
 
     if (isLoading) {
         return (
