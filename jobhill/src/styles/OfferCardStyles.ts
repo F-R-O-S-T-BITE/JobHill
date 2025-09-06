@@ -103,6 +103,7 @@ export const ApplicationSuccessToastStyles = {
     Logo: "w-8 h-8 rounded-full object-contain",
     Content: "flex-1 min-w-0",
     MessageText: "text-sm font-semibold text-gray-900 mb-1",
+    JobTitle: "text-xs font-semibold text-gray-900 truncate",
     CompanyName: "text-[10px] text-gray-600 truncate",
     CheckIcon: "w-5 h-5 text-[#28a745] mr-2 flex-shrink-0",
     MessageContainer: "flex items-center"
