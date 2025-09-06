@@ -94,3 +94,16 @@ export const HideJobToastStyles = {
     ProgressFill: "h-full bg-[#0353A4] transition-all duration-100 ease-linear rounded-full",
     BottomUndoButton: "flex items-center gap-1 px-2 py-1 text-xs font-medium text-[#0353A4] hover:text-[#023E7D] hover:bg-blue-50 rounded-md transition-colors flex-shrink-0"
 };
+
+export const ApplicationSuccessToastStyles = {
+    ToastWrapper: "relative",
+    ToastShadow: "absolute inset-0 bg-[#28a745] rounded-lg -translate-x-1 translate-y-1", 
+    Container: "relative flex items-center bg-white rounded-lg shadow-lg border border-gray-200 w-[280px] p-4",
+    LogoContainer: "flex-shrink-0 mr-3",
+    Logo: "w-8 h-8 rounded-full object-contain",
+    Content: "flex-1 min-w-0",
+    MessageText: "text-sm font-semibold text-gray-900 mb-1",
+    CompanyName: "text-[10px] text-gray-600 truncate",
+    CheckIcon: "w-5 h-5 text-[#28a745] mr-2 flex-shrink-0",
+    MessageContainer: "flex items-center"
+};

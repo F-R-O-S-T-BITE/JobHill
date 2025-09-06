@@ -1,6 +1,7 @@
 import { useOfferCardLogic } from "@/hooks/useOfferCardLogic";
 import { OfferCardProps, UserPreferences } from "@/interfaces/OfferCard";
 import { OfferCardStyles } from "@/styles/OfferCardStyles";
+import { isJobApplied, isJobHidden } from "./OfferCardHolder";
 import ConfirmAppliedModal from "./ConfirmAppliedModal";
 import AddAppModal from "./AddAppModal";
 
@@ -26,9 +27,14 @@ const OfferCard = ({card,userPreferences}:{card:OfferCardProps,userPreferences:U
         handleRegisterNewApplication
     } = useOfferCardLogic(OfferCardLogic);
 
+    const jobId = card.id || `${card.title}-${card.company}`;
+    const jobApplied = isJobApplied(jobId);
+    const jobHidden = isJobHidden(jobId);
+    const shouldHide = jobApplied || jobHidden;
+
     return  (
         <div className="w-full flex justify-center">
-            <div className={OfferCardStyles.Card}>
+            <div className={`${OfferCardStyles.Card} ${shouldHide ? OfferCardStyles.CardHiding : OfferCardStyles.CardVisible}`}>
             {/* Top Section */}
                 <div className={OfferCardStyles.CardTop}>
                     <div className={OfferCardStyles.Row}>

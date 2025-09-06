@@ -9,6 +9,7 @@ interface OfferCardHolderProps {
 }
 
 let globalHiddenJobs = new Set<string>();
+let globalAppliedJobs = new Set<string>();
 
 export const hideJob = (jobId: string) => {
     globalHiddenJobs.add(jobId);
@@ -22,6 +23,14 @@ export const isJobHidden = (jobId: string) => {
     return globalHiddenJobs.has(jobId);
 };
 
+export const markJobAsApplied = (jobId: string) => {
+    globalAppliedJobs.add(jobId);
+};
+
+export const isJobApplied = (jobId: string) => {
+    return globalAppliedJobs.has(jobId);
+};
+
 const OfferCardHolder: React.FC<OfferCardHolderProps> = ({ 
     offers
 }) => {
@@ -29,7 +38,6 @@ const OfferCardHolder: React.FC<OfferCardHolderProps> = ({
     const [, forceUpdate] = useState({});
     const pageSize = 50; 
     
-    // Filter out hidden jobs and paginate
     const visibleOffers = offers.filter(offer => {
         const jobId = offer.id || `${offer.title}-${offer.company}`;
         return !isJobHidden(jobId);
@@ -49,7 +57,13 @@ const OfferCardHolder: React.FC<OfferCardHolderProps> = ({
         }
     };
     
+    const markJobAsAppliedAndUpdate = (jobId: string) => {
+        markJobAsApplied(jobId);
+        handleForceUpdate();
+    };
+    
     (window as any).updateOfferCardHolder = handleForceUpdate;
+    (window as any).markJobAsAppliedAndUpdate = markJobAsAppliedAndUpdate;
     
     const handlePageChange = (newPage: number) => {
         setCurrentPage(newPage);

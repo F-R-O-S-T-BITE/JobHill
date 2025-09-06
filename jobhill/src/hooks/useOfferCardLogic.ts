@@ -4,6 +4,7 @@ import { useState,useCallback, useMemo } from "react";
 import { OfferCardLogic } from "@/interfaces/OfferCard";
 import { useAuthModal } from "@/contexts/AuthModalContext";
 import { showHideJobToast } from "@/components/Toast/HideJobToast";
+import { showApplicationSuccessToast } from "@/components/Toast/ApplicationSuccessToast";
 import { hideJob, unhideJob } from "@/components/OfferCard/OfferCardHolder";
 import { useUserPreferences, useFavoriteJob, useUnfavoriteJob, useHideJobPreference } from "@/hooks/useUserPreferences";
 import { useCreateApplication } from "@/hooks/useJobOffers";
@@ -104,7 +105,11 @@ export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
 
                 setIsAddModalOpen(false);
                 
-                console.log('Application registered successfully');
+                showApplicationSuccessToast({
+                    companyLogo: CardLogic.card.logoSrc,
+                    jobTitle: CardLogic.card.title,
+                    companyName: CardLogic.card.company
+                });
                 
             } catch (error) {
                 console.error('Failed to register application:', error);

@@ -6,3 +6,10 @@ export interface HideJobToastProps {
   onExpire?: () => void;
   toastId: string;
 }
+
+export interface ApplicationSuccessToastProps {
+  companyLogo: string;
+  jobTitle: string;
+  companyName: string;
+  toastId: string;
+}
