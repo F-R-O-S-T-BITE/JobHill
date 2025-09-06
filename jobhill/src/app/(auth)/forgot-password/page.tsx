@@ -6,7 +6,7 @@ import Link from "next/link";
 import '../../globals.css';
 import { LoginStyles } from '@/styles/LoginStyles';
 import { useLoginRegister } from '@/hooks/useLoginRegister';
-import CaptchaModal from "@/components/CaptchaModal";
+import CaptchaModal from "@/components/Modals/CaptchaModal";
 
 export default function ForgotPassword() {
 

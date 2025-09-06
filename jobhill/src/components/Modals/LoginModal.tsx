@@ -32,7 +32,7 @@ export default function LoginModal() {
         <button
           aria-label="Close-Login-Modal"
           onClick={closeLoginModal}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 cursor-pointer"
         >
           <X size={24} />
         </button>
