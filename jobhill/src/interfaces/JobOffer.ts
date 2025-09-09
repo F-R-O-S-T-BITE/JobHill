@@ -53,4 +53,13 @@ export interface UserPreferences {
   requires_sponsorship: boolean;
   american_citizen: boolean;
   dont_show_conf_hide: boolean;
+  favorite_jobs: string[];
+}
+
+export interface OnboardingData {
+  preferred_companies: string[];
+  preferred_categories: string[];
+  hidden_companies: string[];
+  hide_not_sponsor: boolean;
+  hide_not_american: boolean;
 }
