@@ -11,9 +11,13 @@ export async function POST(request: Request) {
     }
     const onboardingData: OnboardingData = await request.json();
 
+   // Validate required fields
     if (
-      typeof onboardingData.hide_not_american !== 'boolean' ||
-      typeof onboardingData.hide_not_sponsor !== 'boolean'
+      !Array.isArray(onboardingData.preferred_companies) ||
+      !Array.isArray(onboardingData.preferred_categories) ||
+      !Array.isArray(onboardingData.hidden_companies) ||
+      typeof onboardingData.hide_not_sponsor !== 'boolean' ||
+      typeof onboardingData.hide_not_american !== 'boolean'
     ) {
       return NextResponse.json({ error: 'Invalid data format' }, { status: 400 });
     }
@@ -50,6 +54,7 @@ export async function POST(request: Request) {
         .update({
           preferred_companies: preferencesData.preferred_companies,
           preferred_categories: preferencesData.preferred_categories,
+          hidden_companies: preferencesData.hidden_companies,
           requires_sponsorship: preferencesData.requires_sponsorship,
           american_citizen: preferencesData.american_citizen,
           dont_show_conf_hide: true,
