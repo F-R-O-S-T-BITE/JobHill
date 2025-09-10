@@ -47,9 +47,10 @@ export const OnboardingModalStyles = {
   
   // Categories
   CategoryGrid: "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 h-[400px] overflow-y-auto",
-  CategoryCard: "p-4 text-sm rounded-lg border-2 transition-all text-center cursor-pointer",
+  CategoryCard: "p-4 text-sm rounded-lg border-2 transition-all text-center cursor-pointer disabled:cursor-not-allowed",
   CategoryCardDefault: "border-gray-300 bg-white text-gray-700 hover:border-[#0353A4]",
   CategoryCardSelected: "border-[#0353A4] bg-[#0353A4] text-white",
+  CategoryCardDisabled: "border-gray-200 bg-gray-100 text-gray-400",
   
   // Legal Status
   LegalStatusContainer: "max-w-2xl mx-auto space-y-6",

@@ -142,7 +142,6 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
 
-    // Check if requesting companies
     const url = new URL(request.url);
     const fetchCompanies = url.searchParams.get('companies');
     

@@ -57,12 +57,23 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
   }
 
   const handleCategoryToggle = (category: string) => {
-    setFormData(prev => ({
-      ...prev,
-      preferred_categories: prev.preferred_categories.includes(category)
-        ? prev.preferred_categories.filter(c => c !== category)
-        : [...prev.preferred_categories, category]
-    }))
+    setFormData(prev => {
+      const isCurrentlySelected = prev.preferred_categories.includes(category)
+      if (isCurrentlySelected) {
+        return {
+          ...prev,
+          preferred_categories: prev.preferred_categories.filter(c => c !== category)
+        }
+      } else {
+        if (prev.preferred_categories.length < 4) {
+          return {
+            ...prev,
+            preferred_categories: [...prev.preferred_categories, category]
+          }
+        }
+        return prev
+      }
+    })
   }
 
   const handleNext = () => {
@@ -121,7 +132,6 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
                   <p className={styles.StepSubtitle}>
                     Select your areas of interest to personalize your job recommendations
                   </p>
-                  <p className={styles.instruction}>Select up to 4</p>
                 </div>
                 )}
                 {currentStep === 3 && (
@@ -252,21 +262,34 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
         {currentStep === 2 && (
           <div className={styles.Content}>
             <div className={styles.CategoryGrid}>
-              {Categories.map(category => (
-                <button
-                  key={category}
-                  onClick={() => handleCategoryToggle(category)}
-                  className={`${styles.CategoryCard} ${
-                    formData.preferred_categories.includes(category)
-                      ? styles.CategoryCardSelected
-                      : styles.CategoryCardDefault
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
+              {Categories.map(category => {
+                const isSelected = formData.preferred_categories.includes(category)
+                const isAtLimit = formData.preferred_categories.length >= 4
+                const isDisabled = !isSelected && isAtLimit
+                
+                return (
+                  <button
+                    key={category}
+                    onClick={() => handleCategoryToggle(category)}
+                    disabled={isDisabled}
+                    className={`${styles.CategoryCard} ${
+                      isSelected
+                        ? styles.CategoryCardSelected
+                        : isDisabled
+                        ? styles.CategoryCardDisabled
+                        : styles.CategoryCardDefault
+                    }`}
+                  >
+                    {category}
+                  </button>
+                )
+              })}
             </div>
-            
+            <div className="text-center mt-4">
+              <span className={`text-sm ${formData.preferred_categories.length >= 4 ? 'text-red-600 font-semibold' : 'text-gray-600'}`}>
+                {formData.preferred_categories.length}/4 selected
+              </span>
+            </div>
           </div>
         )}
 
