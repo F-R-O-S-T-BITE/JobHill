@@ -110,21 +110,45 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
         {/* Header */}
         {currentStep > 0 && (
           <div className={styles.Header}>
-            <div className={styles.HeaderContent}>
-              <h2 className={styles.Title}>Set Your Preferences</h2>
-              <div className={styles.StepIndicator}>Step {currentStep} of 3</div>
-            </div>
-            <p className={styles.Subtitle}>Personalize your JobHill experience</p>
-            
-            {/* Progress Bar */}
             <div className={styles.ProgressBarContainer}>
               <div 
                 className={styles.ProgressBar}
                 style={{ width: `${(currentStep / 3) * 100}%` }}
               />
             </div>
+            <div className={styles.HeaderContent}>
+              <div className='flex justify-center items-center '>
+                {currentStep === 1 && (
+                  <div>
+                  <h3 className={styles.StepTitle}>Set Your Company Preferences</h3>
+                  <p className={styles.StepSubtitle}>
+                    ⭐ We’ll show jobs from your favorite companies first<br/>
+                    🚫 We’ll hide jobs from companies you don’t want to see
+                  </p>
+                </div>
+                )}
+                {currentStep === 2 && (
+                  <div>
+                  <h3 className={styles.StepTitle}>Select Your Roles Preferences</h3>
+                  <p className={styles.StepSubtitle}>
+                    Select your areas of interest to personalize your job recommendations
+                  </p>
+                </div>
+                )}
+                {currentStep === 3 && (
+                  <div>
+                  <h3 className={styles.StepTitle}>Set Your Job Preferences</h3>
+                  <p className={styles.StepSubtitle}>
+                    Choose which jobs you'd like us to show you <br/>
+                    We'll hide the ones that don't match your criteria
+                  </p>
+                </div>
+                )}
+              </div>
+            </div>            
           </div>
         )}
+        
 
         {/* Step 0: Welcome */}
         {currentStep === 0 && (
@@ -146,13 +170,7 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
 
         {/* Step 1: Company Preferences */}
         {currentStep === 1 && (
-          <div className={styles.Content}>
-            <h3 className={styles.StepTitle}>Set Your Company Preferences</h3>
-            <p className={styles.StepSubtitle}>
-              👍 We'll show jobs from your favorite companies first<br/>
-              👎 We'll hide jobs from companies you don't want to see
-            </p>
-            
+          <div className={styles.Content}>    
             <div className={styles.CompanyPreferencesContainer}>
               {/* Search */}
               <div className={styles.SearchContainer}>
@@ -219,10 +237,6 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
                   )
                 })}
               </div>
-
-              <div className={styles.SelectionCounter}>
-                Favorites: {formData.preferred_companies.length} • Hidden: {formData.hidden_companies.length}
-              </div>
             </div>
           </div>
         )}
@@ -230,11 +244,6 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
         {/* Step 2: Role Preferences */}
         {currentStep === 2 && (
           <div className={styles.Content}>
-            <h3 className={styles.StepTitle}>Select Your Roles Preferences</h3>
-            <p className={styles.StepSubtitle}>
-              Select your areas of interest to personalize your job recommendations.
-            </p>
-            
             <div className={styles.CategoryGrid}>
               {SAMPLE_CATEGORIES.map(category => (
                 <button
@@ -251,20 +260,12 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
               ))}
             </div>
             
-            <p className={styles.SelectionCounter}>
-              Selected: {formData.preferred_categories.length} categories
-            </p>
           </div>
         )}
 
         {/* Step 3: Work Authorization */}
         {currentStep === 3 && (
           <div className={styles.Content}>
-            <h3 className={styles.StepTitle}>Set your job preferences</h3>
-            <p className={styles.StepSubtitle}>
-              Choose which jobs you'd like us to show you. We'll hide the ones that don't match your criteria.
-            </p>
-            
             <div className={styles.LegalStatusContainer}>
               <div className={styles.LegalSection}>
                 <h4 className={styles.LegalSectionTitle}>Work Authorization Filters</h4>
@@ -334,6 +335,9 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
             >
               Back
             </button>
+
+            <div className={styles.StepIndicator}>Step {currentStep} of 3</div>
+
             
             <div className={styles.ButtonGroup}>
               {currentStep < 3 ? (
@@ -355,7 +359,7 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
                       Completing...
                     </>
                   ) : (
-                    'Complete Setup'
+                    'Finish'
                   )}
                 </button>
               )}

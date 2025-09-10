@@ -1,21 +1,21 @@
 export const OnboardingModalStyles = {
   // Modal container
-  Overlay: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4",
+  Overlay: "fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center z-50 p-4",
   Modal: "bg-white rounded-2xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto",
   
   // Header
-  Header: "p-6 border-b border-gray-200",
-  HeaderContent: "flex items-center justify-between",
+  Header: "p-4 ",
+  HeaderContent: "flex-col items-center ",
   Title: "text-2xl font-bold text-gray-900",
   StepIndicator: "text-sm text-gray-500",
-  Subtitle: "text-gray-600 mt-2",
-  ProgressBarContainer: "w-full bg-gray-200 rounded-full h-2 mt-4",
+  ProgressBarContainer: "w-1/2 bg-gray-200 rounded-full h-2  justify-center mx-auto",
   ProgressBar: "bg-[#0353A4] h-2 rounded-full transition-all duration-300 ease-out",
+  antCircle: "w-18 h-18 border-b  border-gray-300 rounded-full outline-2",
   
   // Content
-  Content: "p-8",
-  StepTitle: "text-2xl font-bold text-[#0353A4] mb-4 text-center",
-  StepSubtitle: "text-gray-600 mb-8 text-center max-w-2xl mx-auto",
+  Content: "p-6",
+  StepTitle: "text-4xl font-bold text-[#0353A4] mb-1 mt-3 text-center",
+  StepSubtitle: "text-gray-600 mt-4 text-center max-w-2xl mx-auto",
   
   // Welcome Step
   WelcomeContainer: "text-center py-12",
@@ -66,9 +66,6 @@ export const OnboardingModalStyles = {
   NextButton: "px-6 py-2 bg-[#0353A4] text-white rounded-lg hover:bg-[#024080] transition-colors",
   CompleteButton: "px-6 py-2 bg-[#0353A4] text-white rounded-lg hover:bg-[#024080] transition-colors disabled:opacity-50 flex items-center gap-2",
   LoadingSpinner: "w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin",
-  
-  // Selection counters
-  SelectionCounter: "text-xs text-gray-500 mt-4 text-center",
   
   // Icons
   StarIcon: "w-3 h-3",
