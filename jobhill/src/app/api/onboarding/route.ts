@@ -1,6 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
-import type { OnboardingData } from '@/interfaces/JobOffer';
+import type { OnboardingData, Company } from '@/interfaces/JobOffer';
 
 export async function POST(request: Request) {
   try {
@@ -20,6 +20,14 @@ export async function POST(request: Request) {
       typeof onboardingData.hide_not_american !== 'boolean'
     ) {
       return NextResponse.json({ error: 'Invalid data format' }, { status: 400 });
+    }
+
+    // Validate that company arrays contain numbers
+    if (
+      !onboardingData.preferred_companies.every(id => typeof id === 'number') ||
+      !onboardingData.hidden_companies.every(id => typeof id === 'number')
+    ) {
+      return NextResponse.json({ error: 'Company IDs must be numbers' }, { status: 400 });
     }
 
     // Check if user preferences already exist
@@ -103,6 +111,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+
     // Check for local storage data in header
     const localStorageData = request.headers.get('x-local-storage-data');
     if (localStorageData) {
@@ -120,6 +129,7 @@ export async function GET(request: Request) {
       }
     }
 
+
     // If no valid localStorage data, fetch from database
     const { data: preferences, error } = await supabase
       .from('user_preferences')
@@ -132,6 +142,14 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
 
+    // Check if requesting companies
+    const url = new URL(request.url);
+    const fetchCompanies = url.searchParams.get('companies');
+    
+    if (fetchCompanies === 'true') {
+      return await getCompanies(supabase);
+    }
+
     const hasCompletedOnboarding = preferences?.dont_show_conf_hide === true;
 
     return NextResponse.json({
@@ -141,6 +159,25 @@ export async function GET(request: Request) {
 
   } catch (error) {
     console.error('Error in onboarding status API route:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+async function getCompanies(supabase: any) {
+  try {
+    const { data: companies, error } = await supabase
+      .from('companies')
+      .select('id, name, logo_url')
+      .order('name');
+
+    if (error) {
+      console.error('Error fetching companies:', error);
+      return NextResponse.json({ error: 'Failed to fetch companies' }, { status: 500 });
+    }
+
+    return NextResponse.json({ companies: companies || [] });
+  } catch (error) {
+    console.error('Error in getCompanies:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

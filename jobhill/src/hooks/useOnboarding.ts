@@ -39,9 +39,18 @@ async function submitOnboarding(data: OnboardingData): Promise<OnboardingRespons
   } 
   return response.json()
 }
+
+async function fetchCompanies(): Promise<{ companies: any[] }> {
+  const response = await fetch('/api/onboarding?companies=true')
+  if (!response.ok) {
+    throw new Error(`Failed to fetch companies: ${response.statusText}`)
+  }
+  return response.json()
+}
 const onboardingKeys = {
   all: ['onboarding'] as const,
   status: () => [...onboardingKeys.all, 'status'] as const,
+  companies: () => [...onboardingKeys.all, 'companies'] as const,
 }
 const STORAGE_KEY = 'jobhill_onboarding_status';
 //local storage for onboarding status
@@ -126,4 +135,16 @@ export function useTriggerOnboarding() {
     },
   });
 }
+
+export function useCompanies() {
+  return useQuery({
+    queryKey: onboardingKeys.companies(),
+    queryFn: fetchCompanies,
+    retry: (failureCount, error) => {
+      if (error.message.includes('401')) return false;
+      return failureCount < 3;
+    },
+  });
+}
+
 export { onboardingKeys }

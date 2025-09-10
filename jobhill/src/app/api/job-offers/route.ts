@@ -135,7 +135,7 @@ async function getFilteredJobsForUser(
       
       if (preferences) {
         // Higher score for preferred companies
-        if (preferences.preferred_companies?.includes(job.company.name)) {
+        if (preferences.preferred_companies?.includes(job.company_id)) {
           preferenceScore += 100;
         }
       

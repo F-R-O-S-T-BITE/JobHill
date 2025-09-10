@@ -1,33 +1,23 @@
 'use client'
 
 import { useState } from 'react'
-import { useSubmitOnboarding } from '@/hooks/useOnboarding'
-import type { OnboardingData } from '@/interfaces/JobOffer'
+import { useSubmitOnboarding, useCompanies } from '@/hooks/useOnboarding'
+import type { OnboardingData, Company } from '@/interfaces/JobOffer'
 import { OnboardingModalStyles as styles } from '@/styles/OnboardingModalStyles'
+import { InputWithIcons } from '../InputFilter'
 
 interface OnboardingModalProps {
   onComplete: () => void
   isVisible: boolean
 }
 
-// Sample data - you should fetch these from your API
-const SAMPLE_COMPANIES = [
-  'Google', 'Microsoft', 'Apple', 'Amazon', 'Meta', 'Netflix', 'Tesla',
-  'Spotify', 'Adobe', 'Salesforce', 'Uber', 'Airbnb', 'Twitter', 'LinkedIn',
-  'Stripe', 'Dropbox', 'Slack', 'Zoom', 'Shopify', 'Square', 'PayPal',
-  'Intel', 'NVIDIA', 'AMD', 'IBM', 'Oracle', 'SAP', 'Cisco'
-]
-
-const SAMPLE_CATEGORIES = [
-  'Software Engineering', 'Data Science', 'Product Management', 'Design',
-  'Marketing', 'Sales', 'Finance', 'Operations', 'HR', 'Legal',
-  'Customer Success', 'Business Development', 'Research', 'Consulting',
-  'Back End', 'Front End', 'Full Stack', 'Mobile Dev', 'Game Dev',
-  'AI & ML', 'Cybersecurity', 'DevOps', 'QA & Testing'
+const Categories = [
+  'FullStack', 'FrontEnd','BackEnd','Data & Analytics','AI & ML','Cybersecurity','DevOps',
+  'Game Development','Mobile Dev','SWE', 'Quant','AR/VR','Research','IT','QA & Testing',
 ]
 
 export default function OnboardingModal({ onComplete, isVisible }: OnboardingModalProps) {
-  const [currentStep, setCurrentStep] = useState(0) // 0: Welcome, 1: Companies, 2: Categories, 3: Legal
+  const [currentStep, setCurrentStep] = useState(0) // 0: Welcome, 1: Companies, 2: Categories, 3: Work Auth
   const [searchTerm, setSearchTerm] = useState('')
   const [formData, setFormData] = useState<OnboardingData>({
     preferred_companies: [],
@@ -38,33 +28,31 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
   })
 
   const submitOnboarding = useSubmitOnboarding()
+  const { data: companiesData, isLoading: companiesLoading, error: companiesError } = useCompanies()
 
-  const filteredCompanies = SAMPLE_COMPANIES.filter(company =>
-    company.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const companies = companiesData?.companies ?? []
+  const filteredCompanies = companies.filter((company: Company) => {
+    return company.name.toLowerCase().includes(searchTerm.toLowerCase())
+  })
 
-  const handleCompanySelect = (company: string, type: 'favorite' | 'hide' | 'remove') => {
+  const handleCompanySelect = (companyId: number, type: 'favorite' | 'hide' | 'remove') => {
     setFormData(prev => {
       const newData = { ...prev }
       
-      // Remove from both arrays first
-      newData.preferred_companies = prev.preferred_companies.filter(c => c !== company)
-      newData.hidden_companies = prev.hidden_companies.filter(c => c !== company)
-      
-      // Add to the appropriate array if not removing
+      newData.preferred_companies = prev.preferred_companies.filter(c => c !== companyId)
+      newData.hidden_companies = prev.hidden_companies.filter(c => c !== companyId)
       if (type === 'favorite') {
-        newData.preferred_companies.push(company)
+        newData.preferred_companies.push(companyId)
       } else if (type === 'hide') {
-        newData.hidden_companies.push(company)
+        newData.hidden_companies.push(companyId)
       }
-      
       return newData
     })
   }
 
-  const getCompanyState = (company: string): 'favorite' | 'hidden' | 'default' => {
-    if (formData.preferred_companies.includes(company)) return 'favorite'
-    if (formData.hidden_companies.includes(company)) return 'hidden'
+  const getCompanyState = (companyId: number): 'favorite' | 'hidden' | 'default' => {
+    if (formData.preferred_companies.includes(companyId)) return 'favorite'
+    if (formData.hidden_companies.includes(companyId)) return 'hidden'
     return 'default'
   }
 
@@ -133,6 +121,7 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
                   <p className={styles.StepSubtitle}>
                     Select your areas of interest to personalize your job recommendations
                   </p>
+                  <p className={styles.instruction}>Select up to 4</p>
                 </div>
                 )}
                 {currentStep === 3 && (
@@ -174,25 +163,31 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
             <div className={styles.CompanyPreferencesContainer}>
               {/* Search */}
               <div className={styles.SearchContainer}>
-                <input
-                  type="text"
+
+                <InputWithIcons
                   placeholder="Company"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className={styles.SearchInput}
-                />
-                <svg className={styles.SearchIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+                  leftIcon="resources/Icons/Components_Cards/Company_Filter_Cards.png"
+                  rightIcon="resources/Icons/search_icon.png"
+                  inputClassName={styles.Input}
+                 />
+
               </div>
 
               {/* Company Grid */}
               <div className={styles.CompanyGrid}>
-                {filteredCompanies.map(company => {
-                  const state = getCompanyState(company)
+                {companiesLoading && (
+                  <div className="col-span-full text-center py-8 text-gray-500">
+                    Loading companies...
+                  </div>
+                )}
+                {filteredCompanies.map((company: Company) => {
+                  const state = getCompanyState(company.id)
+                  
                   return (
                     <div
-                      key={company}
+                      key={company.id}
                       className={`${styles.CompanyCard} ${
                         state === 'favorite' ? styles.CompanyCardFavorite :
                         state === 'hidden' ? styles.CompanyCardHidden :
@@ -200,21 +195,33 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
                       }`}
                       onClick={() => {
                         if (state === 'favorite') {
-                          handleCompanySelect(company, 'hide')
+                          handleCompanySelect(company.id, 'hide')
                         } else if (state === 'hidden') {
-                          handleCompanySelect(company, 'remove')
+                          handleCompanySelect(company.id, 'remove')
                         } else {
-                          handleCompanySelect(company, 'favorite')
+                          handleCompanySelect(company.id, 'favorite')
                         }
                       }}
                     >
-                      {/* Company Logo Placeholder */}
+                      {/* Company Logo */}
                       <div className={styles.CompanyLogo}>
-                        <div className="w-full h-full bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold">
-                          {company.charAt(0)}
+                        {company.logo_url ? (
+                          <img
+                            src={company.logo_url}
+                            alt={`${company.name} logo`}
+                            className="w-full h-full object-contain rounded-lg"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              target.nextElementSibling?.classList.remove('hidden');
+                            }}
+                          />
+                        ) : null}
+                        <div className={`w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center text-sm font-bold text-gray-600 ${company.logo_url ? 'hidden' : ''}`}>
+                          {company.name.charAt(0).toUpperCase()}
                         </div>
                       </div>
-                      <span className={styles.CompanyName}>{company}</span>
+                      <span className={styles.CompanyName}>{company.name}</span>
                       
                       {/* Badge */}
                       {state !== 'default' && (
@@ -245,7 +252,7 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
         {currentStep === 2 && (
           <div className={styles.Content}>
             <div className={styles.CategoryGrid}>
-              {SAMPLE_CATEGORIES.map(category => (
+              {Categories.map(category => (
                 <button
                   key={category}
                   onClick={() => handleCategoryToggle(category)}

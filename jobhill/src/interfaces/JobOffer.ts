@@ -47,8 +47,8 @@ export interface JobOffersApiResponse {
 export interface UserPreferences {
   user_id: string;
   hidden_jobs: string[];
-  hidden_companies: string[];
-  preferred_companies: string[];
+  hidden_companies: number[];
+  preferred_companies: number[];
   preferred_categories: string[];
   requires_sponsorship: boolean;
   american_citizen: boolean;
@@ -57,9 +57,9 @@ export interface UserPreferences {
 }
 
 export interface OnboardingData {
-  preferred_companies: string[];
+  preferred_companies: number[];
   preferred_categories: string[];
-  hidden_companies: string[];
+  hidden_companies: number[];
   hide_not_sponsor: boolean;
   hide_not_american: boolean;
 }
