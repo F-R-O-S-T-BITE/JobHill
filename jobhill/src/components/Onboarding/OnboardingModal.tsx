@@ -16,8 +16,9 @@ const Categories = [
   'Game Development','Mobile Dev','SWE', 'Quant','AR/VR','Research','IT','QA & Testing',
 ]
 
+
 export default function OnboardingModal({ onComplete, isVisible }: OnboardingModalProps) {
-  const [currentStep, setCurrentStep] = useState(0) // 0: Welcome, 1: Companies, 2: Categories, 3: Work Auth
+  const [currentStep, setCurrentStep] = useState(0) // 0: Welcome, 1: Companies, 2: Categories, 3: Work Auth, 4: Review
   const [searchTerm, setSearchTerm] = useState('')
   const [formData, setFormData] = useState<OnboardingData>({
     preferred_companies: [],
@@ -77,7 +78,7 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
   }
 
   const handleNext = () => {
-    if (currentStep < 3) {
+    if (currentStep < 4) {
       setCurrentStep(currentStep + 1)
     }
   }
@@ -101,6 +102,12 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
     }
   }
 
+  // Helper functions to get selected companies for confirmation modal
+  const getSelectedCompanies = (companyIds: number[]): Company[] => {
+    if (!companies) return []
+    return companies.filter(company => companyIds.includes(company.id))
+  }
+
   if (!isVisible) return null
 
   return (
@@ -112,7 +119,7 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
             <div className={styles.ProgressBarContainer}>
               <div 
                 className={styles.ProgressBar}
-                style={{ width: `${(currentStep / 3) * 100}%` }}
+                style={{ width: `${(currentStep / 4) * 100}%` }}
               />
             </div>
             <div className={styles.HeaderContent}>
@@ -140,6 +147,14 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
                   <p className={styles.StepSubtitle}>
                     Choose which jobs you'd like us to show you <br/>
                     We'll hide the ones that don't match your criteria
+                  </p>
+                </div>
+                )}
+                {currentStep === 4 && (
+                  <div>
+                  <h3 className={styles.StepTitle}>Review Your Preferences</h3>
+                  <p className={styles.StepSubtitle}>
+                    Review your selections before we personalize your experience
                   </p>
                 </div>
                 )}
@@ -355,6 +370,113 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
           </div>
         )}
 
+        {/* Step 4: Review Preferences */}
+        {currentStep === 4 && (
+          <div className={styles.Content}>
+            <div className={styles.ReviewContainer}>
+              {/* Preferred Companies */}
+              {getSelectedCompanies(formData.preferred_companies).length > 0 && (
+                <div className={styles.ReviewSection}>
+                  <h3 className={styles.ReviewSectionTitle}>
+                    <span className={styles.PreferredIcon}>⭐</span>
+                    Preferred Companies ({getSelectedCompanies(formData.preferred_companies).length})
+                  </h3>
+                  <div className={`${styles.CompanyReviewGrid} ${styles.CompanyReviewGridPreferred}`}>
+                    {getSelectedCompanies(formData.preferred_companies).map(company => (
+                      <div key={company.id} className={styles.CompanyReviewCard}>
+                        {company.logo_url ? (
+                          <img src={company.logo_url} alt={company.name} className={styles.CompanyReviewLogo} />
+                        ) : (
+                          <div className={styles.CompanyReviewLogoFallback}>
+                            {company.name.charAt(0)}
+                          </div>
+                        )}
+                        <span className={styles.CompanyReviewName}>{company.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Hidden Companies */}
+              {getSelectedCompanies(formData.hidden_companies).length > 0 && (
+                <div className={styles.ReviewSection}>
+                  <h3 className={styles.ReviewSectionTitle}>
+                    <span className={styles.HiddenIcon}>🚫</span>
+                    Hidden Companies ({getSelectedCompanies(formData.hidden_companies).length})
+                  </h3>
+                  <div className={`${styles.CompanyReviewGrid} ${styles.CompanyReviewGridHidden}`}>
+                    {getSelectedCompanies(formData.hidden_companies).map(company => (
+                      <div key={company.id} className={styles.CompanyReviewCard}>
+                        {company.logo_url ? (
+                          <img src={company.logo_url} alt={company.name} className={styles.CompanyReviewLogo} />
+                        ) : (
+                          <div className={styles.CompanyReviewLogoFallback}>
+                            {company.name.charAt(0)}
+                          </div>
+                        )}
+                        <span className={styles.CompanyReviewName}>{company.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Preferred Categories */}
+              {formData.preferred_categories.length > 0 && (
+                <div className={styles.ReviewSection}>
+                  <h3 className={styles.ReviewSectionTitle}>
+                    Role Preferences ({formData.preferred_categories.length}/4)
+                  </h3>
+                  <div className={styles.CategoryReviewGrid}>
+                    {formData.preferred_categories.map(category => (
+                      <div key={category} className={styles.CategoryReviewCard}>
+                        <span className={styles.CategoryReviewName}>{category}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Work Authorization Preferences */}
+              <div className={styles.ReviewSection}>
+                <h3 className={styles.ReviewSectionTitle}>Work Authorization Preferences</h3>
+                <div className={styles.WorkAuthReviewContainer}>
+                  <div className={styles.WorkAuthReviewList}>
+                    <div className={styles.WorkAuthReviewItem}>
+                      <span className={formData.hide_not_sponsor ? styles.WorkAuthReviewIndicatorHide : styles.WorkAuthReviewIndicatorShow}></span>
+                      <span className={styles.WorkAuthReviewText}>
+                        {formData.hide_not_sponsor ? 'Hide jobs that don\'t offer visa sponsorship' : 'Show all jobs regardless of visa sponsorship'}
+                      </span>
+                    </div>
+                    <div className={styles.WorkAuthReviewItem}>
+                      <span className={formData.hide_not_american ? styles.WorkAuthReviewIndicatorHide : styles.WorkAuthReviewIndicatorShow}></span>
+                      <span className={styles.WorkAuthReviewText}>
+                        {formData.hide_not_american ? 'Hide jobs that require U.S. citizenship' : 'Show all jobs regardless of citizenship requirements'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* No selections message */}
+              {formData.preferred_companies.length === 0 && 
+               formData.hidden_companies.length === 0 && 
+               formData.preferred_categories.length === 0 && (
+                <div className={styles.EmptyStateContainer}>
+                  <div className={styles.EmptyStateContent}>
+                    <svg className={styles.EmptyStateIcon} fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                    </svg>
+                    <p className={styles.EmptyStateTitle}>No specific preferences selected</p>
+                    <p className={styles.EmptyStateSubtitle}>We'll show you all available jobs to get you started!</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Footer */}
         {currentStep > 0 && (
           <div className={styles.Footer}>
@@ -366,11 +488,11 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
               Back
             </button>
 
-            <div className={styles.StepIndicator}>Step {currentStep} of 3</div>
+            <div className={styles.StepIndicator}>Step {currentStep} of 4</div>
 
             
             <div className={styles.ButtonGroup}>
-              {currentStep < 3 ? (
+              {currentStep < 4 ? (
                 <button
                   onClick={handleNext}
                   className={styles.NextButton}

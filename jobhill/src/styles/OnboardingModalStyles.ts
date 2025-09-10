@@ -71,9 +71,47 @@ export const OnboardingModalStyles = {
   StepIndicator: "text-sm text-gray-500",
 
   
+  // Review Step (Step 4)
+  ReviewContainer: "max-w-4xl mx-auto space-y-6",
+  ReviewSection: "mb-6",
+  ReviewSectionTitle: "font-semibold text-gray-900 mb-3 flex items-center gap-2",
+  ReviewSectionTitlePreferred: "font-semibold text-gray-900 mb-3 flex items-center gap-2",
+  ReviewSectionTitleHidden: "font-semibold text-gray-900 mb-3 flex items-center gap-2",
+  
+  // Company Review Cards
+  CompanyReviewGrid: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 p-4 rounded-lg border",
+  CompanyReviewGridPreferred: "bg-green-50 border-green-200",
+  CompanyReviewGridHidden: "bg-red-50 border-red-200",
+  CompanyReviewCard: "flex items-center gap-2 p-2 bg-white rounded-lg shadow-sm",
+  CompanyReviewLogo: "w-8 h-8 object-contain rounded",
+  CompanyReviewLogoFallback: "w-8 h-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded flex items-center justify-center text-xs font-bold text-gray-600",
+  CompanyReviewName: "text-sm font-medium text-gray-700 truncate",
+  
+  // Category Review Cards
+  CategoryReviewGrid: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 p-4 bg-blue-50 rounded-lg border border-blue-200",
+  CategoryReviewCard: "p-3 bg-white rounded-lg shadow-sm border border-blue-100",
+  CategoryReviewName: "text-sm font-medium text-blue-700",
+  
+  // Work Authorization Review
+  WorkAuthReviewContainer: "p-4 bg-gray-50 rounded-lg border border-gray-200",
+  WorkAuthReviewList: "space-y-2",
+  WorkAuthReviewItem: "flex items-center gap-2",
+  WorkAuthReviewIndicatorHide: "w-4 h-4 rounded-full bg-red-500",
+  WorkAuthReviewIndicatorShow: "w-4 h-4 rounded-full bg-green-500",
+  WorkAuthReviewText: "text-sm",
+  
+  // Empty State
+  EmptyStateContainer: "text-center py-8",
+  EmptyStateContent: "text-gray-500 mb-4",
+  EmptyStateIcon: "w-16 h-16 mx-auto mb-4 text-gray-300",
+  EmptyStateTitle: "text-lg font-medium",
+  EmptyStateSubtitle: "text-sm",
+  
   // Icons
   StarIcon: "w-3 h-3",
   EyeSlashIcon: "w-3 h-3",
   ThumbUpIcon: "w-5 h-5 text-green-500",
   EyeOffIcon: "w-5 h-5 text-red-500",
+  PreferredIcon: "text-green-500",
+  HiddenIcon: "text-red-500",
 }
