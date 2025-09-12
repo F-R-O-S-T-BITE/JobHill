@@ -314,7 +314,7 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
             <div className={styles.LegalStatusContainer}>
               <div className={styles.LegalSection}>
                 <h4 className={styles.LegalSectionTitle}>Work Authorization Filters</h4>
-                <p className="text-sm text-gray-600 mb-4">Hide jobs that:</p>
+                <p className="text-sm text-gray-600 mb-4"> <strong>Hide</strong> jobs that:</p>
                 
                 <div className={styles.RadioGroup}>
                   <label className={styles.RadioOption}>

@@ -34,7 +34,7 @@ export const OnboardingModalStyles = {
 
   
   // Company Grid
-  CompanyGrid: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 max-h-80 overflow-y-auto border border-gray-200 rounded-lg p-4",
+  CompanyGrid: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 max-h-80 overflow-y-auto rounded-lg ",
   CompanyCard: "relative p-4 text-sm rounded-xl border-2 transition-all duration-200 cursor-pointer flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md",
   CompanyCardDefault: "border-gray-200 bg-white text-gray-700 hover:border-[#0353A4] hover:bg-blue-50",
   CompanyCardFavorite: "border-green-500 bg-green-50 text-green-700 shadow-green-100",
@@ -53,11 +53,11 @@ export const OnboardingModalStyles = {
   CategoryCardDisabled: "border-gray-200 bg-gray-100 text-gray-400",
   
   // Legal Status
-  LegalStatusContainer: "max-w-2xl mx-auto space-y-6",
-  LegalSection: "border border-gray-300 rounded-lg p-6",
-  LegalSectionTitle: "font-semibold text-lg mb-4 text-gray-900",
-  RadioGroup: "space-y-3",
-  RadioOption: "flex items-center",
+  LegalStatusContainer: "max-w-2xl mx-auto space-y-6 text-center",
+  LegalSection: "border border-gray-300 rounded-lg p-4",
+  LegalSectionTitle: "font-semibold text-lg  text-[#0466C8]",
+  RadioGroup: "flex justify-center flex-wrap gap-6",
+  RadioOption: "flex items-center border border-[#0353A4] rounded-lg p-2  cursor-pointer hover:border-[#0353A4] transition-all",
   RadioInput: "mr-3 text-[#0353A4] focus:ring-[#0353A4] w-4 h-4",
   RadioLabel: "text-gray-700",
   
