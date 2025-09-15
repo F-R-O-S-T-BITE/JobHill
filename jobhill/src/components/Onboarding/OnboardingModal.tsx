@@ -16,6 +16,28 @@ const Categories = [
   'Game Development','Mobile Dev','SWE', 'Quant','AR/VR','Research','IT','QA & Testing',
 ]
 
+// Tooltip component
+function Tooltip({ children, content }: { children: React.ReactNode; content: string }) {
+  const [isVisible, setIsVisible] = useState(false)
+
+  return (
+    <div className="relative inline-block group">
+      <div
+        onMouseEnter={() => setIsVisible(true)}
+        onMouseLeave={() => setIsVisible(false)}
+      >
+        {children}
+      </div>
+      <div className={`absolute top-full left-1/2 transform -translate-x-1/2 mt-1 px-3 py-2 text-xs text-white bg-gray-800 rounded-lg shadow-lg transition-all duration-200 z-50 max-w-48 text-center ${
+        isVisible ? 'opacity-100 visible' : 'opacity-0 invisible'
+      }`}>
+        {content}
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-800"></div>
+      </div>
+    </div>
+  )
+}
+
 
 export default function OnboardingModal({ onComplete, isVisible }: OnboardingModalProps) {
   const [currentStep, setCurrentStep] = useState(0) // 0: Welcome, 1: Companies, 2: Categories, 3: Work Auth, 4: Review
@@ -26,6 +48,9 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
     hidden_companies: [],
     hide_not_sponsor: false,
     hide_not_american: false,
+    hideNG: true,
+    hideET: true,
+    hideInternships: true,
   })
 
   const submitOnboarding = useSubmitOnboarding()
@@ -78,6 +103,9 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
   }
 
   const handleNext = () => {
+    if (currentStep === 3 && formData.hideET && formData.hideNG && formData.hideInternships) {
+      return // Don't proceed if no role preferences are selected
+    }
     if (currentStep < 4) {
       setCurrentStep(currentStep + 1)
     }
@@ -115,10 +143,10 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
       <div className={styles.Modal}>
         {/* Header */}
         {currentStep > 0 && (
-          <div className={styles.Header}>
-            <div className={styles.ProgressBarContainer}>
+          <div className="p-4">
+            <div className="w-1/2 bg-gray-200 rounded-full h-2 mx-auto">
               <div 
-                className={styles.ProgressBar}
+                className="bg-[#0353A4] h-2 rounded-full transition-all duration-300 ease-out"
                 style={{ width: `${(currentStep / 4) * 100}%` }}
               />
             </div>
@@ -246,7 +274,7 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
                           {company.name.charAt(0).toUpperCase()}
                         </div>
                       </div>
-                      <span className={styles.CompanyName}>{company.name}</span>
+                      <span className="text-xs font-semibold leading-tight">{company.name}</span>
                       
                       {/* Badge */}
                       {state !== 'default' && (
@@ -300,7 +328,7 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
                 )
               })}
             </div>
-            <div className="text-center mt-4">
+            <div className="text-center mt-2">
               <span className={`text-sm ${formData.preferred_categories.length >= 4 ? 'text-red-600 font-semibold' : 'text-gray-600'}`}>
                 {formData.preferred_categories.length}/4 selected
               </span>
@@ -314,7 +342,7 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
             <div className={styles.LegalStatusContainer}>
               <div className={styles.LegalSection}>
                 <h4 className={styles.LegalSectionTitle}>Work Authorization Filters</h4>
-                <p className="text-sm text-gray-600 mb-4"> <strong>Hide</strong> jobs that:</p>
+                <p className={styles.LegalSubtitle}> <strong>Hide</strong> jobs that:</p>
                 
                 <div className={styles.RadioGroup}>
                   <label className={styles.RadioOption}>
@@ -324,7 +352,14 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
                       onChange={(e) => setFormData(prev => ({ ...prev, hide_not_sponsor: e.target.checked }))}
                       className={styles.RadioInput}
                     />
-                    <span className={styles.RadioLabel}>Don't offer Visa Sponsorship</span>
+                    <span className={styles.RadioLabel}>
+                      Don't offer Visa Sponsorship
+                      <Tooltip content="Hide jobs that don't provide work visa sponsorship for international applicants">
+                        <svg className={styles.TooltipIcon} fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                        </svg>
+                      </Tooltip>
+                    </span>
                   </label>
                   <label className={styles.RadioOption}>
                     <input
@@ -333,7 +368,14 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
                       onChange={(e) => setFormData(prev => ({ ...prev, hide_not_american: e.target.checked }))}
                       className={styles.RadioInput}
                     />
-                    <span className={styles.RadioLabel}>Require U.S Citizenship</span>
+                    <span className={styles.RadioLabel}>
+                      Require U.S Citizenship
+                      <Tooltip content="Hide jobs that require U.S. citizenship or permanent residency">
+                        <svg className={styles.TooltipIcon} fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                        </svg>
+                      </Tooltip>
+                    </span>
                   </label>
                 </div>
               </div>
@@ -342,27 +384,54 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
                 <h4 className={styles.LegalSectionTitle}>Role Levels You're Interested In</h4>
                 <p className="text-sm text-gray-600 mb-4">We'll <strong>hide</strong> the rest.</p>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="  grid grid-cols-1 sm:grid-cols-3 gap-5">
                   <label className={styles.RadioOption}>
                     <input
                       type="checkbox"
                       className={styles.RadioInput}
+                      checked={!formData.hideET}
+                      onChange={(e) => setFormData(prev => ({ ...prev, hideET: !e.target.checked }))}
                     />
-                    <span className={styles.RadioLabel}>Emerging Talent Programs</span>
+                    <span className={styles.RadioLabel}>
+                      Emerging Talent Programs
+                      <Tooltip content="Sophomore and Freshman programs">
+                        <svg className={styles.TooltipIcon} fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                        </svg>
+                      </Tooltip>
+                    </span>
                   </label>
                   <label className={styles.RadioOption}>
                     <input
                       type="checkbox"
                       className={styles.RadioInput}
+                      checked={!formData.hideNG}
+                      onChange={(e) => setFormData(prev => ({ ...prev, hideNG: !e.target.checked }))}
                     />
-                    <span className={styles.RadioLabel}>New Grad</span>
+                    <span className={styles.RadioLabel}>
+                      New Grad
+                      <Tooltip content="Positions designed for recent college graduates (0-2 years experience)">
+                        <svg className={styles.TooltipIcon} fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                        </svg>
+                      </Tooltip>
+                    </span>
                   </label>
                   <label className={styles.RadioOption}>
                     <input
                       type="checkbox"
                       className={styles.RadioInput}
+                      checked={!formData.hideInternships}
+                      onChange={(e) => setFormData(prev => ({ ...prev, hideInternships: !e.target.checked }))}
                     />
-                    <span className={styles.RadioLabel}>Internships</span>
+                    <span className={styles.RadioLabel}>
+                      Internships
+                      <Tooltip content="Temporary positions for students gaining work experience">
+                        <svg className={styles.TooltipIcon} fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                        </svg>
+                      </Tooltip>
+                    </span>
                   </label>
                 </div>
               </div>
@@ -374,9 +443,20 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
         {currentStep === 4 && (
           <div className={styles.Content}>
             <div className={styles.ReviewContainer}>
+                            {/* No selections message */}
+              {formData.preferred_companies.length === 0 && 
+               formData.hidden_companies.length === 0 && 
+               formData.preferred_categories.length === 0 && (
+                <div className="text-center ">
+                  <div className="text-black ">
+                    <p className="text-lg font-medium">No specific preferences selected</p>
+                    <p className="text-sm">We'll show you all available jobs to get you started!</p>
+                  </div>
+                </div>
+              )}
               {/* Preferred Companies */}
               {getSelectedCompanies(formData.preferred_companies).length > 0 && (
-                <div className={styles.ReviewSection}>
+                <div className="mb-6">
                   <h3 className={styles.ReviewSectionTitle}>
                     <span className={styles.PreferredIcon}>⭐</span>
                     Preferred Companies ({getSelectedCompanies(formData.preferred_companies).length})
@@ -400,7 +480,7 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
 
               {/* Hidden Companies */}
               {getSelectedCompanies(formData.hidden_companies).length > 0 && (
-                <div className={styles.ReviewSection}>
+                <div className="mb-6">
                   <h3 className={styles.ReviewSectionTitle}>
                     <span className={styles.HiddenIcon}>🚫</span>
                     Hidden Companies ({getSelectedCompanies(formData.hidden_companies).length})
@@ -424,7 +504,7 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
 
               {/* Preferred Categories */}
               {formData.preferred_categories.length > 0 && (
-                <div className={styles.ReviewSection}>
+                <div className="mb-6">
                   <h3 className={styles.ReviewSectionTitle}>
                     Role Preferences ({formData.preferred_categories.length}/4)
                   </h3>
@@ -439,19 +519,19 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
               )}
 
               {/* Work Authorization Preferences */}
-              <div className={styles.ReviewSection}>
+              <div className="mb-6">
                 <h3 className={styles.ReviewSectionTitle}>Work Authorization Preferences</h3>
-                <div className={styles.WorkAuthReviewContainer}>
-                  <div className={styles.WorkAuthReviewList}>
+                <div >
+                  <div className="space-y-2">
                     <div className={styles.WorkAuthReviewItem}>
                       <span className={formData.hide_not_sponsor ? styles.WorkAuthReviewIndicatorHide : styles.WorkAuthReviewIndicatorShow}></span>
-                      <span className={styles.WorkAuthReviewText}>
+                      <span className="text-sm text-black">
                         {formData.hide_not_sponsor ? 'Hide jobs that don\'t offer visa sponsorship' : 'Show all jobs regardless of visa sponsorship'}
                       </span>
                     </div>
                     <div className={styles.WorkAuthReviewItem}>
                       <span className={formData.hide_not_american ? styles.WorkAuthReviewIndicatorHide : styles.WorkAuthReviewIndicatorShow}></span>
-                      <span className={styles.WorkAuthReviewText}>
+                      <span className="text-sm text-black">
                         {formData.hide_not_american ? 'Hide jobs that require U.S. citizenship' : 'Show all jobs regardless of citizenship requirements'}
                       </span>
                     </div>
@@ -459,20 +539,34 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
                 </div>
               </div>
 
-              {/* No selections message */}
-              {formData.preferred_companies.length === 0 && 
-               formData.hidden_companies.length === 0 && 
-               formData.preferred_categories.length === 0 && (
-                <div className={styles.EmptyStateContainer}>
-                  <div className={styles.EmptyStateContent}>
-                    <svg className={styles.EmptyStateIcon} fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
-                    </svg>
-                    <p className={styles.EmptyStateTitle}>No specific preferences selected</p>
-                    <p className={styles.EmptyStateSubtitle}>We'll show you all available jobs to get you started!</p>
+              {/* Role Level Preferences */}
+              <div className="mb-6">
+                <h3 className={styles.ReviewSectionTitle}>Role Level Preferences</h3>
+                <div>
+                  <div className="space-y-2 ">
+                    <div className="flex items-center gap-2">
+                      <span className={ formData.hideET ? styles.RoleLevelsReviewIndicatorHide : styles.RoleLevelsReviewIndicatorShow}></span>
+                      <span className="text-sm text-black">
+                        {formData.hideET ? 'Hide Emerging Talent Programs' : 'Show Emerging Talent Programs'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={formData.hideNG ? styles.RoleLevelsReviewIndicatorHide : styles.RoleLevelsReviewIndicatorShow}></span>
+                      <span className="text-sm text-black">
+                        {formData.hideNG ? 'Hide New Grad positions' : 'Show New Grad positions'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={formData.hideInternships ? styles.RoleLevelsReviewIndicatorHide : styles.RoleLevelsReviewIndicatorShow}></span>
+                      <span className="text-sm text-black">
+                        {formData.hideInternships ? 'Hide Internship positions' : 'Show Internship positions'}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              )}
+              </div>
+
+
             </div>
           </div>
         )}
@@ -488,14 +582,15 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
               Back
             </button>
 
-            <div className={styles.StepIndicator}>Step {currentStep} of 4</div>
+            <div className="text-sm text-gray-500">Step {currentStep} of 4</div>
 
             
             <div className={styles.ButtonGroup}>
               {currentStep < 4 ? (
                 <button
                   onClick={handleNext}
-                  className={styles.NextButton}
+                  disabled={currentStep === 3 && formData.hideET && formData.hideNG && formData.hideInternships}
+                  className={`${styles.NextButton} ${currentStep === 3 && formData.hideET && formData.hideNG && formData.hideInternships ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   Next
                 </button>

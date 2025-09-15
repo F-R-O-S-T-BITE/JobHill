@@ -3,18 +3,13 @@ export const OnboardingModalStyles = {
   Overlay: "fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center z-50 p-4",
   Modal: "bg-white rounded-2xl shadow-xl w-[900px] max-h-[90vh] flex flex-col overflow-hidden",  
   // Header
-  Header: "p-4 ",
   HeaderContent: "flex-col items-center ",
-  ProgressBarContainer: "w-1/2 bg-gray-200 rounded-full h-2  justify-center mx-auto",
-  ProgressBar: "bg-[#0353A4] h-2 rounded-full transition-all duration-300 ease-out",
-  antCircle: "w-18 h-18 border-b  border-gray-300 rounded-full outline-2",
   
   // Content
   Content: "p-6 -mt-5", 
   StepTitle: "text-2xl sm:text-3xl md:text-4xl font-bold text-[#0353A4] mt-2 sm:mt-3 text-center",
   StepSubtitle: "text-sm sm:text-base md:text-lg text-gray-600 mt-1 sm:mt-2 text-center max-w-xl sm:max-w-2xl mx-auto",
   instruction: "text-sm text-[#33415C] text-center",
-  
   
   // Welcome Step
   WelcomeContainer: "text-center py-12",
@@ -53,13 +48,21 @@ export const OnboardingModalStyles = {
   CategoryCardDisabled: "border-gray-200 bg-gray-100 text-gray-400",
   
   // Legal Status
-  LegalStatusContainer: "max-w-2xl mx-auto space-y-6 text-center",
-  LegalSection: "border border-gray-300 rounded-lg p-4",
-  LegalSectionTitle: "font-semibold text-lg  text-[#0466C8]",
+  LegalStatusContainer: " text-center -mt-2",
+  LegalSection: "p-2",
+  LegalSectionTitle: "font-semibold text-2xl  text-[#0466C8]",
+  LegalSubtitle: "text-lg text-gray-600 smax-w-lg mx-auto leading-relaxed",
+
   RadioGroup: "flex justify-center flex-wrap gap-6",
-  RadioOption: "flex items-center border border-[#0353A4] rounded-lg p-2  cursor-pointer hover:border-[#0353A4] transition-all",
-  RadioInput: "mr-3 text-[#0353A4] focus:ring-[#0353A4] w-4 h-4",
-  RadioLabel: "text-gray-700",
+  RadioOption: "flex items-center border border-[#0353A4] rounded-lg p-2 cursor-pointer hover:border-[#0353A4] transition-all relative ",
+  RadioInput: "mr-2 text-[#0353A4] focus:ring-[#0353A4] w-3 h-3",
+  RadioLabel: "text-gray-700 flex items-center gap-2",
+
+  // Tooltip styles
+  TooltipContainer: "relative inline-block group",
+  TooltipIcon: "w-4 h-4 text-gray-400 hover:text-gray-600 cursor-help",
+  Tooltip: "absolute top-full left-1/2 transform -translate-x-1/2 mt-1 px-3 py-2 text-sm text-white bg-gray-800 rounded-lg shadow-lg opacity-0 invisible transition-all duration-200 whitespace-nowrap z-50 max-w-xs",
+  TooltipVisible: "opacity-100 visible",
   
   // Footer
   Footer: "p-6 border-t border-gray-200 flex justify-between items-center flex-shrink-0",
@@ -72,8 +75,7 @@ export const OnboardingModalStyles = {
 
   
   // Review Step (Step 4)
-  ReviewContainer: "max-w-4xl mx-auto space-y-6",
-  ReviewSection: "mb-6",
+  ReviewContainer: "max-w-4xl mx-auto space-y-6 max-h-96 overflow-y-auto",
   ReviewSectionTitle: "font-semibold text-gray-900 mb-3 flex items-center gap-2",
   ReviewSectionTitlePreferred: "font-semibold text-gray-900 mb-3 flex items-center gap-2",
   ReviewSectionTitleHidden: "font-semibold text-gray-900 mb-3 flex items-center gap-2",
@@ -93,20 +95,13 @@ export const OnboardingModalStyles = {
   CategoryReviewName: "text-sm font-medium text-blue-700",
   
   // Work Authorization Review
-  WorkAuthReviewContainer: "p-4 bg-gray-50 rounded-lg border border-gray-200",
-  WorkAuthReviewList: "space-y-2",
   WorkAuthReviewItem: "flex items-center gap-2",
-  WorkAuthReviewIndicatorHide: "w-4 h-4 rounded-full bg-red-500",
-  WorkAuthReviewIndicatorShow: "w-4 h-4 rounded-full bg-green-500",
-  WorkAuthReviewText: "text-sm",
-  
-  // Empty State
-  EmptyStateContainer: "text-center py-8",
-  EmptyStateContent: "text-gray-500 mb-4",
-  EmptyStateIcon: "w-16 h-16 mx-auto mb-4 text-gray-300",
-  EmptyStateTitle: "text-lg font-medium",
-  EmptyStateSubtitle: "text-sm",
-  
+  WorkAuthReviewIndicatorHide: "w-2 h-2 rounded-full bg-red-500",
+  WorkAuthReviewIndicatorShow: "w-2 h-2 rounded-full bg-green-500",
+
+  RoleLevelsReviewIndicatorHide: "w-2 h-2 rounded-full bg-red-500 text-black",
+  RoleLevelsReviewIndicatorShow: "w-2 h-2 rounded-full bg-green-500 text-black",
+
   // Icons
   StarIcon: "w-3 h-3",
   EyeSlashIcon: "w-3 h-3",
