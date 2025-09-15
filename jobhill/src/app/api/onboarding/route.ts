@@ -56,7 +56,7 @@ export async function POST(request: Request) {
       hideInternships: onboardingData.hideInternships,
       dont_show_conf_hide: true,
       hidden_jobs: [],
-      hidden_companies: [],
+      hidden_companies: onboardingData.hidden_companies || [],
       favorite_jobs: [],
     };
 
