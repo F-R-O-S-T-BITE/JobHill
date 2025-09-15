@@ -52,8 +52,8 @@ export function useDataFilterLogic(data: OfferCardProps[]) {
       })
       .sort((a, b) => {
         return filters.order === "newest"
-          ? b.publish_date.localeCompare(a.publish_date)
-          : a.publish_date.localeCompare(b.publish_date);
+          ? a.publish_date.localeCompare(b.publish_date)
+          : b.publish_date.localeCompare(a.publish_date);
       });
   }, [data, showFavoritesOnly, showHiddenOnly, filters]);
 
