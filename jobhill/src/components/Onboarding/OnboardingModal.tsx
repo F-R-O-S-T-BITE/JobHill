@@ -104,7 +104,7 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
 
   const handleNext = () => {
     if (currentStep === 3 && formData.hideET && formData.hideNG && formData.hideInternships) {
-      return // Don't proceed if no role preferences are selected
+      return 
     }
     if (currentStep < 4) {
       setCurrentStep(currentStep + 1)
@@ -129,8 +129,6 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
       console.error('Failed to submit onboarding:', error)
     }
   }
-
-  // Helper functions to get selected companies for confirmation modal
   const getSelectedCompanies = (companyIds: number[]): Company[] => {
     if (!companies) return []
     return companies.filter(company => companyIds.includes(company.id))

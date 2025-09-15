@@ -44,31 +44,57 @@ function renderLandingContent(companyLogos: any[], jobStats: any) {
         <div className={styles.slideTrack}>
         {companyLogos.map((company, index) => (
           <div key={`first-${index}`} className={styles.slide}>
-          <div className="flex items-center justify-center h-[80px] w-[80px] mx-auto">
-            <img 
-            src={company.logo_url} 
-            height={80} 
-            width={80} 
-            alt={`${company.name} logo`}
-            className="object-contain rounded-lg" 
-            loading="eager"
-            />
-          </div>
+            <div className="flex flex-col items-center justify-center h-[80px] w-[80px] mx-auto">
+              <img
+                src={company.logo_url}
+                height={70}
+                width={70}
+                alt={`${company.name} logo`}
+                className="object-contain rounded-lg"
+                loading="eager"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  const container = target.parentElement;
+                  if (container) {
+                    const truncatedName = company.name.length > 12 ? company.name.substring(0, 12) + '...' : company.name;
+                    container.innerHTML = `
+                      <div class="flex flex-col items-center justify-center text-center">
+                        <img src="/resources/ants/AntMarch.png" width="60" height="60" alt="Ant fallback" class="mb-1" />
+                        <span class="text-xs text-gray-600 font-medium max-w-[140px] truncate">${truncatedName}</span>
+                      </div>
+                    `;
+                  }
+                }}
+              />
+            </div>
           </div>
         ))}
-        
+
         {companyLogos.map((company, index) => (
           <div key={`second-${index}`} className={styles.slide}>
-          <div className="flex items-center justify-center h-[80px] w-[80px] mx-auto">
-            <img 
-            src={company.logo_url} 
-            height={80} 
-            width={80} 
-            alt={`${company.name} logo`}
-            className="object-contain rounded-lg" 
-            loading="eager"
-            />
-          </div>
+            <div className="flex flex-col items-center justify-center h-[80px] w-[80px] mx-auto">
+              <img
+                src={company.logo_url}
+                height={70}
+                width={70}
+                alt={`${company.name} logo`}
+                className="object-contain rounded-lg"
+                loading="eager"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  const container = target.parentElement;
+                  if (container) {
+                    const truncatedName = company.name.length > 12 ? company.name.substring(0, 12) + '...' : company.name;
+                    container.innerHTML = `
+                      <div class="flex flex-col items-center justify-center text-center">
+                        <img src="/resources/ants/AntMarch.png" width="60" height="60" alt="Ant fallback" class="mb-1" />
+                        <span class="text-xs text-gray-600 font-medium max-w-[140px] truncate">${truncatedName}</span>
+                      </div>
+                    `;
+                  }
+                }}
+              />
+            </div>
           </div>
         ))}
         </div>
