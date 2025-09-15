@@ -17,7 +17,10 @@ export async function POST(request: Request) {
       !Array.isArray(onboardingData.preferred_categories) ||
       !Array.isArray(onboardingData.hidden_companies) ||
       typeof onboardingData.hide_not_sponsor !== 'boolean' ||
-      typeof onboardingData.hide_not_american !== 'boolean'
+      typeof onboardingData.hide_not_american !== 'boolean' ||
+      typeof onboardingData.hideNG !== 'boolean' ||
+      typeof onboardingData.hideET !== 'boolean' ||
+      typeof onboardingData.hideInternships !== 'boolean'
     ) {
       return NextResponse.json({ error: 'Invalid data format' }, { status: 400 });
     }
@@ -48,7 +51,10 @@ export async function POST(request: Request) {
       preferred_categories: onboardingData.preferred_categories || [],
       requires_sponsorship: onboardingData.hide_not_sponsor,
       american_citizen: onboardingData.hide_not_american,
-      dont_show_conf_hide: true, 
+      hideNG: onboardingData.hideNG,
+      hideET: onboardingData.hideET,
+      hideInternships: onboardingData.hideInternships,
+      dont_show_conf_hide: true,
       hidden_jobs: [],
       hidden_companies: [],
       favorite_jobs: [],
@@ -65,6 +71,9 @@ export async function POST(request: Request) {
           hidden_companies: preferencesData.hidden_companies,
           requires_sponsorship: preferencesData.requires_sponsorship,
           american_citizen: preferencesData.american_citizen,
+          hideNG: preferencesData.hideNG,
+          hideET: preferencesData.hideET,
+          hideInternships: preferencesData.hideInternships,
           dont_show_conf_hide: true,
         })
         .eq('user_id', user.id)

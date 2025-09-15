@@ -16,9 +16,11 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const [isLoading, setIsLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
   
-  // Rutas donde no mostrar el header
+  // Rutas donde no mostrar el header o onboarding
   const authRoutes = ['/login', '/register','/forgot-password', '/auth/reset-password'];
   const shouldShowHeader = !authRoutes.some(route => pathname.startsWith(route));
+  const shouldShowOnboarding = !authRoutes.some(route => pathname.startsWith(route));
+
 
   const { data: onboardingStatus, isLoading: isOnboardingLoading } = useOnboardingStatus();
 
@@ -71,10 +73,11 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
           {children}
         </main>
         <LoginModal />
-        <OnboardingModal 
+        {shouldShowOnboarding &&  <OnboardingModal 
           isVisible={showOnboarding}
           onComplete={handleOnboardingComplete}
-        />
+        />}
+       
       </div>
     </AuthModalProvider>
   );
