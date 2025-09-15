@@ -118,6 +118,19 @@ async function getFilteredJobsForUser(
     if (preferences.american_citizen === false) {
       query = query.neq('usaCitizen', 1);
     }
+
+    // Filter based on role level preferences
+    if (preferences.hideNG === true) {
+      query = query.neq('newGrad', 1);
+    }
+
+    if (preferences.hideET === true) {
+      query = query.neq('emergingTalent', 1);
+    }
+
+    if (preferences.hideInternships === true) {
+      query = query.not('and', '(newGrad.eq.0,emergingTalent.eq.0)');
+    }
   }
 
   const { data, error, count } = await query;
@@ -135,7 +148,7 @@ async function getFilteredJobsForUser(
       
       if (preferences) {
         // Higher score for preferred companies
-        if (preferences.preferred_companies?.includes(job.company.name)) {
+        if (preferences.preferred_companies?.includes(job.company_id)) {
           preferenceScore += 100;
         }
       

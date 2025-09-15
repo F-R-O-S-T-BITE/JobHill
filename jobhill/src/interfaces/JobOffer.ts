@@ -47,10 +47,26 @@ export interface JobOffersApiResponse {
 export interface UserPreferences {
   user_id: string;
   hidden_jobs: string[];
-  hidden_companies: string[];
-  preferred_companies: string[];
+  hidden_companies: number[];
+  preferred_companies: number[];
   preferred_categories: string[];
   requires_sponsorship: boolean;
   american_citizen: boolean;
+  hideNG: boolean;
+  hideET: boolean;
+  hideInternships: boolean;
   dont_show_conf_hide: boolean;
+  favorite_jobs: string[];
+}
+
+export interface OnboardingData {
+  preferred_companies: number[];
+  preferred_categories: string[];
+  hidden_companies: number[];
+  hide_not_sponsor: boolean;
+  hide_not_american: boolean;
+  hideNG: boolean;
+  hideET: boolean;
+  hideInternships: boolean;
+
 }
