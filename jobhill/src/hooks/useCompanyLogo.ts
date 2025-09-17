@@ -27,7 +27,8 @@ export const useUpdateCompanyLogo = () => {
       return response.json();
     },
     onSuccess: () => {
-      // Logo update successful
+      // Only invalidate job offers cache since that's where company logos are displayed
+      queryClient.invalidateQueries({ queryKey: ['jobOffers'] });
     },
   });
 };
