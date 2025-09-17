@@ -26,3 +26,25 @@ export interface OfferCardLogic {
     card:OfferCardProps;
     userPreferences?:UserPreferences;
 }
+
+export interface CompanyCardProps {
+    id: number;
+    name: string;
+    logoSrc: string;
+    offerCount: number;
+    isPreferred?: boolean;
+    isHidden?: boolean;
+    jobOffers: string[];
+}
+
+export interface CompanyCardLogic {
+    card: CompanyCardProps;
+}
+
+export interface CompanyData {
+    [companyName: string]: {
+        id: number;
+        logoSrc: string;
+        offers: OfferCardProps[];
+    };
+}

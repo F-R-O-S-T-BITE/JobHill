@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
-import type { 
+import { getUserPreferences } from '@/utils/userPreferencesUtils';
+import type {
   JobOfferResponse
 } from '@/interfaces/JobOffer';
 
@@ -54,18 +55,12 @@ async function getPublicJobs(supabase: any) {
 }
 
 async function getFilteredJobsForUser(
-  supabase: any, 
+  supabase: any,
   userId: string
 ) {
-  // Get user preferences
-  const { data: preferences, error: preferencesError } = await supabase
-    .from('user_preferences')
-    .select('*')
-    .eq('user_id', userId)
-    .single();
+  const { preferences, error: preferencesError } = await getUserPreferences(supabase, userId);
 
-  if (preferencesError && preferencesError.code !== 'PGRST116') {
-    console.error('Error fetching user preferences:', preferencesError);
+  if (preferencesError) {
     return NextResponse.json({ error: 'Failed to fetch user preferences' }, { status: 500 });
   }
 
@@ -118,6 +113,19 @@ async function getFilteredJobsForUser(
     if (preferences.american_citizen === false) {
       query = query.neq('usaCitizen', 1);
     }
+
+    // Filter based on role level preferences
+    if (preferences.hide_ng === true) {
+      query = query.neq('newGrad', 1);
+    }
+
+    if (preferences.hide_et === true) {
+      query = query.neq('emergingTalent', 1);
+    }
+
+    if (preferences.hide_internships === true) {
+      query = query.not('and', '(newGrad.eq.0,emergingTalent.eq.0)');
+    }
   }
 
   const { data, error, count } = await query;
@@ -127,36 +135,34 @@ async function getFilteredJobsForUser(
     return NextResponse.json({ error: 'Failed to fetch job offers' }, { status: 500 });
   }
 
-  // Process jobs with user-specific data and custom sorting
   const jobOffers: JobOfferResponse[] = data
     .filter((job: any) => job.company) // Filter out jobs without company data
     .map((job: any) => {
       let preferenceScore = 0;
-      
+
       if (preferences) {
-        // Higher score for preferred companies
-        if (preferences.preferred_companies?.includes(job.company.name)) {
+        if (preferences.preferred_companies?.includes(job.company_id)) {
           preferenceScore += 100;
         }
-      
-      // Higher score for preferred categories
-      if (preferences.preferred_categories && job.categories) {
-        const matchingCategories = job.categories.filter((cat: string) => 
-          preferences.preferred_categories.includes(cat)
-        ).length;
-        preferenceScore += matchingCategories * 50;
+
+        if (preferences.preferred_categories && job.categories) {
+          const matchingCategories = job.categories.filter((cat: string) =>
+            preferences.preferred_categories.includes(cat)
+          ).length;
+          if (matchingCategories > 0) {
+            preferenceScore += matchingCategories * 50;
+          }
+        }
       }
-    }
 
     return {
       ...job,
       is_applied: appliedJobIds.includes(job.id),
-      is_favorite: false, // TODO: Add favorites functionality
+      is_favorite: preferences?.favorite_jobs?.includes(job.id) || false,
       preference_score: preferenceScore,
     };
   });
 
-  // Sort by preference score (descending), then by created_at (descending)
   jobOffers.sort((a, b) => {
     const aScore = a.preference_score || 0;
     const bScore = b.preference_score || 0;
@@ -165,6 +171,7 @@ async function getFilteredJobsForUser(
     }
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
+
 
   return NextResponse.json({
     jobs: jobOffers,

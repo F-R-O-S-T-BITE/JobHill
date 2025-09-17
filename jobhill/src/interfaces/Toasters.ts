@@ -13,3 +13,12 @@ export interface ApplicationSuccessToastProps {
   companyName: string;
   toastId: string;
 }
+
+export interface HideCompanyToastProps {
+  companyLogo: string;
+  companyName: string;
+  jobCount: number;
+  onUndo: () => void;
+  onExpire?: () => void;
+  toastId: string;
+}
