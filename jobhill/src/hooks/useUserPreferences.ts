@@ -12,6 +12,9 @@ export interface UserPreferences {
   requires_sponsorship: boolean;
   american_citizen: boolean;
   dont_show_conf_hide: boolean;
+  hide_et: boolean;
+  hide_ng: boolean;
+  hide_internships: boolean;
 }
 
 interface UserPreferencesResponse {

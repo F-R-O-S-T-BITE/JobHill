@@ -4,7 +4,7 @@ import { DataFilterStyles } from "@/styles/DataFilterStyles";
 import { useDataFilterLogic } from "@/hooks/useDataFilterLogic";
 import { OfferCardProps } from "@/interfaces/OfferCard";
 import { InputWithIcons, MultiSelectDropdown, SelectDropdownWithIcon, AutocompleteInput } from "./InputFilter";
-import { getUniqueTagsByType, getUniqueValues } from "@/utils/getUniqueValues";
+import { getUniqueTagsByType, getUniqueValues, getAvailableRoleTypes } from "@/utils/getUniqueValues";
 import { DateFilterButton } from "./DateFilterButton";
 
 interface DataFilterPanelProps {
@@ -21,7 +21,13 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter, setSh
     const categories = getUniqueTagsByType(data, "category");
     const modalities = getUniqueTagsByType(data, "modality");
     const companies = getUniqueValues(data, "company");
-    const newGrads = ["New Grad", "Emerging Talent"]
+    const availableRoleTypes = getAvailableRoleTypes(data);
+
+    const dynamicRoleLevelOptions: string[] = [];
+    if (availableRoleTypes.hasNewGrad) dynamicRoleLevelOptions.push("New Grad");
+    if (availableRoleTypes.hasEmergingTalent) dynamicRoleLevelOptions.push("Emerging Talent");
+
+    const shouldShowRoleLevelFilter = dynamicRoleLevelOptions.length > 0;
 
     const {
         filteredData,
@@ -97,17 +103,19 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter, setSh
                 rightIcon="resources/Icons/search_icon.png"
                 inputClassName={DataFilterStyles.Input}
             />
-            
-            <SelectDropdownWithIcon
-                aria_label="Role Level"
-                iconSrc="resources/Icons/Components_Cards/category_icon_cards.png"
-                altText="Role Level"
-                value={filters.newGrad}
-                onChange={(val) => setFilters({ ...filters, newGrad: val })}
-                options={newGrads}
-                placeholder="Role Level"
-                inputClassName="w-[1.5rem] h-[1.5rem]"
-            />
+
+            {shouldShowRoleLevelFilter && (
+                <SelectDropdownWithIcon
+                    aria_label="Role Level"
+                    iconSrc="resources/Icons/Components_Cards/category_icon_cards.png"
+                    altText="Role Level"
+                    value={filters.newGrad}
+                    onChange={(val) => setFilters({ ...filters, newGrad: val })}
+                    options={dynamicRoleLevelOptions}
+                    placeholder="Role Level"
+                    inputClassName="w-[1.5rem] h-[1.5rem]"
+                />
+            )}
 
             <MultiSelectDropdown
                 iconSrc="resources/Icons/Components_Cards/category_icon_cards.png"
