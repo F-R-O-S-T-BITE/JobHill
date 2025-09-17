@@ -10,11 +10,12 @@ import { DateFilterButton } from "./DateFilterButton";
 interface DataFilterPanelProps {
   data: OfferCardProps[];
   onFilter: (filtered: OfferCardProps[]) => void;
-  setShowCompanies: React.Dispatch<React.SetStateAction<boolean>>
+  setShowCompanies: React.Dispatch<React.SetStateAction<boolean>>;
+  showCompanies: boolean;
 }
 
 
-const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter, setShowCompanies }) => {
+const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter, setShowCompanies, showCompanies }) => {
     const [hasBeenFiltered,setHasBeenFiltered] = useState(false);
     const [appliedData, setAppliedData] = useState<OfferCardProps[]>(data);
     const locations = getUniqueValues(data, "location");
@@ -156,11 +157,11 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter, setSh
                 onChange={(val) => setFilters({ ...filters, order: val })}
             />
 
-            <button 
-                className={DataFilterStyles.ButtonPrimary} 
+            <button
+                className={DataFilterStyles.ButtonPrimary}
                 onClick={() => setShowCompanies(prev => !prev)}
             >
-                Show Companies
+                {showCompanies ? "Show All Jobs" : "Show Companies"}
             </button>
             <button className={DataFilterStyles.ButtonSecondary} onClick={handleReset}>
                 Reset Filters

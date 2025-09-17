@@ -126,3 +126,29 @@ export const ApplicationSuccessToastStyles = {
     CheckIcon: "w-5 h-5 text-[#28a745] mr-2 flex-shrink-0",
     MessageContainer: "flex items-center"
 };
+
+export const HideCompanyToastStyles = {
+    ToastWrapper: "relative",
+    ToastShadow: "absolute inset-0 bg-[#0353A4] rounded-lg -translate-x-1 translate-y-1",
+    Container: "relative flex flex-col bg-white rounded-lg shadow-lg border border-gray-200 w-[280px] overflow-hidden",
+    ContentRow: "flex items-center gap-2 p-3",
+    LogoContainer: "flex-shrink-0",
+    Logo: "w-8 h-8 rounded-full object-contain",
+    Content: "flex-1 min-w-0",
+    CompanyName: "text-sm font-semibold text-gray-900 truncate",
+    JobCount: "text-xs text-gray-600",
+    HiddenText: "text-xs font-semibold text-gray-900",
+    HiddenIcon: "w-3 h-3 mr-1",
+    HiddenRow: "flex items-center mb-1",
+    UndoContainer: "flex-shrink-0",
+    UndoButton: "flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-[#0353A4] hover:text-[#023E7D] hover:bg-blue-50 rounded-md transition-colors",
+    UndoIcon: "w-3 h-3",
+    BottomRow: "flex items-center justify-between px-3 pb-2",
+    ProgressContainer: "flex-1 mr-3",
+    ProgressHeader: "flex justify-between items-center mb-1",
+    ProgressLabel: "text-[10px] text-gray-500",
+    SecondsDisplay: "text-[10px] font-mono text-gray-600",
+    ProgressBar: "h-1.5 bg-gray-200 rounded-full relative overflow-hidden",
+    ProgressFill: "h-full bg-[#0353A4] transition-all duration-100 ease-linear rounded-full",
+    BottomUndoButton: "flex items-center gap-1 px-2 py-1 text-xs font-medium text-[#0353A4] hover:text-[#023E7D] hover:bg-blue-50 rounded-md transition-colors flex-shrink-0"
+};
