@@ -1,17 +1,21 @@
 "use client"
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import OfferCardHolder from "@/components/OfferCard/OfferCardHolder";
+import CompanyCardHolder from "@/components/CompanyCard/CompanyCardHolder";
 import DataFilterPanel from "@/components/DataFilter";
-import { OfferCardProps } from "@/interfaces/OfferCard";
+import { OfferCardProps, CompanyCardProps } from "@/interfaces/OfferCard";
 import { useJobOffers } from "@/hooks/useJobOffers";
 import { formatPublishDate, createJobTags } from "@/utils/jobUtils";
+import { aggregateCompaniesByOffers, filterCompanies, updateCompanyOfferCounts } from "@/utils/companyUtils";
 import type { JobOffersFilters } from "@/interfaces/JobOffer";
 
 export default function OpportunitiesPage() {
     const [filters] = useState<JobOffersFilters>({});
-    const [localFilters, setLocalFilters] = useState<OfferCardProps[]>([]);
-    const [showCompanies, setShowCompanies] =useState<boolean>(false);
+    const [showCompanies, setShowCompanies] = useState<boolean>(false);
+    const [selectedCompany, setSelectedCompany] = useState<{id: number, name: string} | null>(null);
+    const [globalFilteredData, setGlobalFilteredData] = useState<OfferCardProps[]>([]);
+    const [filtersApplied, setFiltersApplied] = useState<boolean>(false);
     const { data: jobOffersData, isLoading, error, isError } = useJobOffers(filters);
     
 
@@ -34,8 +38,48 @@ export default function OpportunitiesPage() {
             preferenceScore: job.preference_score || 0
         } as OfferCardProps));
     }, [jobOffersData?.jobs]);
-    
-    const displayOffers = localFilters.length >= 0 ? localFilters : adaptedOffers;
+
+    useEffect(() => {
+        if (adaptedOffers.length > 0 && !filtersApplied) {
+            setGlobalFilteredData(adaptedOffers);
+        }
+    }, [adaptedOffers, filtersApplied]);
+
+    const companies = useMemo(() => {
+        return aggregateCompaniesByOffers(adaptedOffers);
+    }, [adaptedOffers]);
+
+    const filteredCompanies = useMemo(() => {
+        if (filtersApplied) {
+            return updateCompanyOfferCounts(companies, globalFilteredData);
+        }
+        return companies;
+    }, [companies, globalFilteredData, filtersApplied]);
+
+    const displayOffers = useMemo(() => {
+        const baseOffers = filtersApplied ? globalFilteredData : adaptedOffers;
+
+        if (selectedCompany) {
+            return baseOffers.filter(offer => offer.company === selectedCompany.name);
+        }
+
+        return baseOffers;
+    }, [globalFilteredData, adaptedOffers, selectedCompany, filtersApplied]);
+
+    const handleCompanyClick = (companyId: number, companyName: string) => {
+        setSelectedCompany({ id: companyId, name: companyName });
+        setShowCompanies(false);
+    };
+
+    const handleFilterChange = (filtered: OfferCardProps[]) => {
+        setGlobalFilteredData(filtered);
+        setFiltersApplied(true);
+    };
+
+    const handleBack = () => {
+        setSelectedCompany(null);
+        setShowCompanies(true); 
+    };
 
     if (isLoading) {
         return (
@@ -82,40 +126,58 @@ export default function OpportunitiesPage() {
                 {/* Filter Panel - Sticky on large screens */}
                 <div className="lg:w-[350px] lg:flex-shrink-0">
                     <div className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
-                        <DataFilterPanel 
-                            data={adaptedOffers} 
-                            onFilter={setLocalFilters}
+                        <DataFilterPanel
+                            data={adaptedOffers}
+                            onFilter={handleFilterChange}
                             setShowCompanies={setShowCompanies}
+                            showCompanies={showCompanies}
                         />
                     </div>
                 </div>
 
                 {/* Job Cards and Companies Cards*/}
                 <div className="flex-1 min-w-0">
-                {!showCompanies ? (   
-                    <>                
-                        {displayOffers.length === 0 ? (
-                            <div className="flex items-center justify-center h-[400px]">
-                                <div className="flex flex-col items-center gap-4">
-                                    <div className="text-gray-400 text-6xl">🔍</div>
-                                    <span className="text-base xm:text-[1.25rem] sm:text-[1.5rem] font-mono font-bold text-black leading-tight text-center">
-                                        No job opportunities match your filters
-                                    </span>
-                                    <span className="text-sm text-gray-600 text-center max-w-md">
-                                        Try adjusting your search criteria or clear some filters
-                                    </span>
+                    {selectedCompany && !showCompanies && (
+                        <div className="mb-4">
+                            <button
+                                onClick={handleBack}
+                                className="flex items-center gap-2 text-[#0353A4] hover:text-[#0466C8] font-mono font-semibold"
+                            >
+                                ← Back to all companies
+                            </button>
+                            <h2 className="text-xl font-mono font-bold text-black mt-2">
+                                Jobs at {selectedCompany.name}
+                            </h2>
+                        </div>
+                    )}
+
+                    {!showCompanies ? (
+                        <>
+                            {displayOffers.length === 0 ? (
+                                <div className="flex items-center justify-center h-[400px]">
+                                    <div className="flex flex-col items-center gap-4">
+                                        <div className="text-gray-400 text-6xl">🔍</div>
+                                        <span className="text-base xm:text-[1.25rem] sm:text-[1.5rem] font-mono font-bold text-black leading-tight text-center">
+                                            No job opportunities match your filters
+                                        </span>
+                                        <span className="text-sm text-gray-600 text-center max-w-md">
+                                            Try adjusting your search criteria or clear some filters
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
-                        
-                        ) : (
-                            <OfferCardHolder 
-                                offers={displayOffers}
-                            />
-                        )}
-                    </>
-                ):(
-                    <p>Hola</p>
-                )}    
+
+                            ) : (
+                                <OfferCardHolder
+                                    offers={displayOffers}
+                                />
+                            )}
+                        </>
+                    ) : (
+                        <CompanyCardHolder
+                            companies={filteredCompanies}
+                            onCompanyClick={handleCompanyClick}
+                        />
+                    )}
 
                 </div>
             </div>
