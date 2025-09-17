@@ -1,24 +1,34 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DataFilterStyles } from "@/styles/DataFilterStyles";
 import { useDataFilterLogic } from "@/hooks/useDataFilterLogic";
 import { OfferCardProps } from "@/interfaces/OfferCard";
-import { InputWithIcons, SelectWithIcon } from "./InputFilter";
-import { getUniqueTagsByType, getUniqueValues } from "@/utils/getUniqueValues";
+import { InputWithIcons, MultiSelectDropdown, SelectDropdownWithIcon, AutocompleteInput } from "./InputFilter";
+import { getUniqueTagsByType, getUniqueValues, getAvailableRoleTypes } from "@/utils/getUniqueValues";
 import { DateFilterButton } from "./DateFilterButton";
 
 interface DataFilterPanelProps {
   data: OfferCardProps[];
   onFilter: (filtered: OfferCardProps[]) => void;
+  setShowCompanies: React.Dispatch<React.SetStateAction<boolean>>;
+  showCompanies: boolean;
 }
 
 
-const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter }) => {
+const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter, setShowCompanies, showCompanies }) => {
     const [hasBeenFiltered,setHasBeenFiltered] = useState(false);
     const [appliedData, setAppliedData] = useState<OfferCardProps[]>(data);
     const locations = getUniqueValues(data, "location");
     const categories = getUniqueTagsByType(data, "category");
     const modalities = getUniqueTagsByType(data, "modality");
+    const companies = getUniqueValues(data, "company");
+    const availableRoleTypes = getAvailableRoleTypes(data);
+
+    const dynamicRoleLevelOptions: string[] = [];
+    if (availableRoleTypes.hasNewGrad) dynamicRoleLevelOptions.push("New Grad");
+    if (availableRoleTypes.hasEmergingTalent) dynamicRoleLevelOptions.push("Emerging Talent");
+
+    const shouldShowRoleLevelFilter = dynamicRoleLevelOptions.length > 0;
 
     const {
         filteredData,
@@ -30,6 +40,9 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter }) => 
         setShowHiddenOnly,
     } = useDataFilterLogic(data);
 
+    useEffect(()=>{
+        handleApply()
+    },[filteredData])
 
     const handleApply = () => {
         onFilter(filteredData);
@@ -39,12 +52,13 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter }) => 
 
     const handleReset = () => {
         setFilters({
-        company: "",
+        company: [] as string[],
         role: "",
-        category: "",
+        category: [] as string[],
         modality: "",
         location: "",
         order: "newest",
+        newGrad: "",
         });
         setShowFavoritesOnly(false);
         setShowHiddenOnly(false);
@@ -68,24 +82,19 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter }) => 
                 />
                 Show Favorites Only
             </label>
-
-            <label className={DataFilterStyles.Checkbox}>
-                <input
-                type="checkbox"
-                checked={showHiddenOnly}
-                onChange={() => setShowHiddenOnly(!showHiddenOnly)}
-                />
-                Show Hidden Only
-            </label> 
-
-            <InputWithIcons
+    
+            <AutocompleteInput
+                iconSrc="resources/Icons/Components_Cards/Company_Filter_Cards.png"
+                altText="Company"
                 placeholder="Company"
+                options={companies}
                 value={filters.company}
-                onChange={(e) => setFilters({ ...filters, company: e.target.value })}
-                leftIcon="resources/Icons/Components_Cards/Company_Filter_Cards.png"
-                rightIcon="resources/Icons/search_icon.png"
-                inputClassName={DataFilterStyles.Input}
-                />
+                aria_label="Company"
+                inputClassName="w-[1.5rem] h-[1.5rem]"
+                onChange={(selectedCompanies: string[]) =>
+                    setFilters({ ...filters, company: selectedCompanies })
+                }
+            />
 
             <InputWithIcons
                 placeholder="Role"
@@ -95,18 +104,34 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter }) => 
                 rightIcon="resources/Icons/search_icon.png"
                 inputClassName={DataFilterStyles.Input}
             />
-            
-            <SelectWithIcon
-                aria_label="Category"
+
+            {shouldShowRoleLevelFilter && (
+                <SelectDropdownWithIcon
+                    aria_label="Role Level"
+                    iconSrc="resources/Icons/Components_Cards/category_icon_cards.png"
+                    altText="Role Level"
+                    value={filters.newGrad}
+                    onChange={(val) => setFilters({ ...filters, newGrad: val })}
+                    options={dynamicRoleLevelOptions}
+                    placeholder="Role Level"
+                    inputClassName="w-[1.5rem] h-[1.5rem]"
+                />
+            )}
+
+            <MultiSelectDropdown
                 iconSrc="resources/Icons/Components_Cards/category_icon_cards.png"
                 altText="Category"
-                value={filters.category}
-                onChange={(val) => setFilters({ ...filters, category: val })}
-                options={categories}
                 placeholder="Category"
+                options={categories}
+                value={filters.category} 
+                aria_label="Category"
+                inputClassName="w-[1.5rem] h-[1.5rem]"
+                onChange={(selectedCategories: string[]) => 
+                    setFilters({ ...filters, category: selectedCategories }) 
+                }
             />
 
-            <SelectWithIcon
+            <SelectDropdownWithIcon
                 aria_label="Modality"
                 iconSrc="resources/Icons/Components_Cards/Modality_Icon_Cards.png"
                 altText="Modality"
@@ -116,7 +141,7 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter }) => 
                 placeholder="Modality"
                 inputClassName="-translate-x-1/6 w-[2rem] h-[2rem]"
             />
-            <SelectWithIcon
+            <SelectDropdownWithIcon
                 aria_label="Location"
                 iconSrc="resources/Icons/Components_Cards/location_icon_cards.png"
                 altText="Location"
@@ -124,16 +149,19 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter }) => 
                 onChange={(val) => setFilters({ ...filters, location: val })}
                 options={locations}
                 placeholder="Location"
+                inputClassName="w-[1.5rem] h-[1.5rem]"
             />
-            
             
             <DateFilterButton
                 value={filters.order as "newest"|"oldest"}
                 onChange={(val) => setFilters({ ...filters, order: val })}
             />
 
-            <button className={DataFilterStyles.ButtonPrimary} onClick={handleApply}>
-                Show Companies
+            <button
+                className={DataFilterStyles.ButtonPrimary}
+                onClick={() => setShowCompanies(prev => !prev)}
+            >
+                {showCompanies ? "Show All Jobs" : "Show Companies"}
             </button>
             <button className={DataFilterStyles.ButtonSecondary} onClick={handleReset}>
                 Reset Filters

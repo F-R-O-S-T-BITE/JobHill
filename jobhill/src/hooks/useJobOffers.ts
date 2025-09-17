@@ -108,7 +108,6 @@ export function useToggleFavorite() {
     onMutate: async ({ jobId, isFavorite }) => {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: jobOffersKeys.lists() })
-      // Optimistically update the UI
       queryClient.setQueriesData(
         { queryKey: jobOffersKeys.lists() },
         (oldData: JobOffersApiResponse | undefined) => {
@@ -148,19 +147,24 @@ export function useToggleFavorite() {
 
 export function useHideJob() {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
     mutationFn: async (jobId: string) => {
-      const response = await fetch('/api/user-preferences/hide-job', {
+      const response = await fetch('/api/user-preferences', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ job_id: jobId }),
+        body: JSON.stringify({
+          field: 'hidden_jobs',
+          value: jobId,
+          action: 'add'
+        }),
       })
-      
+
       if (!response.ok) {
-        throw new Error('Failed to hide job')
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to hide job')
       }
-      
+
       return response.json()
     },
     onSuccess: (_, jobId) => {
@@ -169,7 +173,7 @@ export function useHideJob() {
           { queryKey: jobOffersKeys.lists() },
           (oldData: JobOffersApiResponse | undefined) => {
             if (!oldData) return oldData
-            
+
             return {
               ...oldData,
               jobs: oldData.jobs.filter(job => job.id !== jobId),
@@ -177,7 +181,49 @@ export function useHideJob() {
             }
           }
         )
-      }, 1000); 
+      }, 1000);
+    },
+  })
+}
+
+export function useHideCompany() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (companyId: number) => {
+      const response = await fetch('/api/user-preferences', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          field: 'hidden_companies',
+          value: companyId,
+          action: 'add'
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to hide company')
+      }
+
+      return response.json()
+    },
+    onSuccess: (_, companyId) => {
+      queryClient.setQueriesData(
+        { queryKey: jobOffersKeys.lists() },
+        (oldData: JobOffersApiResponse | undefined) => {
+          if (!oldData) return oldData
+
+          const filteredJobs = oldData.jobs.filter(job => job.company_id !== companyId)
+          const removedCount = oldData.jobs.length - filteredJobs.length
+
+          return {
+            ...oldData,
+            jobs: filteredJobs,
+            total: oldData.total - removedCount,
+          }
+        }
+      )
     },
   })
 }

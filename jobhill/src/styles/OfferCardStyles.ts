@@ -26,12 +26,30 @@ export const OfferCardStyles = {
     AddIcon: "w-[20px] h-[20px]",
     ApplyButton: "flex items-center justify-center gap-2 bg-white text-[#0353A4] w-full sm:w-auto px-3 py-1.5 rounded-lg font-mono text-sm font-semibold cursor-pointer",
     ApplyIcon: "w-[20px] h-[20px]",
-    GroupedButtons: "flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto"
+    GroupedButtons: "flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto",
+};
+
+export const CompanyCardStyles = {
+    Card: "rounded-2xl shadow-lg overflow-hidden bg-white w-full h-[200px] border-2 transition-all duration-200",
+    CardTop: "flex flex-col items-center p-4 bg-white h-full",
+    IconContainer: "flex justify-between items-center w-full ",
+    HideIcon: "w-8 h-8 flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-110 p-2 rounded-full text-gray-500 hover:bg-gray-100",
+    PreferIcon: "w-8 h-8 flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-110 p-2 rounded-full text-gray-500 hover:bg-gray-100",
+    HideIconActive: "bg-red-50 border border-red-300 text-red-600 hover:bg-red-100",
+    PreferIconActive: "bg-green-50 border border-green-300 text-green-600 hover:bg-green-100",
+    Logo: "w-16 h-16 object-contain rounded-lg",
+    LogoContainer: "w-24 h-24 flex items-center justify-center",
+    CardContent: "flex flex-col items-center text-center w-full mt-2",
+    CompanyName: "text-lg font-semibold text-gray-900 truncate w-full",
+    OfferCount: "text-sm text-gray-500",
+    ModalTitle: "text-xl sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-4 text-[#023E7D]",
+    Modal: "bg-white rounded-xl shadow-lg p-4 sm:p-6 md:p-8 w-full sm:w-[80%] md:w-[60%] lg:w-1/2 max-w-2xl text-center flex flex-col" ,
 };
 
 export const OfferCardHolderStyles = {
     Wrapper: "mt-6 w-full max-w-[95vw] lg:max-w-[1250px]  mx-auto px-4 md:px-6 lg:px-8 lg:max-h-[940px] xl:max-h-[1200px] lg:overflow-y-auto border rounded-xl p-10 shadow-md",
-    Grid: "grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 lg:gap-8  justify-items-center flex-grow"
+    Grid: "grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 lg:gap-8  justify-items-center flex-grow",
+    CompanyGrid: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 justify-items-center flex-grow"
 };
 
 
@@ -97,7 +115,7 @@ export const HideJobToastStyles = {
 
 export const ApplicationSuccessToastStyles = {
     ToastWrapper: "relative",
-    ToastShadow: "absolute inset-0 bg-[#28a745] rounded-lg -translate-x-1 translate-y-1", 
+    ToastShadow: "absolute inset-0 bg-[#28a745] rounded-lg -translate-x-1 translate-y-1",
     Container: "relative flex items-center bg-white rounded-lg shadow-lg border border-gray-200 w-[280px] p-4",
     LogoContainer: "flex-shrink-0 mr-3",
     Logo: "w-8 h-8 rounded-full object-contain",
@@ -107,4 +125,30 @@ export const ApplicationSuccessToastStyles = {
     CompanyName: "text-[10px] text-gray-600 truncate",
     CheckIcon: "w-5 h-5 text-[#28a745] mr-2 flex-shrink-0",
     MessageContainer: "flex items-center"
+};
+
+export const HideCompanyToastStyles = {
+    ToastWrapper: "relative",
+    ToastShadow: "absolute inset-0 bg-[#0353A4] rounded-lg -translate-x-1 translate-y-1",
+    Container: "relative flex flex-col bg-white rounded-lg shadow-lg border border-gray-200 w-[280px] overflow-hidden",
+    ContentRow: "flex items-center gap-2 p-3",
+    LogoContainer: "flex-shrink-0",
+    Logo: "w-8 h-8 rounded-full object-contain",
+    Content: "flex-1 min-w-0",
+    CompanyName: "text-sm font-semibold text-gray-900 truncate",
+    JobCount: "text-xs text-gray-600",
+    HiddenText: "text-xs font-semibold text-gray-900",
+    HiddenIcon: "w-3 h-3 mr-1",
+    HiddenRow: "flex items-center mb-1",
+    UndoContainer: "flex-shrink-0",
+    UndoButton: "flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-[#0353A4] hover:text-[#023E7D] hover:bg-blue-50 rounded-md transition-colors",
+    UndoIcon: "w-3 h-3",
+    BottomRow: "flex items-center justify-between px-3 pb-2",
+    ProgressContainer: "flex-1 mr-3",
+    ProgressHeader: "flex justify-between items-center mb-1",
+    ProgressLabel: "text-[10px] text-gray-500",
+    SecondsDisplay: "text-[10px] font-mono text-gray-600",
+    ProgressBar: "h-1.5 bg-gray-200 rounded-full relative overflow-hidden",
+    ProgressFill: "h-full bg-[#0353A4] transition-all duration-100 ease-linear rounded-full",
+    BottomUndoButton: "flex items-center gap-1 px-2 py-1 text-xs font-medium text-[#0353A4] hover:text-[#023E7D] hover:bg-blue-50 rounded-md transition-colors flex-shrink-0"
 };
