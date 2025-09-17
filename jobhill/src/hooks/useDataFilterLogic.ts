@@ -10,7 +10,7 @@ export function useDataFilterLogic(data: OfferCardProps[]) {
     category: [] as string[],
     modality: "",
     location: "",
-    order: "newest", // newest | oldest
+    order: "newest", 
     newGrad: ""
   });
 
@@ -54,6 +54,15 @@ export function useDataFilterLogic(data: OfferCardProps[]) {
         return true;
       })
       .sort((a, b) => {
+        // First sort by preference score 
+        const aScore = a.preferenceScore || 0;
+        const bScore = b.preferenceScore || 0;
+
+        if (aScore !== bScore) {
+          return bScore - aScore;
+        }
+
+        // Sort by date if preference scores are equal
         return filters.order === "newest"
           ? a.publish_date.localeCompare(b.publish_date)
           : b.publish_date.localeCompare(a.publish_date);
