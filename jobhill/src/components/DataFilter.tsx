@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { DataFilterStyles } from "@/styles/DataFilterStyles";
 import { useDataFilterLogic } from "@/hooks/useDataFilterLogic";
 import { OfferCardProps } from "@/interfaces/OfferCard";
-import { InputWithIcons, SelectWithIcon, MultiSelectDropdown } from "./InputFilter";
+import { InputWithIcons, MultiSelectDropdown, SelectDropdownWithIcon, AutocompleteInput } from "./InputFilter";
 import { getUniqueTagsByType, getUniqueValues } from "@/utils/getUniqueValues";
 import { DateFilterButton } from "./DateFilterButton";
 
@@ -20,6 +20,7 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter, setSh
     const locations = getUniqueValues(data, "location");
     const categories = getUniqueTagsByType(data, "category");
     const modalities = getUniqueTagsByType(data, "modality");
+    const companies = getUniqueValues(data, "company");
     const newGrads = ["New Grad", "Emerging Talent"]
 
     const {
@@ -44,7 +45,7 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter, setSh
 
     const handleReset = () => {
         setFilters({
-        company: "",
+        company: [] as string[],
         role: "",
         category: [] as string[],
         modality: "",
@@ -75,14 +76,18 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter, setSh
                 Show Favorites Only
             </label>
     
-            <InputWithIcons
+            <AutocompleteInput
+                iconSrc="resources/Icons/Components_Cards/Company_Filter_Cards.png"
+                altText="Company"
                 placeholder="Company"
+                options={companies}
                 value={filters.company}
-                onChange={(e) => setFilters({ ...filters, company: e.target.value })}
-                leftIcon="resources/Icons/Components_Cards/Company_Filter_Cards.png"
-                rightIcon="resources/Icons/search_icon.png"
-                inputClassName={DataFilterStyles.Input}
-                />
+                aria_label="Company"
+                inputClassName="w-[1.5rem] h-[1.5rem]"
+                onChange={(selectedCompanies: string[]) =>
+                    setFilters({ ...filters, company: selectedCompanies })
+                }
+            />
 
             <InputWithIcons
                 placeholder="Role"
@@ -93,14 +98,15 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter, setSh
                 inputClassName={DataFilterStyles.Input}
             />
             
-            <SelectWithIcon
-                aria_label="New Grad"
+            <SelectDropdownWithIcon
+                aria_label="Role Level"
                 iconSrc="resources/Icons/Components_Cards/category_icon_cards.png"
-                altText="New Grad"
+                altText="Role Level"
                 value={filters.newGrad}
                 onChange={(val) => setFilters({ ...filters, newGrad: val })}
                 options={newGrads}
-                placeholder="Type"
+                placeholder="Role Level"
+                inputClassName="w-[1.5rem] h-[1.5rem]"
             />
 
             <MultiSelectDropdown
@@ -116,7 +122,7 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter, setSh
                 }
             />
 
-            <SelectWithIcon
+            <SelectDropdownWithIcon
                 aria_label="Modality"
                 iconSrc="resources/Icons/Components_Cards/Modality_Icon_Cards.png"
                 altText="Modality"
@@ -126,7 +132,7 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter, setSh
                 placeholder="Modality"
                 inputClassName="-translate-x-1/6 w-[2rem] h-[2rem]"
             />
-            <SelectWithIcon
+            <SelectDropdownWithIcon
                 aria_label="Location"
                 iconSrc="resources/Icons/Components_Cards/location_icon_cards.png"
                 altText="Location"
@@ -134,6 +140,7 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter, setSh
                 onChange={(val) => setFilters({ ...filters, location: val })}
                 options={locations}
                 placeholder="Location"
+                inputClassName="w-[1.5rem] h-[1.5rem]"
             />
             
             <DateFilterButton

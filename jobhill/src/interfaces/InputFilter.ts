@@ -23,8 +23,31 @@ export interface MultiSelectProps {
   altText: string;
   placeholder: string;
   options: string[];
-  value: string[]; 
+  value: string[];
   aria_label:string;
   inputClassName?: string;
-  onChange: (selected: string[]) => void; 
+  onChange: (selected: string[]) => void;
 }
+
+export interface SingleSelectDropdownProps {
+  iconSrc: string;
+  altText: string;
+  placeholder: string;
+  options: string[];
+  value: string;
+  aria_label: string;
+  inputClassName?: string;
+  onChange: (selected: string) => void;
+}
+
+export interface AutocompleteInputProps {
+  iconSrc: string;
+  altText: string;
+  placeholder: string;
+  options: string[];
+  value: string[];
+  aria_label: string;
+  inputClassName?: string;
+  onChange: (selected: string[]) => void;
+}
+

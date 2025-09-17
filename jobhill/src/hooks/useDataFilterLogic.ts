@@ -5,7 +5,7 @@ export function useDataFilterLogic(data: OfferCardProps[]) {
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [showHiddenOnly, setShowHiddenOnly] = useState(false);
   const [filters, setFilters] = useState({
-    company: "",
+    company: [] as string[],
     role: "",
     category: [] as string[],
     modality: "",
@@ -17,11 +17,14 @@ export function useDataFilterLogic(data: OfferCardProps[]) {
   const filteredData = useMemo(() => {
 
     const lowercasedCategories = filters.category.map(c => c.toLowerCase());
+    const lowercasedCompanies = filters.company.map(c => c.toLowerCase());
 
     return data
       .filter((item) => {
         if (showFavoritesOnly && !item.isFavorite) return false;
-        if (filters.company && !item.company.toLowerCase().includes(filters.company.toLowerCase())) {
+        if (lowercasedCompanies.length > 0 && !lowercasedCompanies.some(company =>
+          item.company.toLowerCase().includes(company)
+        )) {
           return false;
         }
         if (filters.role && !item.title.toLowerCase().includes(filters.role.toLowerCase())) {
