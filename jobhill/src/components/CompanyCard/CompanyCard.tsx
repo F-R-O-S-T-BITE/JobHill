@@ -1,7 +1,8 @@
 "use client";
 import { CompanyCardProps } from "@/interfaces/OfferCard";
-import { CompanyCardStyles } from "@/styles/OfferCardStyles"; 
+import { CompanyCardStyles } from "@/styles/OfferCardStyles";
 import { useUserPreferences } from "@/hooks/useUserPreferences";
+import { useUpdateCompanyLogo } from "@/hooks/useCompanyLogo";
 import { useState } from "react";
 
 interface CompanyCardComponentProps {
@@ -9,11 +10,15 @@ interface CompanyCardComponentProps {
     onCompanyClick: (companyId: number, companyName: string) => void;
     onHideCompany?: (companyId: number) => void;
     onPreferCompany?: (companyId: number, isCurrentlyPreferred: boolean) => void;
+    adminMode?: boolean;
 }
 
-const CompanyCard = ({ card, onCompanyClick, onHideCompany, onPreferCompany }: CompanyCardComponentProps) => {
+const CompanyCard = ({ card, onCompanyClick, onHideCompany, onPreferCompany, adminMode = false }: CompanyCardComponentProps) => {
     const [showConfirmHide, setShowConfirmHide] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [newLogoUrl, setNewLogoUrl] = useState(card.logoSrc);
     const { data: userPreferencesData } = useUserPreferences();
+    const updateCompanyLogo = useUpdateCompanyLogo();
 
     const isPreferred = userPreferencesData?.preferences?.preferred_companies?.includes(card.id) || false;
     const isHidden = userPreferencesData?.preferences?.hidden_companies?.includes(card.id) || false;
@@ -41,6 +46,28 @@ const CompanyCard = ({ card, onCompanyClick, onHideCompany, onPreferCompany }: C
         onPreferCompany?.(card.id, isPreferred);
     };
 
+    const handleEditLogoClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setShowEditModal(true);
+    };
+
+    const handleSaveLogo = async () => {
+        try {
+            await updateCompanyLogo.mutateAsync({
+                companyId: card.id,
+                logo_url: newLogoUrl
+            });
+            setShowEditModal(false);
+        } catch (error) {
+            console.error('Failed to update logo:', error);
+        }
+    };
+
+    const handleCancelEdit = () => {
+        setNewLogoUrl(card.logoSrc);
+        setShowEditModal(false);
+    };
+
     return (
         <>
             <div className="w-full flex justify-center">
@@ -66,6 +93,13 @@ const CompanyCard = ({ card, onCompanyClick, onHideCompany, onPreferCompany }: C
                                     </svg>
                                 )}
                             </div>
+                            {adminMode && (
+                                <div className={`${CompanyCardStyles.PreferIcon} text-blue-500 hover:text-blue-700`} onClick={handleEditLogoClick} onMouseDown={(e) => e.stopPropagation()}>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </div>
+                            )}
                         </div >
                         <div className="flex flex-col items-center">
                                 <img
@@ -120,6 +154,58 @@ const CompanyCard = ({ card, onCompanyClick, onHideCompany, onPreferCompany }: C
                                 className="px-4 py-2  bg-[#0353A4] text-white rounded-md hover:bg-[#004181] transition-colors cursor-pointer"
                             >
                                 Hide Company
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Logo Modal */}
+            {showEditModal && (
+                <div className="fixed inset-0 bg-black/40 flex items-center justify-center text-center z-50">
+                    <div className={CompanyCardStyles.Modal}>
+                        <h3 className={CompanyCardStyles.ModalTitle}>
+                            Edit Company Logo
+                        </h3>
+                        <p className="text-gray-600 mb-4">
+                            Update the logo URL for <strong>{card.name}</strong>
+                        </p>
+                        <div className="mb-4">
+                            <input
+                                type="url"
+                                value={newLogoUrl}
+                                onChange={(e) => setNewLogoUrl(e.target.value)}
+                                placeholder="Enter new logo URL"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                        </div>
+                        {newLogoUrl && (
+                            <div className="mb-4 flex justify-center">
+                                <img
+                                    src={newLogoUrl}
+                                    alt="Preview"
+                                    className="w-16 h-16 object-cover rounded-lg border"
+                                    onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.style.display = 'none';
+                                    }}
+                                />
+                            </div>
+                        )}
+                        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                            <button
+                                onClick={handleCancelEdit}
+                                className="px-4 py-2 text-gray-500 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors cursor-pointer"
+                                disabled={updateCompanyLogo.isPending}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSaveLogo}
+                                className="px-4 py-2 bg-[#0353A4] text-white rounded-md hover:bg-[#004181] transition-colors cursor-pointer disabled:opacity-50"
+                                disabled={updateCompanyLogo.isPending || !newLogoUrl}
+                            >
+                                {updateCompanyLogo.isPending ? 'Saving...' : 'Save Logo'}
                             </button>
                         </div>
                     </div>

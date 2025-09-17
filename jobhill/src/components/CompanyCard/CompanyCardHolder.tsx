@@ -10,9 +10,10 @@ import { useState } from "react";
 interface CompanyCardHolderProps {
     companies: CompanyCardProps[];
     onCompanyClick: (companyId: number, companyName: string) => void;
+    adminMode?: boolean;
 }
 
-const CompanyCardHolder = ({ companies, onCompanyClick }: CompanyCardHolderProps) => {
+const CompanyCardHolder = ({ companies, onCompanyClick, adminMode = true }: CompanyCardHolderProps) => {
     const updatePreference = useUpdatePreference();
     const hideCompany = useHideCompany();
     const [hiddenCompanies, setHiddenCompanies] = useState<Set<number>>(new Set());
@@ -93,6 +94,7 @@ const CompanyCardHolder = ({ companies, onCompanyClick }: CompanyCardHolderProps
                         onCompanyClick={onCompanyClick}
                         onHideCompany={handleHideCompany}
                         onPreferCompany={handlePreferCompany}
+                        adminMode={adminMode}
                     />
                 ))}
             </div>
