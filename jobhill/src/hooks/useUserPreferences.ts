@@ -5,8 +5,8 @@ import { useAuthModal } from '@/contexts/AuthModalContext'
 export interface UserPreferences {
   user_id: string;
   hidden_jobs: string[];
-  hidden_companies: string[];
-  preferred_companies: string[];
+  hidden_companies: number[];
+  preferred_companies: number[];
   preferred_categories: string[];
   favorite_jobs: string[];
   requires_sponsorship: boolean;
@@ -56,68 +56,74 @@ export function useUserPreferences() {
 }
 
 
-export function useUpdatePreferenceArray() {
+export function useUpdatePreference() {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
-    mutationFn: async ({ 
-      arrayName, 
-      itemId, 
-      action 
-    }: { 
-      arrayName: 'hidden_jobs' | 'favorite_jobs' | 'hidden_companies' | 'preferred_companies' | 'preferred_categories'
-      itemId: string
-      action: 'add' | 'remove'
+    mutationFn: async ({
+      field,
+      value,
+      action
+    }: {
+      field: 'hidden_jobs' | 'favorite_jobs' | 'hidden_companies' | 'preferred_companies' | 'preferred_categories'
+      value: string | number | string[] | number[]
+      action: 'add' | 'remove' | 'set'
     }) => {
-      const endpoint = getEndpointForArray(arrayName)
-      const method = action === 'add' ? 'POST' : 'DELETE'
-      
-      const response = await fetch(endpoint, {
-        method,
+      const response = await fetch('/api/user-preferences', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          job_id: itemId,
-          company_id: itemId,
-          item_id: itemId 
+        body: JSON.stringify({
+          field,
+          value,
+          action
         }),
       })
-      
+
       if (!response.ok) {
-        throw new Error(`Failed to ${action} ${arrayName.replace('_', ' ')}`)
+        const errorData = await response.json()
+        throw new Error(errorData.error || `Failed to ${action} ${field.replace('_', ' ')}`)
       }
-      
+
       return response.json()
     },
-    onMutate: async ({ arrayName, itemId, action }) => {
+    onMutate: async ({ field, value, action }) => {
       await queryClient.cancelQueries({ queryKey: userPreferencesKeys.preferences() })
       const previousPreferences = queryClient.getQueryData<UserPreferencesResponse>(
         userPreferencesKeys.preferences()
       )
-      
+
       if (previousPreferences) {
         const updatedPreferences = { ...previousPreferences }
-        const currentArray = [...updatedPreferences.preferences[arrayName]]
-        
-        if (action === 'add' && !currentArray.includes(itemId)) {
-          currentArray.push(itemId)
-        } else if (action === 'remove') {
-          const index = currentArray.indexOf(itemId)
-          if (index > -1) {
-            currentArray.splice(index, 1)
-          }
+        const currentArray = Array.isArray(updatedPreferences.preferences[field])
+          ? [...updatedPreferences.preferences[field] as any[]]
+          : []
+
+        let newArray
+        switch (action) {
+          case 'add':
+            newArray = currentArray.includes(value) ? currentArray : [...currentArray, value]
+            break
+          case 'remove':
+            newArray = currentArray.filter((item: any) => item !== value)
+            break
+          case 'set':
+            newArray = Array.isArray(value) ? value : [value]
+            break
+          default:
+            newArray = currentArray
         }
-        
+
         updatedPreferences.preferences = {
           ...updatedPreferences.preferences,
-          [arrayName]: currentArray
+          [field]: newArray
         }
-        
+
         queryClient.setQueryData(
           userPreferencesKeys.preferences(),
           updatedPreferences
         )
       }
-      
+
       return { previousPreferences }
     },
     onError: (err, variables, context) => {
@@ -131,58 +137,43 @@ export function useUpdatePreferenceArray() {
   })
 }
 
-function getEndpointForArray(arrayName: string): string {
-  switch (arrayName) {
-    case 'hidden_jobs':
-      return '/api/user-preferences/hide-job'
-    case 'favorite_jobs':
-      return '/api/user-preferences/favorite-job'
-    case 'hidden_companies':
-      return '/api/user-preferences/hide-company'
-    case 'preferred_companies':
-      return '/api/user-preferences/prefer-company'
-    case 'preferred_categories':
-      return '/api/user-preferences/prefer-category'
-    default:
-      throw new Error(`Unknown array type: ${arrayName}`)
-  }
-}
-
 export function useFavoriteJob() {
-  const updateArray = useUpdatePreferenceArray()
-  
+  const updatePreference = useUpdatePreference()
+
   return useMutation({
-    mutationFn: (jobId: string) => 
-      updateArray.mutateAsync({ 
-        arrayName: 'favorite_jobs', 
-        itemId: jobId, 
-        action: 'add' 
+    mutationFn: (jobId: string) =>
+      updatePreference.mutateAsync({
+        field: 'favorite_jobs',
+        value: jobId,
+        action: 'add'
       }),
   })
 }
 
 export function useUnfavoriteJob() {
-  const updateArray = useUpdatePreferenceArray()
-  
+  const updatePreference = useUpdatePreference()
+
   return useMutation({
-    mutationFn: (jobId: string) => 
-      updateArray.mutateAsync({ 
-        arrayName: 'favorite_jobs', 
-        itemId: jobId, 
-        action: 'remove' 
+    mutationFn: (jobId: string) =>
+      updatePreference.mutateAsync({
+        field: 'favorite_jobs',
+        value: jobId,
+        action: 'remove'
       }),
   })
 }
 
 export function useHideJobPreference() {
-  const updateArray = useUpdatePreferenceArray()
-  
+  const updatePreference = useUpdatePreference()
+
   return useMutation({
-    mutationFn: (jobId: string) => 
-      updateArray.mutateAsync({ 
-        arrayName: 'hidden_jobs', 
-        itemId: jobId, 
-        action: 'add' 
+    mutationFn: (jobId: string) =>
+      updatePreference.mutateAsync({
+        field: 'hidden_jobs',
+        value: jobId,
+        action: 'add'
       }),
   })
 }
+
+export const useUpdatePreferenceArray = useUpdatePreference
