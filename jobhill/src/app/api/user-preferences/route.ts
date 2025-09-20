@@ -14,7 +14,6 @@ export async function GET() {
       )
     }
 
-    // Use shared function to get user preferences
     const { preferences, error: preferencesError } = await getUserPreferences(supabase, user.id)
 
     if (preferencesError) {
@@ -63,7 +62,8 @@ export async function POST(request: NextRequest) {
 
     const validFields = [
       'hidden_jobs', 'favorite_jobs', 'hidden_companies',
-      'preferred_companies', 'preferred_categories'
+      'preferred_companies', 'preferred_categories',
+      'requires_sponsorship', 'american_citizen', 'hide_internships', 'hide_ng', 'hide_et'
     ]
 
     if (!validFields.includes(field)) {
@@ -81,7 +81,46 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get current preferences
+    const booleanFields = ['requires_sponsorship', 'american_citizen', 'hide_internships', 'hide_ng', 'hide_et']
+    const isBooleanField = booleanFields.includes(field)
+
+    if (isBooleanField) {
+      if (action !== 'set') {
+        return NextResponse.json(
+          { error: 'Boolean fields only support "set" action' },
+          { status: 400 }
+        )
+      }
+
+      if (typeof value !== 'boolean') {
+        return NextResponse.json(
+          { error: 'Value must be a boolean for boolean fields' },
+          { status: 400 }
+        )
+      }
+
+      const { error: updateError } = await supabase
+        .from('user_preferences')
+        .upsert({
+          user_id: user.id,
+          [field]: value
+        })
+
+      if (updateError) {
+        console.error('Error updating user preferences:', updateError)
+        return NextResponse.json(
+          { error: 'Failed to update user preferences' },
+          { status: 500 }
+        )
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: `Successfully updated ${field}`,
+        [field]: value
+      })
+    }
+
     const { data: currentPrefs, error: fetchError } = await supabase
       .from('user_preferences')
       .select(field)
@@ -139,7 +178,6 @@ export async function POST(request: NextRequest) {
         )
     }
 
-    // Update or create preferences
     const { error: updateError } = await supabase
       .from('user_preferences')
       .upsert({
