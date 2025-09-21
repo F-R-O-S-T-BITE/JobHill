@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     const validFields = [
       'hidden_jobs', 'favorite_jobs', 'hidden_companies',
       'preferred_companies', 'preferred_categories',
-      'requires_sponsorship', 'american_citizen', 'hide_internships', 'hide_ng', 'hide_et'
+      'requires_sponsorship', 'american_citizen', 'hideInternships', 'hideNG', 'hideET'
     ]
 
     if (!validFields.includes(field)) {
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const booleanFields = ['requires_sponsorship', 'american_citizen', 'hide_internships', 'hide_ng', 'hide_et']
+    const booleanFields = ['requires_sponsorship', 'american_citizen', 'hideInternships', 'hideNG', 'hideET']
     const isBooleanField = booleanFields.includes(field)
 
     if (isBooleanField) {
