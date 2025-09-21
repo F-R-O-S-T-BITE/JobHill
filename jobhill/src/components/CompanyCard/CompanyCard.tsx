@@ -44,7 +44,7 @@ const CompanyCard = ({ card, onCompanyClick, onHideCompany, onPreferCompany }: C
     return (
         <>
             <div className="w-full flex justify-center">
-                <div className={`${CompanyCardStyles.Card} ${isHidden ? 'border-red-500' : isPreferred ? 'border-green-500 border-2' : 'border-gray-200'}`}
+                <div className={`${CompanyCardStyles.Card} ${isHidden ? 'border-red-500' : isPreferred ? 'border-[#0466C8] border-2' : 'border-gray-200'}`}
                     onClick={handleCardClick}
                 >
                     <div className={CompanyCardStyles.CardTop}>

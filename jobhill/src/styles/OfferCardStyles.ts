@@ -36,7 +36,7 @@ export const CompanyCardStyles = {
     HideIcon: "w-8 h-8 flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-110 p-2 rounded-full text-gray-500 hover:bg-gray-100",
     PreferIcon: "w-8 h-8 flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-110 p-2 rounded-full text-gray-500 hover:bg-gray-100",
     HideIconActive: "bg-red-50 border border-red-300 text-red-600 hover:bg-red-100",
-    PreferIconActive: "bg-green-50 border border-green-300 text-green-600 hover:bg-green-100",
+    PreferIconActive: "bg-blue-50 border border-blue-300 text-[#0466C8] hover:bg-blue-100",
     Logo: "w-16 h-16 object-contain rounded-lg",
     LogoContainer: "w-24 h-24 flex items-center justify-center",
     CardContent: "flex flex-col items-center text-center w-full mt-2",
