@@ -1,6 +1,6 @@
 'use client'
 
-import {  Settings, LogOut, Building2 } from 'lucide-react'
+import {  Settings } from 'lucide-react'
 
 type ActiveSection = 'preferences' | 'apply-extension'
 
@@ -48,7 +48,7 @@ export default function ProfileSidebar({
       <nav className="flex-1 p-3 sm:p-4 space-y-2">
           <button
               onClick={() => setActiveSection('preferences')}
-              className={`w-full flex items-center space-x-2 sm:space-x-3 px-2 sm:px-3 py-2 text-left rounded-lg transition-colors ${
+              className={`w-full flex items-center justify-center space-x-2 sm:space-x-3 px-2 sm:px-3 py-2 text-center rounded-lg transition-colors ${
                 activeSection === 'preferences'
                   ? 'bg-[#0353A4] text-white'
                   : 'text-gray-700 hover:bg-gray-100'
