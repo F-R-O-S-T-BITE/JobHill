@@ -11,6 +11,7 @@ interface ProfileSidebarProps {
   activeSection: ActiveSection
   setActiveSection: (section: ActiveSection) => void
   handleSignOut: () => void
+  isSidebarOpen: boolean
 }
 
 export default function ProfileSidebar({
@@ -19,10 +20,11 @@ export default function ProfileSidebar({
   avatarUrl,
   activeSection,
   setActiveSection,
-  handleSignOut
+  handleSignOut,
+  isSidebarOpen
 }: ProfileSidebarProps) {
   return (
-    <div className="w-1/6 bg-white shadow-lg flex flex-col h-full">
+    <div className={`fixed inset-y-0 left-0 transform md:relative md:translate-x-0 transition duration-200 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} z-30 w-64 md:w-1/4 lg:w-1/5 bg-white shadow-lg flex flex-col h-full mt-16 md:mt-0`}>
       {/* User Profile Section */}
       <div className=" p-4 sm:p-6 text-center">
         <div className="relative inline-block ">
@@ -65,16 +67,17 @@ export default function ProfileSidebar({
           <span className="font-medium text-sm">Apply Extension</span>
         </button>
         */}
-      </nav>
-
-      <div className="flex justify-center p-2">
+        <div className="flex justify-center ">
         <button
           onClick={handleSignOut}
-          className="w-full sm:w-2/3 mb-4 sm:mb-20 p-2 flex items-center justify-center rounded-lg bg-[#C80404] hover:bg-red-700 transition-colors text-white"
+          className={`w-full  p-2 flex items-center justify-center rounded-lg bg-[#C80404] hover:bg-red-700 transition-colors text-white`}
         >
           <span className="font-medium text-xs sm:text-sm">Log Out</span>
         </button>
       </div>
+      </nav>
+
+    
     </div>
   )
 }
