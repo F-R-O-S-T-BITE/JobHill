@@ -7,20 +7,29 @@ interface ApplicationTableProps {
   applications: Application[];
   onUpdateStatus: (applicationId: string, newStatus: string) => void;
   onDeleteApplication: (applicationId: string) => void;
+  onAddApplication: () => void;
 }
 
 const ApplicationTable: React.FC<ApplicationTableProps> = ({
   applications,
   onUpdateStatus,
   onDeleteApplication,
+  onAddApplication,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const applicationsPerPage = 10;
+  const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const indexOfLastApp = currentPage * applicationsPerPage;
-  const indexOfFirstApp = indexOfLastApp - applicationsPerPage;
-  const currentApplications = applications.slice(indexOfFirstApp, indexOfLastApp);
-  const totalPages = Math.ceil(applications.length / applicationsPerPage);
+  const filteredApplications = applications.filter(app =>
+    app.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    app.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    app.location.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const indexOfLastApp = currentPage * entriesPerPage;
+  const indexOfFirstApp = indexOfLastApp - entriesPerPage;
+  const currentApplications = filteredApplications.slice(indexOfFirstApp, indexOfLastApp);
+  const totalPages = Math.ceil(filteredApplications.length / entriesPerPage);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -58,6 +67,54 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
 
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+          <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-2">
+              <span className="text-gray-700 text-sm">Search:</span>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="px-3 py-1 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Search applications..."
+              />
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <span className="text-gray-700 text-sm">Show</span>
+              <select
+                value={entriesPerPage}
+                onChange={(e) => {
+                  setEntriesPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="px-3 py-1 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value={10}>10</option>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </select>
+              <span className="text-gray-700 text-sm">entries</span>
+            </div>
+          </div>
+          
+          <div className="flex items-center">
+            <button
+              onClick={onAddApplication}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors duration-200 flex items-center space-x-2"
+            >
+              <span>+</span>
+              <span>Add Application</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -193,10 +250,10 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
                 <span className="font-medium">{indexOfFirstApp + 1}</span>
                 {' '}to{' '}
                 <span className="font-medium">
-                  {Math.min(indexOfLastApp, applications.length)}
+                  {Math.min(indexOfLastApp, filteredApplications.length)}
                 </span>
                 {' '}of{' '}
-                <span className="font-medium">{applications.length}</span>
+                <span className="font-medium">{filteredApplications.length}</span>
                 {' '}results
               </p>
             </div>

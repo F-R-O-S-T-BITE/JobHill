@@ -17,7 +17,7 @@ const ApplicationFilterPanel: React.FC<ApplicationFilterPanelProps> = ({
   data, 
   onFilter, 
   filters, 
-  setFilters 
+  setFilters
 }) => {
   const [hasBeenFiltered, setHasBeenFiltered] = useState(false);
 
@@ -80,9 +80,11 @@ const ApplicationFilterPanel: React.FC<ApplicationFilterPanelProps> = ({
 
   return (
     <div className={DataFilterStyles.Wrapper}>
-      <p className={DataFilterStyles.Title}>
-        Showing {hasBeenFiltered ? filteredData.length : data.length} of {data.length} Applications
-      </p>
+      <div className="flex justify-between items-center mb-4">
+        <p className={DataFilterStyles.Title}>
+          Showing {hasBeenFiltered ? filteredData.length : data.length} of {data.length} Applications
+        </p>
+      </div>
 
       <AutocompleteInput
         iconSrc="resources/Icons/Components_Cards/Company_Filter_Cards.png"
