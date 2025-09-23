@@ -79,7 +79,7 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
                   setSearchTerm(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="px-3 py-1 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="px-3 py-1 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0353A4] focus:border-[#0353A4]"
                 placeholder="Search applications..."
               />
             </div>
@@ -92,7 +92,7 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
                   setEntriesPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="px-3 py-1 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="px-3 py-1 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0353A4] focus:border-[#0353A4]"
               >
                 <option value={10}>10</option>
                 <option value={25}>25</option>
@@ -106,7 +106,7 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
           <div className="flex items-center">
             <button
               onClick={onAddApplication}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors duration-200 flex items-center space-x-2"
+              className="bg-[#0353A4] hover:bg-[#03459E] text-white px-4 py-2 rounded text-sm font-medium transition-colors duration-200 flex items-center space-x-2"
             >
               <span>+</span>
               <span>Add Application</span>
@@ -115,7 +115,20 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      {currentApplications.length === 0 ? (
+        <div className="flex items-center justify-center h-[400px]">
+          <div className="flex flex-col items-center gap-4">
+            <div className="text-gray-400 text-6xl">🔍</div>
+            <span className="text-base xm:text-[1.25rem] sm:text-[1.5rem] font-mono font-bold text-black leading-tight text-center">
+              No applications match your filters
+            </span>
+            <span className="text-sm text-gray-600 text-center max-w-md">
+              Try adjusting your search criteria or clear some filters to see more results
+            </span>
+          </div>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -146,8 +159,8 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {currentApplications.map((application) => (
-              <tr key={application.id} className="hover:bg-gray-50">
+            {currentApplications.map((application, index) => (
+              <tr key={application.id} className={`hover:bg-gray-100 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-10 w-10">
@@ -224,8 +237,9 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
           </tbody>
         </table>
       </div>
+      )}
 
-      {totalPages > 1 && (
+      {currentApplications.length > 0 && totalPages > 1 && (
         <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
           <div className="flex-1 flex justify-between sm:hidden">
             <button
