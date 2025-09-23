@@ -1,6 +1,78 @@
 import { createClient } from '@/utils/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 
+export async function GET(request: NextRequest) {
+  try {
+    const supabase = await createClient()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    const { searchParams } = new URL(request.url)
+    const company = searchParams.get('company')
+    const status = searchParams.get('status')
+    const referral = searchParams.get('referral')
+    const location = searchParams.get('location')
+    const order = searchParams.get('order') || 'newest'
+
+    let query = supabase
+      .from('applications')
+      .select(`
+        *,
+        companies:company_id(logo_url)
+      `)
+      .eq('user_id', user.id)
+
+    if (company) {
+      const companies = company.split(',')
+      query = query.in('company_name', companies)
+    }
+
+    if (status) {
+      query = query.eq('status', status)
+    }
+
+    if (referral) {
+      query = query.eq('referral_type', referral)
+    }
+
+    if (location) {
+      query = query.eq('location', location)
+    }
+
+    query = query.order('applied_date', { ascending: order === 'oldest' })
+
+    const { data: applications, error: fetchError } = await query
+
+    if (fetchError) {
+      console.error('Error fetching applications:', fetchError)
+      return NextResponse.json(
+        { error: 'Failed to fetch applications' },
+        { status: 500 }
+      )
+    }
+
+    const transformedApplications = applications?.map(app => ({
+      ...app,
+      company_logo: app.companies?.logo_url || null
+    })) || []
+
+    return NextResponse.json(transformedApplications)
+
+  } catch (error) {
+    console.error('Error in applications GET API:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
@@ -85,7 +157,7 @@ export async function POST(request: NextRequest) {
         referral_type: referral_type,
         application_link: application_link,
         location: location,
-        status: 'Applied', // Default status
+        status: 'Delivered',
         applied_date: new Date().toISOString().split('T')[0], // Today's date
         last_updated: new Date().toISOString().split('T')[0]
       })

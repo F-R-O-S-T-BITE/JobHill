@@ -1,0 +1,29 @@
+export interface Application {
+  id: string;
+  job_offer_id: string;
+  user_id: string;
+  company_name: string;
+  role: string;
+  location: string;
+  applied_date: string;
+  last_updated: string;
+  referral_type: 'Cold Apply' | 'Employee Ref' | 'Referred';
+  status: 'Delivered' | 'Process' | 'Canceled';
+  application_link?: string;
+  company_logo?: string;
+}
+
+export interface ApplicationFilters {
+  company: string[];
+  category: string[];
+  status: string;
+  referral: string;
+  location: string;
+  order: 'newest' | 'oldest';
+}
+
+export interface CreateApplicationData {
+  job_offer_id: string;
+  referral_type: 'Cold Apply' | 'Employee Ref' | 'Referred';
+  application_link?: string;
+}
