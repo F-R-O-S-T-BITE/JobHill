@@ -10,7 +10,7 @@ export const revalidate = 21600; // 6 horas
 export async function GET() {
   try {
     const supabase = await createClient();
-    
+
     // Check if user is authenticated
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
@@ -21,6 +21,34 @@ export async function GET() {
   } catch (error) {
     console.error('Error in job offers API route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const { hiddenJobIds } = await request.json();
+
+    if (!hiddenJobIds || !Array.isArray(hiddenJobIds) || hiddenJobIds.length === 0) {
+      return NextResponse.json([]);
+    }
+
+    return await getHiddenJobsForUser(supabase, hiddenJobIds);
+  } catch (error) {
+    console.error('Error in hidden job offers endpoint:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
 // Fetch all open jobs for unauthenticated users 
@@ -115,15 +143,15 @@ async function getFilteredJobsForUser(
     }
 
     // Filter based on role level preferences
-    if (preferences.hide_ng === true) {
+    if (preferences.hideNG === true) {
       query = query.neq('newGrad', 1);
     }
 
-    if (preferences.hide_et === true) {
+    if (preferences.hideET === true) {
       query = query.neq('emergingTalent', 1);
     }
 
-    if (preferences.hide_internships === true) {
+    if (preferences.hideInternships === true) {
       query = query.not('and', '(newGrad.eq.0,emergingTalent.eq.0)');
     }
   }
@@ -178,4 +206,26 @@ async function getFilteredJobsForUser(
     total: count || 0,
     userPreferences: preferences,
   });
+}
+
+async function getHiddenJobsForUser(supabase: any, hiddenJobIds: string[]) {
+  const { data: jobOffers, error } = await supabase
+    .from('job_offers')
+    .select(`
+      *,
+      company:companies(id, name, logo_url)
+    `)
+    .in('id', hiddenJobIds)
+    .eq('status', 'Open')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching hidden job offers:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch hidden job offers' },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.json(jobOffers || []);
 }
