@@ -187,4 +187,17 @@ export function useHideJobPreference() {
   })
 }
 
+export function useUnhideJobPreference() {
+  const updatePreference = useUpdatePreference()
+
+  return useMutation({
+    mutationFn: (jobId: string) =>
+      updatePreference.mutateAsync({
+        field: 'hidden_jobs',
+        value: jobId,
+        action: 'remove'
+      }),
+  })
+}
+
 export const useUpdatePreferenceArray = useUpdatePreference
