@@ -228,4 +228,31 @@ export function useHideCompany() {
   })
 }
 
+export function useHiddenJobOffers(hiddenJobIds: string[]) {
+  return useQuery({
+    queryKey: ['hidden-jobs', hiddenJobIds],
+    queryFn: async () => {
+      if (!hiddenJobIds.length) {
+        return []
+      }
+
+      const response = await fetch('/api/job-offers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ hiddenJobIds }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch hidden job offers: ${response.statusText}`)
+      }
+
+      return response.json()
+    },
+    enabled: hiddenJobIds.length > 0,
+    staleTime: 6 * 60 * 60 * 1000,
+  })
+}
+
 export { jobOffersKeys }

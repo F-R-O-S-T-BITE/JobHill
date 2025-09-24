@@ -6,10 +6,12 @@ import { createClient } from '@/utils/supabase/client'
 import { useAuthModal } from '@/contexts/AuthModalContext'
 import { useUserPreferences, useUpdatePreference } from '@/hooks/useUserPreferences'
 import { useCompanies } from '@/hooks/useOnboarding'
+import { useHiddenJobOffers } from '@/hooks/useJobOffers'
 import { Edit3, Save, X, Menu } from 'lucide-react'
 import toast from 'react-hot-toast'
 import ProfileSidebar from '@/components/Profile/ProfileSidebar'
 import CompanyPreferencesSection from '@/components/Profile/CompanyPreferencesSection'
+import HiddenJobsSection from '@/components/Profile/HiddenJobsSection'
 
 type ActiveSection = 'preferences' | 'apply-extension'
 
@@ -74,6 +76,9 @@ export default function Profile() {
   const { data: preferencesData, isLoading: preferencesLoading } = useUserPreferences()
   const { data: companiesData, isLoading: companiesLoading } = useCompanies()
   const updatePreference = useUpdatePreference()
+
+  const preferences = preferencesData?.preferences
+  const { data: hiddenJobs, isLoading: hiddenJobsLoading } = useHiddenJobOffers(preferences?.hidden_jobs || [])
 
   const categories = [
     'FullStack', 'FrontEnd', 'BackEnd', 'Data & Analytics', 'AI & ML', 'Cybersecurity',
@@ -191,6 +196,7 @@ export default function Profile() {
   }
 
 
+
   if (authLoading || preferencesLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -202,7 +208,6 @@ export default function Profile() {
     )
   }
 
-  const preferences = preferencesData?.preferences
   const avatarUrl = getAvatarUrl()
   const displayName = getDisplayName()
 
@@ -281,6 +286,7 @@ export default function Profile() {
                       Object.entries(pendingChanges.preferences).forEach(([field, value]) => {
                         promises.push(updatePreference.mutateAsync({ field: field as any, value, action: 'set' }))
                       })
+
 
                       Promise.all(promises).then(() => {
                         setEditMode(false)
@@ -402,6 +408,13 @@ export default function Profile() {
                 })}
               </div>
             </div>
+            
+            <div className='mb-8'>
+              <HiddenJobsSection
+              hiddenJobs={hiddenJobs || []}
+              isLoading={hiddenJobsLoading}
+              />
+           </div>
 
             <CompanyPreferencesSection
               companiesData={companiesData}
