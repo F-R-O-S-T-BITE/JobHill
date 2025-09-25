@@ -14,7 +14,6 @@ export default function OpportunitiesPage() {
     const [selectedCompany, setSelectedCompany] = useState<{id: number, name: string} | null>(null);
     const { data: jobOffersData, isLoading, error, isError } = useJobOffers();
 
-    // SINGLE DATA SOURCE: Transform raw data to OfferCardProps
     const allOffers = useMemo(() => {
         if (!jobOffersData?.jobs) return [];
 
@@ -37,13 +36,10 @@ export default function OpportunitiesPage() {
         return offers;
     }, [jobOffersData?.jobs, jobOffersData?.total]);
 
-    // DataFilter will provide filtered results via handleFilterChange
     const [filteredData, setFilteredData] = useState<OfferCardProps[]>([]);
 
-    // Use filteredData if available, otherwise use allOffers (during initial load)
     const dataToDisplay = filteredData.length > 0 ? filteredData : allOffers;
 
-    // SINGLE SOURCE: Everything uses dataToDisplay
     const companies = useMemo(() => {
         return aggregateCompaniesByOffers(dataToDisplay);
     }, [dataToDisplay]);
