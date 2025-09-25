@@ -1,43 +1,30 @@
 'use client'
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import type { JobOffersFilters, JobOffersApiResponse, JobOfferResponse } from '@/interfaces/JobOffer'
+import type { JobOffersApiResponse, JobOfferResponse } from '@/interfaces/JobOffer'
 
-async function fetchJobOffers(filters?: JobOffersFilters): Promise<JobOffersApiResponse> {
-  const params = new URLSearchParams()
-  
-  if (filters) {
-    if (filters.categories?.length) params.set('categories', filters.categories.join(','))
-    if (filters.modality?.length) params.set('modality', filters.modality.join(','))
-    if (filters.location?.length) params.set('location', filters.location.join(','))
-    if (filters.company?.length) params.set('company', filters.company.join(','))
-    if (filters.period?.length) params.set('period', filters.period.join(','))
-    if (filters.search) params.set('search', filters.search)
-  }
+async function fetchAllJobOffers(): Promise<JobOffersApiResponse> {
+  const response = await fetch('/api/job-offers')
 
-  const response = await fetch(`/api/job-offers?${params.toString()}`)
-  
   if (!response.ok) {
     throw new Error(`Failed to fetch job offers: ${response.statusText}`)
   }
-  
+
   return response.json()
 }
 
 const jobOffersKeys = {
   all: ['job-offers'] as const,
-  lists: () => [...jobOffersKeys.all, 'list'] as const,
-  list: (filters?: JobOffersFilters) => [...jobOffersKeys.lists(), filters] as const,
-  details: () => [...jobOffersKeys.all, 'detail'] as const,
-  detail: (id: string) => [...jobOffersKeys.details(), id] as const,
+  allJobs: () => [...jobOffersKeys.all, 'all'] as const,
+  hiddenJobs: (hiddenJobIds: string[]) => [...jobOffersKeys.all, 'hidden', hiddenJobIds] as const,
 }
 
-export function useJobOffers(filters?: JobOffersFilters) {
+export function useJobOffers() {
   return useQuery({
-    queryKey: jobOffersKeys.list(filters),
-    queryFn: () => fetchJobOffers(filters),
+    queryKey: jobOffersKeys.allJobs(),
+    queryFn: fetchAllJobOffers,
     staleTime: 6 * 60 * 60 * 1000,
-    placeholderData: (previousData) => previousData, 
+    placeholderData: (previousData) => previousData,
   })
 }
 
@@ -71,17 +58,20 @@ export function useCreateApplication() {
         (window as any).markJobAsAppliedAndUpdate(variables.job_offer_id);
       }
       
-      // Update cache to remove job after animation completes
+      // Update cache to mark job as applied after animation completes
       setTimeout(() => {
-        queryClient.setQueriesData(
-          { queryKey: jobOffersKeys.lists() },
+        queryClient.setQueryData(
+          jobOffersKeys.allJobs(),
           (oldData: JobOffersApiResponse | undefined) => {
             if (!oldData) return oldData
-            
+
             return {
               ...oldData,
-              jobs: oldData.jobs.filter(job => job.id !== variables.job_offer_id),
-              total: oldData.total - 1,
+              jobs: oldData.jobs.map(job =>
+                job.id === variables.job_offer_id
+                  ? { ...job, is_applied: true }
+                  : job
+              ),
             }
           }
         )
@@ -107,12 +97,12 @@ export function useToggleFavorite() {
     },
     onMutate: async ({ jobId, isFavorite }) => {
       // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: jobOffersKeys.lists() })
-      queryClient.setQueriesData(
-        { queryKey: jobOffersKeys.lists() },
+      await queryClient.cancelQueries({ queryKey: jobOffersKeys.allJobs() })
+      queryClient.setQueryData(
+        jobOffersKeys.allJobs(),
         (oldData: JobOffersApiResponse | undefined) => {
           if (!oldData) return oldData
-          
+
           return {
             ...oldData,
             jobs: oldData.jobs.map((job) =>
@@ -126,11 +116,11 @@ export function useToggleFavorite() {
     },
     onError: (err, { jobId, isFavorite }) => {
       // Revert optimistic update on error
-      queryClient.setQueriesData(
-        { queryKey: jobOffersKeys.lists() },
+      queryClient.setQueryData(
+        jobOffersKeys.allJobs(),
         (oldData: JobOffersApiResponse | undefined) => {
           if (!oldData) return oldData
-          
+
           return {
             ...oldData,
             jobs: oldData.jobs.map((job) =>
@@ -167,21 +157,27 @@ export function useHideJob() {
 
       return response.json()
     },
-    onSuccess: (_, jobId) => {
-      setTimeout(() => {
-        queryClient.setQueriesData(
-          { queryKey: jobOffersKeys.lists() },
-          (oldData: JobOffersApiResponse | undefined) => {
-            if (!oldData) return oldData
+    onMutate: async (jobId: string) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: jobOffersKeys.allJobs() })
 
-            return {
-              ...oldData,
-              jobs: oldData.jobs.filter(job => job.id !== jobId),
-              total: oldData.total - 1,
-            }
+      // Optimistically update cache immediately when mutation starts
+      queryClient.setQueryData(
+        jobOffersKeys.allJobs(),
+        (oldData: JobOffersApiResponse | undefined) => {
+          if (!oldData) return oldData
+
+          return {
+            ...oldData,
+            jobs: oldData.jobs.filter(job => job.id !== jobId),
+            total: oldData.total - 1,
           }
-        )
-      }, 1000);
+        }
+      )
+    },
+    onError: (err, jobId) => {
+      // On error, refetch to get the correct state
+      queryClient.invalidateQueries({ queryKey: jobOffersKeys.allJobs() });
     },
   })
 }
@@ -208,9 +204,13 @@ export function useHideCompany() {
 
       return response.json()
     },
-    onSuccess: (_, companyId) => {
-      queryClient.setQueriesData(
-        { queryKey: jobOffersKeys.lists() },
+    onMutate: async (companyId: number) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: jobOffersKeys.allJobs() })
+
+      // Optimistically update cache immediately when mutation starts
+      queryClient.setQueryData(
+        jobOffersKeys.allJobs(),
         (oldData: JobOffersApiResponse | undefined) => {
           if (!oldData) return oldData
 
@@ -225,12 +225,16 @@ export function useHideCompany() {
         }
       )
     },
+    onError: (err, companyId) => {
+      // On error, refetch to get the correct state
+      queryClient.invalidateQueries({ queryKey: jobOffersKeys.allJobs() });
+    },
   })
 }
 
 export function useHiddenJobOffers(hiddenJobIds: string[]) {
   return useQuery({
-    queryKey: ['hidden-jobs', hiddenJobIds],
+    queryKey: jobOffersKeys.hiddenJobs(hiddenJobIds),
     queryFn: async () => {
       if (!hiddenJobIds.length) {
         return []

@@ -1,28 +1,24 @@
 "use client"
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import OfferCardHolder from "@/components/OfferCard/OfferCardHolder";
 import CompanyCardHolder from "@/components/CompanyCard/CompanyCardHolder";
 import DataFilterPanel from "@/components/DataFilter";
 import { OfferCardProps, CompanyCardProps } from "@/interfaces/OfferCard";
 import { useJobOffers } from "@/hooks/useJobOffers";
 import { formatPublishDate, createJobTags } from "@/utils/jobUtils";
-import { aggregateCompaniesByOffers, filterCompanies, updateCompanyOfferCounts } from "@/utils/companyUtils";
-import type { JobOffersFilters } from "@/interfaces/JobOffer";
+import { aggregateCompaniesByOffers } from "@/utils/companyUtils";
 
 export default function OpportunitiesPage() {
-    const [filters] = useState<JobOffersFilters>({});
     const [showCompanies, setShowCompanies] = useState<boolean>(false);
     const [selectedCompany, setSelectedCompany] = useState<{id: number, name: string} | null>(null);
-    const [globalFilteredData, setGlobalFilteredData] = useState<OfferCardProps[]>([]);
-    const [filtersApplied, setFiltersApplied] = useState<boolean>(false);
-    const { data: jobOffersData, isLoading, error, isError } = useJobOffers(filters);
-    
+    const { data: jobOffersData, isLoading, error, isError } = useJobOffers();
 
-    const adaptedOffers = useMemo(() => {
+    // SINGLE DATA SOURCE: Transform raw data to OfferCardProps
+    const allOffers = useMemo(() => {
         if (!jobOffersData?.jobs) return [];
-        
-        return jobOffersData.jobs.map(job => ({
+
+        const offers = jobOffersData.jobs.map(job => ({
             id: job.id,
             logoSrc: job.company?.logo_url || '/resources/Icons/default-company-logo.svg',
             publish_date: formatPublishDate(job.created_at),
@@ -37,44 +33,37 @@ export default function OpportunitiesPage() {
             companyId: job.company_id,
             preferenceScore: job.preference_score || 0
         } as OfferCardProps));
-    }, [jobOffersData?.jobs]);
 
-    useEffect(() => {
-        if (adaptedOffers.length > 0 && !filtersApplied) {
-            setGlobalFilteredData(adaptedOffers);
-        }
-    }, [adaptedOffers, filtersApplied]);
+        return offers;
+    }, [jobOffersData?.jobs, jobOffersData?.total]);
 
+    // DataFilter will provide filtered results via handleFilterChange
+    const [filteredData, setFilteredData] = useState<OfferCardProps[]>([]);
+
+    // Use filteredData if available, otherwise use allOffers (during initial load)
+    const dataToDisplay = filteredData.length > 0 ? filteredData : allOffers;
+
+    // SINGLE SOURCE: Everything uses dataToDisplay
     const companies = useMemo(() => {
-        return aggregateCompaniesByOffers(adaptedOffers);
-    }, [adaptedOffers]);
-
-    const filteredCompanies = useMemo(() => {
-        if (filtersApplied) {
-            return updateCompanyOfferCounts(companies, globalFilteredData);
-        }
-        return companies;
-    }, [companies, globalFilteredData, filtersApplied]);
+        return aggregateCompaniesByOffers(dataToDisplay);
+    }, [dataToDisplay]);
 
     const displayOffers = useMemo(() => {
-        const baseOffers = filtersApplied ? globalFilteredData : adaptedOffers;
-
         if (selectedCompany) {
-            return baseOffers.filter(offer => offer.company === selectedCompany.name);
+            return dataToDisplay.filter((offer: OfferCardProps) => offer.company === selectedCompany.name);
         }
 
-        return baseOffers;
-    }, [globalFilteredData, adaptedOffers, selectedCompany, filtersApplied]);
+        return dataToDisplay;
+    }, [dataToDisplay, selectedCompany]);
 
     const handleCompanyClick = (companyId: number, companyName: string) => {
         setSelectedCompany({ id: companyId, name: companyName });
         setShowCompanies(false);
     };
 
-    const handleFilterChange = (filtered: OfferCardProps[]) => {
-        setGlobalFilteredData(filtered);
-        setFiltersApplied(true);
-    };
+    const handleFilterChange = useCallback((filtered: OfferCardProps[]) => {
+        setFilteredData(filtered);
+    }, []);
 
     const handleBack = () => {
         setSelectedCompany(null);
@@ -127,7 +116,7 @@ export default function OpportunitiesPage() {
                 <div className="lg:w-[300px] lg:flex-shrink-0">
                     <div className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
                         <DataFilterPanel
-                            data={adaptedOffers}
+                            data={allOffers}
                             onFilter={handleFilterChange}
                             setShowCompanies={setShowCompanies}
                             showCompanies={showCompanies}
@@ -174,7 +163,7 @@ export default function OpportunitiesPage() {
                         </>
                     ) : (
                         <CompanyCardHolder
-                            companies={filteredCompanies}
+                            companies={companies}
                             onCompanyClick={handleCompanyClick}
                         />
                     )}
