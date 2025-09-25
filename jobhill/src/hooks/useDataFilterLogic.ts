@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { OfferCardProps } from "@/interfaces/OfferCard";
 
-export function useDataFilterLogic(data: OfferCardProps[]) {
+export function useDataFilterLogic(data: OfferCardProps[], selectedCompany?: {id: number, name: string} | null) {
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [showHiddenOnly, setShowHiddenOnly] = useState(false);
   const [showAppliedJobs, setShowAppliedJobs] = useState(false);
@@ -21,6 +21,10 @@ export function useDataFilterLogic(data: OfferCardProps[]) {
 
     return data
       .filter((item) => {
+        if (selectedCompany && item.company !== selectedCompany.name) {
+          return false;
+        }
+
         if (showFavoritesOnly && !item.isFavorite) return false;
 
         if (lowercasedCompanies.length > 0 && !lowercasedCompanies.some(company =>
@@ -77,7 +81,7 @@ export function useDataFilterLogic(data: OfferCardProps[]) {
           ? a.publish_date.localeCompare(b.publish_date)
           : b.publish_date.localeCompare(a.publish_date);
       });
-  }, [data, showFavoritesOnly, filters]);
+  }, [data, showFavoritesOnly, filters, selectedCompany]);
 
   return {
     filteredData,

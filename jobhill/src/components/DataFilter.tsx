@@ -12,9 +12,10 @@ interface DataFilterPanelProps {
   onFilter: (filtered: OfferCardProps[]) => void;
   setShowCompanies: React.Dispatch<React.SetStateAction<boolean>>;
   showCompanies: boolean;
+  selectedCompany?: {id: number, name: string} | null;
 }
 
-const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter, setShowCompanies, showCompanies }) => {
+const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter, setShowCompanies, showCompanies, selectedCompany }) => {
     const locations = getUniqueValues(data, "location");
     const categories = getUniqueTagsByType(data, "category");
     const modalities = getUniqueTagsByType(data, "modality");
@@ -35,7 +36,7 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter, setSh
         setShowFavoritesOnly,
         showHiddenOnly,
         setShowHiddenOnly,
-    } = useDataFilterLogic(data);
+    } = useDataFilterLogic(data, selectedCompany);
 
     useEffect(() => {
         onFilter(filteredData);
@@ -59,7 +60,11 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter, setSh
         <div className={DataFilterStyles.Wrapper}>
             
             <p className={DataFilterStyles.Title}>
-                Showing {filteredData.length} of {data.length} Jobs
+                Showing {filteredData.length} of {
+                    selectedCompany
+                        ? data.filter(job => job.company === selectedCompany.name).length
+                        : data.length
+                } Jobs
             </p>
             
             <label className={DataFilterStyles.Checkbox}>

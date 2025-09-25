@@ -48,13 +48,7 @@ export default function OpportunitiesPage() {
         return aggregateCompaniesByOffers(dataToDisplay);
     }, [dataToDisplay]);
 
-    const displayOffers = useMemo(() => {
-        if (selectedCompany) {
-            return dataToDisplay.filter((offer: OfferCardProps) => offer.company === selectedCompany.name);
-        }
-
-        return dataToDisplay;
-    }, [dataToDisplay, selectedCompany]);
+    const displayOffers = dataToDisplay;
 
     const handleCompanyClick = (companyId: number, companyName: string) => {
         setSelectedCompany({ id: companyId, name: companyName });
@@ -120,6 +114,7 @@ export default function OpportunitiesPage() {
                             onFilter={handleFilterChange}
                             setShowCompanies={setShowCompanies}
                             showCompanies={showCompanies}
+                            selectedCompany={selectedCompany}
                         />
                     </div>
                 </div>
@@ -140,7 +135,12 @@ export default function OpportunitiesPage() {
                         </div>
                     )}
 
-                    {!showCompanies ? (
+                    {(showCompanies && !selectedCompany) ? (
+                        <CompanyCardHolder
+                            companies={companies}
+                            onCompanyClick={handleCompanyClick}
+                        />
+                    ) : (
                         <>
                             {displayOffers.length === 0 ? (
                                 <div className="flex items-center justify-center h-[400px]">
@@ -161,11 +161,6 @@ export default function OpportunitiesPage() {
                                 />
                             )}
                         </>
-                    ) : (
-                        <CompanyCardHolder
-                            companies={companies}
-                            onCompanyClick={handleCompanyClick}
-                        />
                     )}
 
                 </div>
