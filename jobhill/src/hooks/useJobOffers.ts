@@ -317,6 +317,17 @@ export function useUnhideJob() {
 
       return { unhddenJob, previousHiddenJobsData, previousUserPreferences }
     },
+    onSuccess: (_, jobId, context) => {
+      if (context?.unhddenJob) {
+        toast.success(
+          `Job unhidden successfully`,
+          {
+            duration: 3000,
+            position: 'top-center',
+          }
+        )
+      }
+    },
     onError: (_err, jobId, context) => {
       // On error, restore the previous state
       if (context?.previousHiddenJobsData) {
