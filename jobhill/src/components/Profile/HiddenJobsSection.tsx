@@ -1,20 +1,25 @@
 'use client'
 
+import { useState } from 'react'
 import { Eye, Calendar } from 'lucide-react'
 import type { JobOfferResponse } from '@/interfaces/JobOffer'
 import { useUnhideJob } from '@/hooks/useJobOffers'
+import { unhideJobAndUpdate } from '@/components/OfferCard/OfferCardHolder'
 
 interface HiddenJobsSectionProps {
   hiddenJobs: JobOfferResponse[]
   isLoading: boolean
 }
 
-function HiddenJobCard({ job, onUnhide }: {
+function HiddenJobCard({ job, onUnhide, isUnhiding }: {
   job: JobOfferResponse
   onUnhide: (jobId: string) => void
+  isUnhiding: boolean
 }) {
   return (
-    <div className="p-3 border border-gray-200 hover:bg-gray-50 rounded-lg transition-colors min-w-0 flex-shrink-0">
+    <div className={`p-3 border border-gray-200 hover:bg-gray-50 rounded-lg transition-all duration-500 min-w-0 flex-shrink-0 ${
+      isUnhiding ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'
+    }`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2 flex-1 min-w-0">
           <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -77,10 +82,32 @@ export default function HiddenJobsSection({
   hiddenJobs,
   isLoading
 }: HiddenJobsSectionProps) {
+  const [unhidingJobs, setUnhidingJobs] = useState<Set<string>>(new Set())
   const unhideJobMutation = useUnhideJob()
 
   const handleUnhide = (jobId: string) => {
-    unhideJobMutation.mutate(jobId)
+    // Start fade-out animation
+    setUnhidingJobs(prev => new Set(prev).add(jobId))
+    unhideJobAndUpdate(jobId)
+
+    setTimeout(() => {
+      unhideJobMutation.mutate(jobId, {
+        onSuccess: () => {
+          setUnhidingJobs(prev => {
+            const newSet = new Set(prev)
+            newSet.delete(jobId)
+            return newSet
+          })
+        },
+        onError: () => {
+          setUnhidingJobs(prev => {
+            const newSet = new Set(prev)
+            newSet.delete(jobId)
+            return newSet
+          })
+        }
+      })
+    }, 200)
   }
   if (!hiddenJobs.length && !isLoading) {
     return (
@@ -117,6 +144,7 @@ export default function HiddenJobsSection({
               key={job.id}
               job={job}
               onUnhide={handleUnhide}
+              isUnhiding={unhidingJobs.has(job.id)}
             />
           ))}
         </div>

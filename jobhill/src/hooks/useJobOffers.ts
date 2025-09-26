@@ -97,7 +97,6 @@ export function useToggleFavorite() {
       return response.json()
     },
     onMutate: async ({ jobId, isFavorite }) => {
-      // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: jobOffersKeys.allJobs() })
       queryClient.setQueryData(
         jobOffersKeys.allJobs(),
@@ -116,7 +115,6 @@ export function useToggleFavorite() {
       )
     },
     onError: (err, { jobId, isFavorite }) => {
-      // Revert optimistic update on error
       queryClient.setQueryData(
         jobOffersKeys.allJobs(),
         (oldData: JobOffersApiResponse | undefined) => {
