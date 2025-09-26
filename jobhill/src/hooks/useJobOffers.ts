@@ -1,6 +1,7 @@
 'use client'
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import toast from 'react-hot-toast'
 import type { JobOffersApiResponse, JobOfferResponse } from '@/interfaces/JobOffer'
 
 async function fetchAllJobOffers(): Promise<JobOffersApiResponse> {
@@ -235,6 +236,114 @@ export function useHideJob() {
           (oldHiddenJobs: any) => {
             if (!oldHiddenJobs) return []
             return oldHiddenJobs.filter((job: any) => job.id !== jobId)
+          }
+        )
+      }
+    },
+  })
+}
+
+export function useUnhideJob() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (jobId: string) => {
+      const response = await fetch('/api/user-preferences', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          field: 'hidden_jobs',
+          value: jobId,
+          action: 'remove'
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to unhide job')
+      }
+
+      return response.json()
+    },
+    onMutate: async (jobId: string) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: jobOffersKeys.hiddenJobs() })
+
+      const hiddenJobsData = queryClient.getQueryData(jobOffersKeys.hiddenJobs()) as any
+      const unhddenJob = hiddenJobsData?.find((job: any) => job.id === jobId)
+      const userPreferencesData = queryClient.getQueryData(['user-preferences', 'preferences']) as any
+
+      const previousHiddenJobsData = hiddenJobsData
+      const previousUserPreferences = userPreferencesData
+
+      queryClient.setQueryData(
+        jobOffersKeys.hiddenJobs(),
+        (oldData: any) => {
+          if (!oldData) return []
+          return oldData.filter((job: any) => job.id !== jobId)
+        }
+      )
+
+      if (unhddenJob) {
+        const currentHiddenJobIds = userPreferencesData?.preferences?.hidden_jobs || []
+        const updatedHiddenJobIds = currentHiddenJobIds.filter((id: string) => id !== jobId)
+
+        if (userPreferencesData) {
+          queryClient.setQueryData(
+            ['user-preferences', 'preferences'],
+            {
+              ...userPreferencesData,
+              preferences: {
+                ...userPreferencesData.preferences,
+                hidden_jobs: updatedHiddenJobIds
+              }
+            }
+          )
+        }
+
+        queryClient.setQueryData(
+          jobOffersKeys.allJobs(),
+          (oldData: JobOffersApiResponse | undefined) => {
+            if (!oldData) return oldData
+
+            return {
+              ...oldData,
+              jobs: [unhddenJob, ...oldData.jobs],
+              total: oldData.total + 1,
+            }
+          }
+        )
+      }
+
+      return { unhddenJob, previousHiddenJobsData, previousUserPreferences }
+    },
+    onError: (_err, jobId, context) => {
+      // On error, restore the previous state
+      if (context?.previousHiddenJobsData) {
+        queryClient.setQueryData(
+          jobOffersKeys.hiddenJobs(),
+          context.previousHiddenJobsData
+        )
+      }
+
+      // Restore user preferences cache
+      if (context?.previousUserPreferences) {
+        queryClient.setQueryData(
+          ['user-preferences', 'preferences'],
+          context.previousUserPreferences
+        )
+      }
+
+      if (context?.unhddenJob) {
+        queryClient.setQueryData(
+          jobOffersKeys.allJobs(),
+          (oldData: JobOffersApiResponse | undefined) => {
+            if (!oldData) return oldData
+            return {
+              ...oldData,
+              jobs: oldData.jobs.filter(job => job.id !== jobId),
+              total: oldData.total - 1,
+            }
           }
         )
       }

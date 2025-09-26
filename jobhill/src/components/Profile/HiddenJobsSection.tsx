@@ -2,14 +2,16 @@
 
 import { Eye, Calendar } from 'lucide-react'
 import type { JobOfferResponse } from '@/interfaces/JobOffer'
+import { useUnhideJob } from '@/hooks/useJobOffers'
 
 interface HiddenJobsSectionProps {
   hiddenJobs: JobOfferResponse[]
   isLoading: boolean
 }
 
-function HiddenJobCard({ job }: {
+function HiddenJobCard({ job, onUnhide }: {
   job: JobOfferResponse
+  onUnhide: (jobId: string) => void
 }) {
   return (
     <div className="p-3 border border-gray-200 hover:bg-gray-50 rounded-lg transition-colors min-w-0 flex-shrink-0">
@@ -58,6 +60,14 @@ function HiddenJobCard({ job }: {
             </div>
           </div>
         </div>
+
+        <button
+          onClick={() => onUnhide(job.id)}
+          className="flex items-center justify-center w-8 h-8 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex-shrink-0 ml-2"
+          title="Unhide job"
+        >
+          <Eye className="w-4 h-4" />
+        </button>
       </div>
     </div>
   )
@@ -67,6 +77,11 @@ export default function HiddenJobsSection({
   hiddenJobs,
   isLoading
 }: HiddenJobsSectionProps) {
+  const unhideJobMutation = useUnhideJob()
+
+  const handleUnhide = (jobId: string) => {
+    unhideJobMutation.mutate(jobId)
+  }
   if (!hiddenJobs.length && !isLoading) {
     return (
       <div className="bg-white rounded-xl shadow-sm p-6">
@@ -101,6 +116,7 @@ export default function HiddenJobsSection({
             <HiddenJobCard
               key={job.id}
               job={job}
+              onUnhide={handleUnhide}
             />
           ))}
         </div>
