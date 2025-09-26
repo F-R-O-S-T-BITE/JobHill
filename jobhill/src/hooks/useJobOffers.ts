@@ -16,7 +16,7 @@ async function fetchAllJobOffers(): Promise<JobOffersApiResponse> {
 const jobOffersKeys = {
   all: ['job-offers'] as const,
   allJobs: () => [...jobOffersKeys.all, 'all'] as const,
-  hiddenJobs: (hiddenJobIds: string[]) => [...jobOffersKeys.all, 'hidden', hiddenJobIds] as const,
+  hiddenJobs: () => [...jobOffersKeys.all, 'hidden'] as const,
 }
 
 export function useJobOffers() {
@@ -161,7 +161,15 @@ export function useHideJob() {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: jobOffersKeys.allJobs() })
 
-      // Optimistically update cache immediately when mutation starts
+      const allJobsData = queryClient.getQueryData<JobOffersApiResponse>(jobOffersKeys.allJobs())
+      const hiddenJob = allJobsData?.jobs.find(job => job.id === jobId)
+      const userPreferencesData = queryClient.getQueryData(['user-preferences', 'preferences']) as any
+
+      // Store previous data for rollback
+      const previousAllJobsData = allJobsData
+      const previousUserPreferences = userPreferencesData
+
+      // Remove job from main job offers cache
       queryClient.setQueryData(
         jobOffersKeys.allJobs(),
         (oldData: JobOffersApiResponse | undefined) => {
@@ -174,10 +182,62 @@ export function useHideJob() {
           }
         }
       )
+
+      if (hiddenJob) {
+        const currentHiddenJobIds = userPreferencesData?.preferences?.hidden_jobs || []
+        const updatedHiddenJobIds = [...currentHiddenJobIds, jobId]
+
+        if (userPreferencesData) {
+          queryClient.setQueryData(
+            ['user-preferences', 'preferences'],
+            {
+              ...userPreferencesData,
+              preferences: {
+                ...userPreferencesData.preferences,
+                hidden_jobs: updatedHiddenJobIds
+              }
+            }
+          )
+        }
+
+        queryClient.setQueryData(
+          jobOffersKeys.hiddenJobs(),
+          (oldHiddenJobs: any) => {
+            const currentHiddenJobs = oldHiddenJobs || []
+            return [...currentHiddenJobs, hiddenJob]
+          }
+        )
+      }
+
+      return { hiddenJob, previousAllJobsData, previousUserPreferences }
     },
-    onError: (err, jobId) => {
-      // On error, refetch to get the correct state
-      queryClient.invalidateQueries({ queryKey: jobOffersKeys.allJobs() });
+    onError: (_err, jobId, context) => {
+      // On error, restore the previous state
+      if (context?.previousAllJobsData) {
+        queryClient.setQueryData(
+          jobOffersKeys.allJobs(),
+          context.previousAllJobsData
+        )
+      }
+
+      // Restore user preferences cache
+      if (context?.previousUserPreferences) {
+        queryClient.setQueryData(
+          ['user-preferences', 'preferences'],
+          context.previousUserPreferences
+        )
+      }
+
+      // Remove the job from hidden jobs cache if it was added
+      if (context?.hiddenJob) {
+        queryClient.setQueryData(
+          jobOffersKeys.hiddenJobs(),
+          (oldHiddenJobs: any) => {
+            if (!oldHiddenJobs) return []
+            return oldHiddenJobs.filter((job: any) => job.id !== jobId)
+          }
+        )
+      }
     },
   })
 }
@@ -227,14 +287,13 @@ export function useHideCompany() {
     },
     onError: (err, companyId) => {
       // On error, refetch to get the correct state
-      queryClient.invalidateQueries({ queryKey: jobOffersKeys.allJobs() });
     },
   })
 }
 
 export function useHiddenJobOffers(hiddenJobIds: string[]) {
   return useQuery({
-    queryKey: jobOffersKeys.hiddenJobs(hiddenJobIds),
+    queryKey: jobOffersKeys.hiddenJobs(),
     queryFn: async () => {
       if (!hiddenJobIds.length) {
         return []

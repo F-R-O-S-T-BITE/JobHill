@@ -1,6 +1,7 @@
 'use client'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuthModal } from '@/contexts/AuthModalContext'
+import { jobOffersKeys } from './useJobOffers'
 
 export interface UserPreferences {
   user_id: string;
@@ -133,6 +134,16 @@ export function useUpdatePreference() {
           userPreferencesKeys.preferences(),
           updatedPreferences
         )
+
+        if (field === 'hidden_jobs' && !isBooleanField) {
+          queryClient.setQueryData(
+            jobOffersKeys.hiddenJobs(),
+            (oldHiddenJobs: any) => {
+              // The actual job data will be updated by useHideJob mutation
+              return oldHiddenJobs || []
+            }
+          )
+        }
       }
 
       return { previousPreferences }
