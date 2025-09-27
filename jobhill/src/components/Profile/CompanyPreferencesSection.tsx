@@ -82,28 +82,63 @@ export default function CompanyPreferencesSection({
   handleCompanyPreference
 }: CompanyPreferencesSectionProps) {
   const [companySearch, setCompanySearch] = useState('')
+  const [filterMode, setFilterMode] = useState<'all' | 'preferred' | 'hidden'>('all')
 
-  const filteredCompanies = companiesData?.companies?.filter(company =>
-    company.name.toLowerCase().includes(companySearch.toLowerCase())
-  ) || []
+  const currentPreferredIds = pendingChanges.companies.preferred.length > 0
+    ? pendingChanges.companies.preferred
+    : preferences?.preferred_companies || []
+  const currentHiddenIds = pendingChanges.companies.hidden.length > 0
+    ? pendingChanges.companies.hidden
+    : preferences?.hidden_companies || []
+
+  const filteredCompanies = companiesData?.companies?.filter(company => {
+    const matchesSearch = company.name.toLowerCase().includes(companySearch.toLowerCase())
+    if (!matchesSearch) return false
+
+    switch (filterMode) {
+      case 'preferred':
+        return currentPreferredIds.includes(company.id)
+      case 'hidden':
+        return currentHiddenIds.includes(company.id)
+      case 'all':
+      default:
+        return true
+    }
+  }) || []
 
   return (
     <div className="bg-white rounded-xl shadow-sm p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold text-gray-900">Company Preferences</h2>
         <div className="flex space-x-4 text-sm">
-          <div className="flex items-center space-x-2">
-            <Star className="w-4 h-4 text-[#0466C8] fill-current" />
-            <span className="text-gray-600">
-              {(pendingChanges.companies.preferred.length > 0 ? pendingChanges.companies.preferred : preferences?.preferred_companies || []).length} preferred
+          <button
+            onClick={() => setFilterMode(filterMode === 'preferred' ? 'all' : 'preferred')}
+            className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg transition-colors ${
+              filterMode === 'preferred'
+                ? 'bg-blue-100 text-[#0466C8]'
+                : 'hover:bg-blue-50 text-gray-600 hover:text-[#0466C8]'
+            }`}
+            title={filterMode === 'preferred' ? 'Show all companies' : 'Show only preferred companies'}
+          >
+            <Star className={`w-4 h-4 ${filterMode === 'preferred' ? 'text-[#0466C8] fill-current' : 'text-[#0466C8] fill-current'}`} />
+            <span>
+              {currentPreferredIds.length} preferred
             </span>
-          </div>
-          <div className="flex items-center space-x-2">
+          </button>
+          <button
+            onClick={() => setFilterMode(filterMode === 'hidden' ? 'all' : 'hidden')}
+            className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg transition-colors ${
+              filterMode === 'hidden'
+                ? 'bg-red-100 text-red-600'
+                : 'hover:bg-red-50 text-gray-600 hover:text-red-500'
+            }`}
+            title={filterMode === 'hidden' ? 'Show all companies' : 'Show only hidden companies'}
+          >
             <EyeOff className="w-4 h-4 text-red-500" />
-            <span className="text-gray-600">
-              {(pendingChanges.companies.hidden.length > 0 ? pendingChanges.companies.hidden : preferences?.hidden_companies || []).length} hidden
+            <span>
+              {currentHiddenIds.length} hidden
             </span>
-          </div>
+          </button>
         </div>
       </div>
 
@@ -124,28 +159,55 @@ export default function CompanyPreferencesSection({
           <p className="text-gray-600">Loading companies...</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
-          {filteredCompanies.map((company) => {
-            const currentPreferred = pendingChanges.companies.preferred.length > 0
-              ? pendingChanges.companies.preferred
-              : preferences?.preferred_companies || []
-            const currentHidden = pendingChanges.companies.hidden.length > 0
-              ? pendingChanges.companies.hidden
-              : preferences?.hidden_companies || []
+        <>
+          {filterMode !== 'all' && (
+            <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+              <p className="text-sm text-gray-600">
+                Showing {filterMode === 'preferred' ? 'preferred' : 'hidden'} companies only.{' '}
+                <button
+                  onClick={() => setFilterMode('all')}
+                  className="text-[#0466C8] hover:underline font-medium"
+                >
+                  Show all companies
+                </button>
+              </p>
+            </div>
+          )}
 
-            return (
-              <CompanyCard
-                key={company.id}
-                company={company}
-                isPreferred={currentPreferred.includes(company.id)}
-                isHidden={currentHidden.includes(company.id)}
-                onPrefer={() => handleCompanyPreference(company.id, 'prefer')}
-                onHide={() => handleCompanyPreference(company.id, 'hide')}
-                disabled={!editMode}
-              />
-            )
-          })}
-        </div>
+          {filteredCompanies.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="text-gray-400 text-4xl mb-4">
+                {filterMode === 'preferred' ? '⭐' : filterMode === 'hidden' ? '👁️' : '🏢'}
+              </div>
+              <p className="text-gray-500 font-medium">
+                {filterMode === 'preferred' && 'No preferred companies found'}
+                {filterMode === 'hidden' && 'No hidden companies found'}
+                {filterMode === 'all' && 'No companies match your search'}
+              </p>
+              {filterMode !== 'all' && (
+                <p className="text-sm text-gray-400 mt-2">
+                  {filterMode === 'preferred'
+                    ? 'Start preferring companies to see them here'
+                    : 'Companies you hide will appear here'}
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
+              {filteredCompanies.map((company) => (
+                <CompanyCard
+                  key={company.id}
+                  company={company}
+                  isPreferred={currentPreferredIds.includes(company.id)}
+                  isHidden={currentHiddenIds.includes(company.id)}
+                  onPrefer={() => handleCompanyPreference(company.id, 'prefer')}
+                  onHide={() => handleCompanyPreference(company.id, 'hide')}
+                  disabled={!editMode}
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   )
