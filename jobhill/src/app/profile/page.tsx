@@ -189,15 +189,20 @@ export default function Profile() {
     let newPreferred = [...currentPreferred]
     let newHidden = [...currentHidden]
 
-    newPreferred = newPreferred.filter(id => id !== companyId)
-    newHidden = newHidden.filter(id => id !== companyId)
-
     if (action === 'prefer') {
-      newPreferred.push(companyId)
-    } else if (action === 'hide') {
-      newHidden.push(companyId)
-    }
+      newPreferred = newPreferred.filter(id => id !== companyId)
+      newHidden = newHidden.filter(id => id !== companyId)
 
+      if (!currentPreferred.includes(companyId)) {
+        newPreferred.push(companyId)
+      }
+    } else if (action === 'hide') {
+      newPreferred = newPreferred.filter(id => id !== companyId)
+      newHidden = newHidden.filter(id => id !== companyId)
+      if (!currentHidden.includes(companyId)) {
+        newHidden.push(companyId)
+      }
+    }
     setPendingChanges(prev => ({
       ...prev,
       companies: { preferred: newPreferred, hidden: newHidden }

@@ -102,7 +102,7 @@ export default function CompanyPreferencesSection({
 
     switch (filterMode) {
       case 'preferred':
-        return currentPreferredIds.includes(company.id)
+        return currentPreferredIds.includes(company.id) && !currentHiddenIds.includes(company.id)
       case 'hidden':
         return currentHiddenIds.includes(company.id)
       case 'all':
