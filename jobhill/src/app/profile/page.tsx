@@ -91,6 +91,12 @@ export default function Profile() {
     }
   }, [authLoading, user, router])
 
+  useEffect(() => {
+    if (preferencesData?.preferences && !editMode) {
+      setPendingChanges({ categories: [], preferences: {}, companies: { preferred: [], hidden: [] } })
+    }
+  }, [preferencesData?.preferences?.preferred_companies, preferencesData?.preferences?.hidden_companies, editMode])
+
   const handleSignOut = async () => {
     const supabase = createClient()
     await supabase.auth.signOut()
@@ -170,12 +176,15 @@ export default function Profile() {
   const handleCompanyPreference = (companyId: number, action: 'prefer' | 'hide') => {
     if (!editMode || !preferencesData?.preferences) return
 
+    const dbPreferred = preferencesData.preferences.preferred_companies || []
+    const dbHidden = preferencesData.preferences.hidden_companies || []
+
     const currentPreferred = pendingChanges.companies.preferred.length > 0
       ? pendingChanges.companies.preferred
-      : preferencesData.preferences.preferred_companies
+      : dbPreferred
     const currentHidden = pendingChanges.companies.hidden.length > 0
       ? pendingChanges.companies.hidden
-      : preferencesData.preferences.hidden_companies
+      : dbHidden
 
     let newPreferred = [...currentPreferred]
     let newHidden = [...currentHidden]

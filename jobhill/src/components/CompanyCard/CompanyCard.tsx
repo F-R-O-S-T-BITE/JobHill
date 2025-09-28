@@ -7,7 +7,7 @@ import { useState } from "react";
 interface CompanyCardComponentProps {
     card: CompanyCardProps;
     onCompanyClick: (companyId: number, companyName: string) => void;
-    onHideCompany?: (companyId: number) => void;
+    onHideCompany?: (companyId: number, isCurrentlyPreferred: boolean) => void;
     onPreferCompany?: (companyId: number, isCurrentlyPreferred: boolean) => void;
 }
 
@@ -15,8 +15,8 @@ const CompanyCard = ({ card, onCompanyClick, onHideCompany, onPreferCompany }: C
     const [showConfirmHide, setShowConfirmHide] = useState(false);
     const { data: userPreferencesData } = useUserPreferences();
 
-    const isPreferred = userPreferencesData?.preferences?.preferred_companies?.includes(card.id) || false;
     const isHidden = userPreferencesData?.preferences?.hidden_companies?.includes(card.id) || false;
+    const isPreferred = (userPreferencesData?.preferences?.preferred_companies?.includes(card.id) || false) && !isHidden; 
 
     const handleCardClick = () => {
         onCompanyClick(card.id, card.name);
@@ -28,7 +28,7 @@ const CompanyCard = ({ card, onCompanyClick, onHideCompany, onPreferCompany }: C
     };
 
     const handleConfirmHide = () => {
-        onHideCompany?.(card.id);
+        onHideCompany?.(card.id, isPreferred);
         setShowConfirmHide(false);
     };
 

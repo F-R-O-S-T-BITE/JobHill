@@ -84,12 +84,17 @@ export default function CompanyPreferencesSection({
   const [companySearch, setCompanySearch] = useState('')
   const [filterMode, setFilterMode] = useState<'all' | 'preferred' | 'hidden'>('all')
 
+  const basePreferredIds = preferences?.preferred_companies || []
+  const baseHiddenIds = preferences?.hidden_companies || []
+
   const currentPreferredIds = pendingChanges.companies.preferred.length > 0
     ? pendingChanges.companies.preferred
-    : preferences?.preferred_companies || []
+    : basePreferredIds
   const currentHiddenIds = pendingChanges.companies.hidden.length > 0
     ? pendingChanges.companies.hidden
-    : preferences?.hidden_companies || []
+    : baseHiddenIds
+
+  const actualPreferredCount = currentPreferredIds.filter((id: number) => !currentHiddenIds.includes(id)).length
 
   const filteredCompanies = companiesData?.companies?.filter(company => {
     const matchesSearch = company.name.toLowerCase().includes(companySearch.toLowerCase())
@@ -122,7 +127,7 @@ export default function CompanyPreferencesSection({
           >
             <Star className={`w-4 h-4 ${filterMode === 'preferred' ? 'text-[#0466C8] fill-current' : 'text-[#0466C8] fill-current'}`} />
             <span>
-              {currentPreferredIds.length} preferred
+              {actualPreferredCount} preferred
             </span>
           </button>
           <button
@@ -194,17 +199,22 @@ export default function CompanyPreferencesSection({
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
-              {filteredCompanies.map((company) => (
-                <CompanyCard
-                  key={company.id}
-                  company={company}
-                  isPreferred={currentPreferredIds.includes(company.id)}
-                  isHidden={currentHiddenIds.includes(company.id)}
-                  onPrefer={() => handleCompanyPreference(company.id, 'prefer')}
-                  onHide={() => handleCompanyPreference(company.id, 'hide')}
-                  disabled={!editMode}
-                />
-              ))}
+              {filteredCompanies.map((company) => {
+                const isHidden = currentHiddenIds.includes(company.id)
+                const isPreferred = currentPreferredIds.includes(company.id) && !isHidden 
+
+                return (
+                  <CompanyCard
+                    key={company.id}
+                    company={company}
+                    isPreferred={isPreferred}
+                    isHidden={isHidden}
+                    onPrefer={() => handleCompanyPreference(company.id, 'prefer')}
+                    onHide={() => handleCompanyPreference(company.id, 'hide')}
+                    disabled={!editMode}
+                  />
+                )
+              })}
             </div>
           )}
         </>

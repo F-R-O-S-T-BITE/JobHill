@@ -2,7 +2,8 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import type { JobOffersApiResponse, JobOfferResponse } from '@/interfaces/JobOffer'
+import type { JobOffersApiResponse } from '@/interfaces/JobOffer'
+import { userPreferencesKeys, type UserPreferences } from './useUserPreferences'
 
 async function fetchAllJobOffers(): Promise<JobOffersApiResponse> {
   const response = await fetch('/api/job-offers')
@@ -385,8 +386,8 @@ export function useHideCompany() {
     onMutate: async (companyId: number) => {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: jobOffersKeys.allJobs() })
+      await queryClient.cancelQueries({ queryKey: userPreferencesKeys.preferences() })
 
-      // Optimistically update cache immediately when mutation starts
       queryClient.setQueryData(
         jobOffersKeys.allJobs(),
         (oldData: JobOffersApiResponse | undefined) => {
@@ -402,9 +403,26 @@ export function useHideCompany() {
           }
         }
       )
-    },
-    onError: (err, companyId) => {
-      // On error, refetch to get the correct state
+
+      queryClient.setQueryData(
+        userPreferencesKeys.preferences(),
+        (oldData: { preferences: UserPreferences; success: boolean } | undefined) => {
+          if (!oldData) return oldData
+
+          const currentHiddenCompanies = oldData.preferences.hidden_companies || []
+          const updatedHiddenCompanies = currentHiddenCompanies.includes(companyId)
+            ? currentHiddenCompanies
+            : [...currentHiddenCompanies, companyId]
+
+          return {
+            ...oldData,
+            preferences: {
+              ...oldData.preferences,
+              hidden_companies: updatedHiddenCompanies
+            }
+          }
+        }
+      )
     },
   })
 }
