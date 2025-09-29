@@ -6,8 +6,8 @@ import { useAuthModal } from "@/contexts/AuthModalContext";
 import { showHideJobToast } from "@/components/Toast/HideJobToast";
 import { showApplicationSuccessToast } from "@/components/Toast/ApplicationSuccessToast";
 import { hideJob, unhideJob } from "@/components/OfferCard/OfferCardHolder";
-import { useUserPreferences, useFavoriteJob, useUnfavoriteJob, useHideJobPreference } from "@/hooks/useUserPreferences";
-import { useCreateApplication } from "@/hooks/useJobOffers";
+import { useUserPreferences, useFavoriteJob, useUnfavoriteJob } from "@/hooks/useUserPreferences";
+import { useCreateApplication, useHideJob } from "@/hooks/useJobOffers";
 
 export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
     const [isConfirmationAppliedModalOpen,setisConfirmationAppliedModalOpen] = useState(false); //Modal for asking if user applied to the job, after redirecting
@@ -18,7 +18,7 @@ export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
     const { data: userPreferencesData } = useUserPreferences();
     const favoriteJobMutation = useFavoriteJob();
     const unfavoriteJobMutation = useUnfavoriteJob();
-    const hideJobMutation = useHideJobPreference();
+    const hideJobMutation = useHideJob();
     const createApplicationMutation = useCreateApplication();
     
     // Check if job is favorited based on cached preferences

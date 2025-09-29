@@ -31,7 +31,6 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       const isAuth = !!session;
       setIsAuthenticated(isAuth);
 
-      console.log('Onboarding status:', onboardingStatus);
       if (isAuth && !isOnboardingLoading && onboardingStatus?.needsOnboarding) {
         setShowOnboarding(true);
       }
