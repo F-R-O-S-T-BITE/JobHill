@@ -32,12 +32,12 @@ export const OnboardingModalStyles = {
   CompanyGrid: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 max-h-80 overflow-y-auto rounded-lg ",
   CompanyCard: "relative p-4 text-sm rounded-xl border-2 transition-all duration-200 cursor-pointer flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md",
   CompanyCardDefault: "border-gray-200 bg-white text-gray-700 hover:border-[#0353A4] hover:bg-blue-50",
-  CompanyCardFavorite: "border-green-500 bg-green-50 text-green-700 shadow-green-100",
+  CompanyCardFavorite: "border-[#0466C8] bg-blue-50 text-blue-700 shadow-blue-100",
   CompanyCardHidden: "border-red-500 bg-red-50 text-red-700 shadow-red-100",
   CompanyLogo: "w-12 h-12 rounded-lg object-contain mx-auto flex-shrink-0",
   CompanyName: "text-xs font-semibold leading-tight",
   CompanyBadge: "absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center shadow-sm border-2 border-white",
-  FavoriteBadge: "bg-green-500 text-white",
+  FavoriteBadge: "bg-[#0466C8] text-white",
   HiddenBadge: "bg-red-500 text-white",
   
   // Categories
@@ -82,7 +82,7 @@ export const OnboardingModalStyles = {
   
   // Company Review Cards
   CompanyReviewGrid: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 p-4 rounded-lg border",
-  CompanyReviewGridPreferred: "bg-green-50 border-green-200",
+  CompanyReviewGridPreferred: "bg-blue-50 border-blue-200",
   CompanyReviewGridHidden: "bg-red-50 border-red-200",
   CompanyReviewCard: "flex items-center gap-2 p-2 bg-white rounded-lg shadow-sm",
   CompanyReviewLogo: "w-8 h-8 object-contain rounded",
@@ -97,16 +97,16 @@ export const OnboardingModalStyles = {
   // Work Authorization Review
   WorkAuthReviewItem: "flex items-center gap-2",
   WorkAuthReviewIndicatorHide: "w-2 h-2 rounded-full bg-red-500",
-  WorkAuthReviewIndicatorShow: "w-2 h-2 rounded-full bg-green-500",
+  WorkAuthReviewIndicatorShow: "w-2 h-2 rounded-full bg-[#0466C8]",
 
   RoleLevelsReviewIndicatorHide: "w-2 h-2 rounded-full bg-red-500 text-black",
-  RoleLevelsReviewIndicatorShow: "w-2 h-2 rounded-full bg-green-500 text-black",
+  RoleLevelsReviewIndicatorShow: "w-2 h-2 rounded-full bg-[#0466C8] text-black",
 
   // Icons
   StarIcon: "w-3 h-3",
   EyeSlashIcon: "w-3 h-3",
-  ThumbUpIcon: "w-5 h-5 text-green-500",
+  ThumbUpIcon: "w-5 h-5 text-[#0466C8]",
   EyeOffIcon: "w-5 h-5 text-red-500",
-  PreferredIcon: "text-green-500",
+  PreferredIcon: "text-[#0466C8]",
   HiddenIcon: "text-red-500",
 }

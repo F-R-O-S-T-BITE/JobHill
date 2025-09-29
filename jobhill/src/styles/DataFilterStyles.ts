@@ -1,5 +1,5 @@
 export const DataFilterStyles = {
-  Wrapper: "mt-6 w-full max-w-full border rounded-xl bg-white p-4 flex flex-col gap-4 shadow-md",
+  Wrapper: " w-full max-w-full border rounded-xl bg-white p-4 flex flex-col gap-3 shadow-md",
   Title: "text-[#0353A4] font-semibold text-xl",
   Checkbox: "flex items-center gap-2 text-lg text-[#001845]",
   Input: "w-full border border-[#D9D9D9] hover:border-[#0466C8] rounded-md pl-10 pr-10 py-2 text-md text-[#0353A4] placeholder-dataFilter",

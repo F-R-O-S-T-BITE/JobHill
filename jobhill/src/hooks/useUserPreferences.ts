@@ -1,6 +1,7 @@
 'use client'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuthModal } from '@/contexts/AuthModalContext'
+import { jobOffersKeys } from './useJobOffers'
 
 export interface UserPreferences {
   user_id: string;
@@ -12,9 +13,9 @@ export interface UserPreferences {
   requires_sponsorship: boolean;
   american_citizen: boolean;
   dont_show_conf_hide: boolean;
-  hide_et: boolean;
-  hide_ng: boolean;
-  hide_internships: boolean;
+  hideET: boolean;
+  hideNG: boolean;
+  hideInternships: boolean;
 }
 
 interface UserPreferencesResponse {
@@ -42,7 +43,7 @@ async function fetchUserPreferences(): Promise<UserPreferencesResponse> {
 
 export function useUserPreferences() {
   const { user } = useAuthModal()
-  
+
   return useQuery({
     queryKey: userPreferencesKeys.preferences(),
     queryFn: fetchUserPreferences,
@@ -65,8 +66,8 @@ export function useUpdatePreference() {
       value,
       action
     }: {
-      field: 'hidden_jobs' | 'favorite_jobs' | 'hidden_companies' | 'preferred_companies' | 'preferred_categories'
-      value: string | number | string[] | number[]
+      field: 'hidden_jobs' | 'favorite_jobs' | 'hidden_companies' | 'preferred_companies' | 'preferred_categories' | 'requires_sponsorship' | 'american_citizen' | 'hideInternships' | 'hideNG' | 'hideET'
+      value: string | number | string[] | number[] | boolean
       action: 'add' | 'remove' | 'set'
     }) => {
       const response = await fetch('/api/user-preferences', {
@@ -94,39 +95,60 @@ export function useUpdatePreference() {
 
       if (previousPreferences) {
         const updatedPreferences = { ...previousPreferences }
-        const currentArray = Array.isArray(updatedPreferences.preferences[field])
-          ? [...updatedPreferences.preferences[field] as any[]]
-          : []
 
-        let newArray
-        switch (action) {
-          case 'add':
-            newArray = currentArray.includes(value) ? currentArray : [...currentArray, value]
-            break
-          case 'remove':
-            newArray = currentArray.filter((item: any) => item !== value)
-            break
-          case 'set':
-            newArray = Array.isArray(value) ? value : [value]
-            break
-          default:
-            newArray = currentArray
-        }
+        const booleanFields = ['requires_sponsorship', 'american_citizen', 'hideInternships', 'hideNG', 'hideET']
+        const isBooleanField = booleanFields.includes(field)
 
-        updatedPreferences.preferences = {
-          ...updatedPreferences.preferences,
-          [field]: newArray
+        if (isBooleanField) {
+          updatedPreferences.preferences = {
+            ...updatedPreferences.preferences,
+            [field]: value as boolean
+          }
+        } else {
+          const currentArray = Array.isArray(updatedPreferences.preferences[field])
+            ? [...updatedPreferences.preferences[field] as any[]]
+            : []
+
+          let newArray
+          switch (action) {
+            case 'add':
+              newArray = currentArray.includes(value) ? currentArray : [...currentArray, value]
+              break
+            case 'remove':
+              newArray = currentArray.filter((item: any) => item !== value)
+              break
+            case 'set':
+              newArray = Array.isArray(value) ? value : [value]
+              break
+            default:
+              newArray = currentArray
+          }
+
+          updatedPreferences.preferences = {
+            ...updatedPreferences.preferences,
+            [field]: newArray
+          }
         }
 
         queryClient.setQueryData(
           userPreferencesKeys.preferences(),
           updatedPreferences
         )
+
+        if (field === 'hidden_jobs' && !isBooleanField) {
+          queryClient.setQueryData(
+            jobOffersKeys.hiddenJobs(),
+            (oldHiddenJobs: any) => {
+              // The actual job data will be updated by useHideJob mutation
+              return oldHiddenJobs || []
+            }
+          )
+        }
       }
 
       return { previousPreferences }
     },
-    onError: (err, variables, context) => {
+    onError: (_err, _variables, context) => {
       if (context?.previousPreferences) {
         queryClient.setQueryData(
           userPreferencesKeys.preferences(),
@@ -172,6 +194,19 @@ export function useHideJobPreference() {
         field: 'hidden_jobs',
         value: jobId,
         action: 'add'
+      }),
+  })
+}
+
+export function useUnhideJobPreference() {
+  const updatePreference = useUpdatePreference()
+
+  return useMutation({
+    mutationFn: (jobId: string) =>
+      updatePreference.mutateAsync({
+        field: 'hidden_jobs',
+        value: jobId,
+        action: 'remove'
       }),
   })
 }

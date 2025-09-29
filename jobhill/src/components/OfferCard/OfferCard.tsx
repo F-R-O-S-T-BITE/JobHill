@@ -44,7 +44,17 @@ const OfferCard = ({card,userPreferences}:{card:OfferCardProps,userPreferences:U
                                 src={card.logoSrc}
                                 alt="Company Logo"
                                 className={OfferCardStyles.Logo}
-                            />
+                                onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                                target.nextElementSibling?.classList.remove('hidden');
+                            }}
+                          />
+                        <div className={`w-[4rem] h-[4rem] sm:w-20 sm:h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center text-lg sm:text-xl font-bold text-gray-600 ${card.logoSrc ? 'hidden' : ''}`}>
+                          {card.company.charAt(0).toUpperCase()}
+                        </div>
+
+                            
                         </div>
                         {/*Info*/}
                         <div className={OfferCardStyles.CardContentRow}>

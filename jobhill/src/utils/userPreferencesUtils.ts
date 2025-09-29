@@ -22,9 +22,9 @@ export async function getUserPreferences(supabase: any, userId: string) {
     requires_sponsorship: false,
     american_citizen: false,
     dont_show_conf_hide: false,
-    hide_et: false,
-    hide_ng: false,
-    hide_internships: false
+    hideET: false,
+    hideNG: false,
+    hideInternships: false
   };
 
   return { preferences: userPreferences, error: null };

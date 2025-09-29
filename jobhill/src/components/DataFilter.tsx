@@ -12,12 +12,10 @@ interface DataFilterPanelProps {
   onFilter: (filtered: OfferCardProps[]) => void;
   setShowCompanies: React.Dispatch<React.SetStateAction<boolean>>;
   showCompanies: boolean;
+  selectedCompany?: {id: number, name: string} | null;
 }
 
-
-const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter, setShowCompanies, showCompanies }) => {
-    const [hasBeenFiltered,setHasBeenFiltered] = useState(false);
-    const [appliedData, setAppliedData] = useState<OfferCardProps[]>(data);
+const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter, setShowCompanies, showCompanies, selectedCompany }) => {
     const locations = getUniqueValues(data, "location");
     const categories = getUniqueTagsByType(data, "category");
     const modalities = getUniqueTagsByType(data, "modality");
@@ -38,40 +36,35 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter, setSh
         setShowFavoritesOnly,
         showHiddenOnly,
         setShowHiddenOnly,
-    } = useDataFilterLogic(data);
+    } = useDataFilterLogic(data, selectedCompany);
 
-    useEffect(()=>{
-        handleApply()
-    },[filteredData])
-
-    const handleApply = () => {
+    useEffect(() => {
         onFilter(filteredData);
-        setAppliedData(filteredData); 
-        setHasBeenFiltered(true);
-    };
+    }, [filteredData, onFilter]);
 
     const handleReset = () => {
         setFilters({
-        company: [] as string[],
-        role: "",
-        category: [] as string[],
-        modality: "",
-        location: "",
-        order: "newest",
-        newGrad: "",
+            company: [] as string[],
+            role: "",
+            category: [] as string[],
+            modality: "",
+            location: "",
+            order: "newest",
+            newGrad: "",
         });
         setShowFavoritesOnly(false);
         setShowHiddenOnly(false);
-        onFilter(data);
-        setAppliedData(data);
-        setHasBeenFiltered(false);
     };
 
     return (
         <div className={DataFilterStyles.Wrapper}>
             
             <p className={DataFilterStyles.Title}>
-                Showing {hasBeenFiltered  ? appliedData.length : data.length} of {data.length} Jobs
+                Showing {filteredData.length} of {
+                    selectedCompany
+                        ? data.filter(job => job.company === selectedCompany.name).length
+                        : data.length
+                } Jobs
             </p>
             
             <label className={DataFilterStyles.Checkbox}>
