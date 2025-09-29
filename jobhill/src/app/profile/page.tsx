@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/utils/supabase/client'
 import { useAuthModal } from '@/contexts/AuthModalContext'
 import { useUserPreferences, useUpdatePreference } from '@/hooks/useUserPreferences'
 import { useCompanies } from '@/hooks/useOnboarding'
@@ -12,6 +11,7 @@ import toast from 'react-hot-toast'
 import ProfileSidebar from '@/components/Profile/ProfileSidebar'
 import CompanyPreferencesSection from '@/components/Profile/CompanyPreferencesSection'
 import HiddenJobsSection from '@/components/Profile/HiddenJobsSection'
+import { handleSignOut, getDisplayName, getAvatarUrl, JOB_CATEGORIES } from '@/utils/profileUtils'
 
 type ActiveSection = 'preferences' | 'apply-extension'
 
@@ -60,7 +60,6 @@ function CategoryTag({ category, isSelected, onToggle, disabled = false }: { cat
   )
 }
 
-
 export default function Profile() {
   const [activeSection, setActiveSection] = useState<ActiveSection>('preferences')
   const [editMode, setEditMode] = useState(false)
@@ -76,14 +75,13 @@ export default function Profile() {
   const { data: preferencesData, isLoading: preferencesLoading } = useUserPreferences()
   const { data: companiesData, isLoading: companiesLoading } = useCompanies()
   const updatePreference = useUpdatePreference()
+  const avatarUrl = getAvatarUrl(user)
+  const displayName = getDisplayName(user)
 
   const preferences = preferencesData?.preferences
   const { data: hiddenJobs, isLoading: hiddenJobsLoading } = useHiddenJobOffers(preferences?.hidden_jobs || [])
 
-  const categories = [
-    'FullStack', 'FrontEnd', 'BackEnd', 'Data & Analytics', 'AI & ML', 'Cybersecurity',
-    'DevOps', 'Game Development', 'Mobile Dev', 'SWE', 'Quant', 'AR/VR', 'Research', 'IT', 'QA & Testing'
-  ]
+  const categories = JOB_CATEGORIES
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -97,59 +95,7 @@ export default function Profile() {
     }
   }, [preferencesData?.preferences?.preferred_companies, preferencesData?.preferences?.hidden_companies, editMode])
 
-  const handleSignOut = async () => {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push('/login')
-  }
-
-  const getDisplayName = () => {
-    if (!user) return ''
-
-    const rawUserMetaData = user.user_metadata
-    const githubIdentity = user.identities?.find((id: any) => id.provider === 'github')
-    const googleIdentity = user.identities?.find((id: any) => id.provider === 'google')
-
-    if (githubIdentity?.identity_data?.preferred_username) {
-      return githubIdentity.identity_data.preferred_username
-    }
-
-    if (googleIdentity?.identity_data?.name) {
-      return googleIdentity.identity_data.name
-    }
-
-    if (rawUserMetaData?.preferred_username) {
-      return rawUserMetaData.preferred_username
-    }
-
-    if (rawUserMetaData?.name) {
-      return rawUserMetaData.name
-    }
-
-    return user.email?.split('@')[0] || 'User'
-  }
-
-  const getAvatarUrl = () => {
-    if (!user) return null
-
-    const rawUserMetaData = user.user_metadata
-    const githubIdentity = user.identities?.find((id: any) => id.provider === 'github')
-    const googleIdentity = user.identities?.find((id: any) => id.provider === 'google')
-
-    if (githubIdentity?.identity_data?.avatar_url) {
-      return githubIdentity.identity_data.avatar_url
-    }
-
-    if (googleIdentity?.identity_data?.avatar_url) {
-      return googleIdentity.identity_data.avatar_url
-    }
-
-    if (rawUserMetaData?.avatar_url) {
-      return rawUserMetaData.avatar_url
-    }
-
-    return null
-  }
+  const handleUserSignOut = () => handleSignOut(router)
 
   const handleCategoryToggle = (category: string) => {
     if (!editMode || !preferencesData?.preferences) return
@@ -172,7 +118,6 @@ export default function Profile() {
 
     setPendingChanges(prev => ({ ...prev, categories: newCategories }))
   }
-
   const handleCompanyPreference = (companyId: number, action: 'prefer' | 'hide') => {
     if (!editMode || !preferencesData?.preferences) return
 
@@ -209,8 +154,6 @@ export default function Profile() {
     }))
   }
 
-
-
   if (authLoading || preferencesLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -221,10 +164,6 @@ export default function Profile() {
       </div>
     )
   }
-
-  const avatarUrl = getAvatarUrl()
-  const displayName = getDisplayName()
-
   return (
     <div className="h-screen bg-gray-50 flex overflow-hidden">
       <button
@@ -240,7 +179,7 @@ export default function Profile() {
         avatarUrl={avatarUrl}
         activeSection={activeSection}
         setActiveSection={setActiveSection}
-        handleSignOut={handleSignOut}
+        handleSignOut={handleUserSignOut}
         isSidebarOpen={isSidebarOpen}
       />
 
