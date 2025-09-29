@@ -73,8 +73,8 @@ export function useDataFilterLogic(data: OfferCardProps[], selectedCompany?: {id
 
         if (aScore === bScore) {
           return filters.order === "newest"
-            ? b.publish_date.localeCompare(a.publish_date)  
-            : a.publish_date.localeCompare(b.publish_date); 
+            ? new Date(b.publish_date).getTime() - new Date(a.publish_date).getTime()  
+            : new Date(a.publish_date).getTime() - new Date(b.publish_date).getTime(); 
         }
 
         return bScore - aScore;
