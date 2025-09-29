@@ -41,7 +41,7 @@ export default function ProfileSidebar({
           )}
         </div>
         <h2 className="mt-2 text-sm sm:text-base font-bold text-gray-900 truncate px-2">{displayName}</h2>
-        <p className="text-xs text-gray-500 truncate">{user.email}</p>
+        <p className="text-xs text-gray-500 truncate">{user?.email || ''}</p>
       </div>
 
       {/* Navigation */}
