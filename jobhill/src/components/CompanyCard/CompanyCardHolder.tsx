@@ -17,7 +17,7 @@ const CompanyCardHolder = ({ companies, onCompanyClick }: CompanyCardHolderProps
     const hideCompany = useHideCompany();
     const [hiddenCompanies, setHiddenCompanies] = useState<Set<number>>(new Set());
 
-    const handleHideCompany = async (companyId: number) => {
+    const handleHideCompany = async (companyId: number, isCurrentlyPreferred: boolean = false) => {
         const company = companies.find(c => c.id === companyId);
         if (!company) return;
 
@@ -36,6 +36,13 @@ const CompanyCardHolder = ({ companies, onCompanyClick }: CompanyCardHolderProps
             },
             onExpire: async () => {
                 try {
+                    if (isCurrentlyPreferred) {
+                        await updatePreference.mutateAsync({
+                            field: 'preferred_companies',
+                            value: companyId,
+                            action: 'remove'
+                        });
+                    }
                     await hideCompany.mutateAsync(companyId);
                 } catch (error) {
                     console.error('Failed to hide company:', error);

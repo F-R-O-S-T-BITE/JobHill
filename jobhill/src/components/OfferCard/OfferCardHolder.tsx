@@ -19,6 +19,13 @@ export const unhideJob = (jobId: string) => {
     globalHiddenJobs.delete(jobId);
 };
 
+export const unhideJobAndUpdate = (jobId: string) => {
+    unhideJob(jobId);
+    if ((window as any).updateOfferCardHolder) {
+        (window as any).updateOfferCardHolder();
+    }
+};
+
 export const isJobHidden = (jobId: string) => {
     return globalHiddenJobs.has(jobId);
 };

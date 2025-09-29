@@ -36,7 +36,7 @@ export const CompanyCardStyles = {
     HideIcon: "w-8 h-8 flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-110 p-2 rounded-full text-gray-500 hover:bg-gray-100",
     PreferIcon: "w-8 h-8 flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-110 p-2 rounded-full text-gray-500 hover:bg-gray-100",
     HideIconActive: "bg-red-50 border border-red-300 text-red-600 hover:bg-red-100",
-    PreferIconActive: "bg-green-50 border border-green-300 text-green-600 hover:bg-green-100",
+    PreferIconActive: "bg-blue-50 border border-blue-300 text-[#0466C8] hover:bg-blue-100",
     Logo: "w-16 h-16 object-contain rounded-lg",
     LogoContainer: "w-24 h-24 flex items-center justify-center",
     CardContent: "flex flex-col items-center text-center w-full mt-2",
@@ -47,7 +47,7 @@ export const CompanyCardStyles = {
 };
 
 export const OfferCardHolderStyles = {
-    Wrapper: "mt-6 w-full max-w-[95vw] lg:max-w-[1250px]  mx-auto px-4 md:px-6 lg:px-8 lg:max-h-[940px] xl:max-h-[1200px] lg:overflow-y-auto border rounded-xl p-10 shadow-md",
+    Wrapper: "mt-2 w-full max-w-[95vw] lg:max-w-[1250px]  mx-auto px-4 md:px-6 lg:px-8 lg:max-h-[940px] xl:max-h-[1200px] lg:overflow-y-auto  rounded-xl p-3 ",
     Grid: "grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 lg:gap-8  justify-items-center flex-grow",
     CompanyGrid: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 justify-items-center flex-grow"
 };
