@@ -11,7 +11,9 @@ import toast from 'react-hot-toast'
 import ProfileSidebar from '@/components/Profile/ProfileSidebar'
 import CompanyPreferencesSection from '@/components/Profile/CompanyPreferencesSection'
 import HiddenJobsSection from '@/components/Profile/HiddenJobsSection'
-import { handleSignOut, getDisplayName, getAvatarUrl, JOB_CATEGORIES } from '@/utils/profileUtils'
+import { handleSignOut, getDisplayName, getAvatarUrl, JOB_CATEGORIES, hasJobFilterChanges, hasCategoryChanges, hasUnhiddenCompanies } from '@/utils/profileUtils'
+import { fetchJobsForCompanies, recalculateJobScoresInCache, jobOffersKeys } from '@/hooks/useJobOffers'
+import { useQueryClient } from '@tanstack/react-query'
 
 type ActiveSection = 'preferences' | 'apply-extension'
 
@@ -75,6 +77,7 @@ export default function Profile() {
   const { data: preferencesData, isLoading: preferencesLoading } = useUserPreferences()
   const { data: companiesData, isLoading: companiesLoading } = useCompanies()
   const updatePreference = useUpdatePreference()
+  const queryClient = useQueryClient()
   const avatarUrl = getAvatarUrl(user)
   const displayName = getDisplayName(user)
 
@@ -207,53 +210,91 @@ export default function Profile() {
                   </button>
                 )}
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     if (editMode) {
-                      const promises = []
+                      try {
+                        const needsToInvalidate = hasJobFilterChanges(pendingChanges)
+                        const hasCategoryUpdates = hasCategoryChanges(pendingChanges)
+                        const currentHiddenCompanies = preferences?.hidden_companies || []
+                        const unhiddenCompanyIds = hasUnhiddenCompanies(pendingChanges, currentHiddenCompanies)
 
-                      if (pendingChanges.categories.length > 0) {
-                        promises.push(updatePreference.mutateAsync({
-                          field: 'preferred_categories',
-                          value: pendingChanges.categories,
-                          action: 'set'
-                        }))
-                      }
+                        const promises = []
 
-                      if (pendingChanges.companies.preferred.length > 0 || pendingChanges.companies.hidden.length > 0) {
-                        if (pendingChanges.companies.preferred.length > 0) {
+                        if (pendingChanges.categories.length > 0) {
                           promises.push(updatePreference.mutateAsync({
-                            field: 'preferred_companies',
-                            value: pendingChanges.companies.preferred,
+                            field: 'preferred_categories',
+                            value: pendingChanges.categories,
                             action: 'set'
                           }))
                         }
-                        if (pendingChanges.companies.hidden.length > 0) {
-                          promises.push(updatePreference.mutateAsync({
-                            field: 'hidden_companies',
-                            value: pendingChanges.companies.hidden,
-                            action: 'set'
-                          }))
+
+                        if (pendingChanges.companies.preferred.length > 0 || pendingChanges.companies.hidden.length > 0) {
+                          if (pendingChanges.companies.preferred.length > 0) {
+                            promises.push(updatePreference.mutateAsync({
+                              field: 'preferred_companies',
+                              value: pendingChanges.companies.preferred,
+                              action: 'set'
+                            }))
+                          }
+                          if (pendingChanges.companies.hidden.length > 0) {
+                            promises.push(updatePreference.mutateAsync({
+                              field: 'hidden_companies',
+                              value: pendingChanges.companies.hidden,
+                              action: 'set'
+                            }))
+                          }
                         }
-                      }
 
-                      Object.entries(pendingChanges.preferences).forEach(([field, value]) => {
-                        promises.push(updatePreference.mutateAsync({ field: field as any, value, action: 'set' }))
-                      })
+                        Object.entries(pendingChanges.preferences).forEach(([field, value]) => {
+                          promises.push(updatePreference.mutateAsync({ field: field as any, value, action: 'set' }))
+                        })
 
+                        await Promise.all(promises)
 
-                      Promise.all(promises).then(() => {
+                        if (needsToInvalidate) {
+                          // If we changed Job Filters, invalidate to fetch missing offers
+                          await queryClient.invalidateQueries({ queryKey: jobOffersKeys.allJobs() })
+                        } else {
+                          // No job filter changes - handle specific cases
+                          if (unhiddenCompanyIds.length > 0) {
+                            // Fetch jobs for newly unhidden companies and add to cache
+                            const newJobs = await fetchJobsForCompanies(unhiddenCompanyIds)
+                            if (newJobs.length > 0) {
+                              queryClient.setQueryData(
+                                jobOffersKeys.allJobs(),
+                                (oldData: any) => {
+                                  if (!oldData) return oldData
+                                  return {
+                                    ...oldData,
+                                    jobs: [...oldData.jobs, ...newJobs],
+                                    total: oldData.total + newJobs.length,
+                                  }
+                                }
+                              )
+                            }
+                          }
+                          if (hasCategoryUpdates) {
+                            const updatedPreferences = {
+                              ...preferences,
+                              preferred_categories: pendingChanges.categories
+                            }
+                            recalculateJobScoresInCache(queryClient, updatedPreferences)
+                          }
+                        }
                         setEditMode(false)
                         setPendingChanges({ categories: [], preferences: {}, companies: { preferred: [], hidden: [] } })
                         toast.success('Preferences updated successfully', {
                           duration: 3000,
                           position: 'top-right',
                         })
-                      }).catch(() => {
+
+                      } catch (error) {
+                        console.error('Error updating preferences:', error)
                         toast.error('Error updating preferences', {
                           duration: 3000,
                           position: 'top-right',
                         })
-                      })
+                      }
                     } else {
                       setEditMode(true)
                     }

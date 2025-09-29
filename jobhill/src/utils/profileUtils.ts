@@ -60,6 +60,38 @@ export const JOB_CATEGORIES = [
   'DevOps', 'Game Development', 'Mobile Dev', 'SWE', 'Quant', 'AR/VR', 'Research', 'IT', 'QA & Testing'
 ] as const
 
+export const JOB_FILTER_FIELDS = [
+  'requires_sponsorship',
+  'american_citizen',
+  'hideInternships',
+  'hideNG',
+  'hideET'
+] as const
+
+export type JobFilterField = typeof JOB_FILTER_FIELDS[number]
+
+export function hasJobFilterChanges(pendingChanges: { preferences: { [key: string]: any } }): boolean {
+  return JOB_FILTER_FIELDS.some(field =>
+    pendingChanges.preferences.hasOwnProperty(field)
+  )
+}
+
+export function hasCategoryChanges(pendingChanges: { categories: string[] }): boolean {
+  return pendingChanges.categories.length > 0
+}
+
+export function hasUnhiddenCompanies(
+  pendingChanges: { companies: { hidden: number[] } },
+  currentHidden: number[]
+): number[] {
+  if (pendingChanges.companies.hidden.length === 0) return []
+  const unhiddenCompanyIds = currentHidden.filter(
+    companyId => !pendingChanges.companies.hidden.includes(companyId)
+  )
+
+  return unhiddenCompanyIds
+}
+
 export function useAuthRedirect(authLoading: boolean, user: User | null, router: any) {
   if (!authLoading && !user) {
     router.push('/login')

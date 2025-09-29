@@ -454,4 +454,73 @@ export function useHiddenJobOffers(hiddenJobIds: string[]) {
   })
 }
 
+export async function fetchJobsForCompanies(companyIds: number[]): Promise<any[]> {
+  if (companyIds.length === 0) return []
+
+  const response = await fetch('/api/job-offers', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ companyIds }),
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch jobs for companies: ${response.statusText}`)
+  }
+
+  return response.json()
+}
+
+export function recalculateJobScoresInCache(
+  queryClient: any,
+  newPreferences: any
+): void {
+  queryClient.setQueryData(
+    jobOffersKeys.allJobs(),
+    (oldData: JobOffersApiResponse | undefined) => {
+      if (!oldData) return oldData
+
+      const updatedJobs = oldData.jobs.map((job) => {
+        let preferenceScore = 0
+
+        if (newPreferences) {
+          if (newPreferences.preferred_companies?.includes(job.company_id)) {
+            preferenceScore += 15
+          }
+
+          if (newPreferences.preferred_categories && job.categories) {
+            const matchingCategories = job.categories.filter((cat: string) =>
+              newPreferences.preferred_categories.includes(cat)
+            ).length
+            if (matchingCategories > 0) {
+              preferenceScore += matchingCategories * 10
+            }
+          }
+        }
+
+        return {
+          ...job,
+          preference_score: preferenceScore,
+        }
+      })
+
+      // Re-sort jobs by preference score
+      updatedJobs.sort((a, b) => {
+        const aScore = a.preference_score || 0
+        const bScore = b.preference_score || 0
+        if (aScore !== bScore) {
+          return bScore - aScore
+        }
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      })
+
+      return {
+        ...oldData,
+        jobs: updatedJobs,
+      }
+    }
+  )
+}
+
 export { jobOffersKeys }

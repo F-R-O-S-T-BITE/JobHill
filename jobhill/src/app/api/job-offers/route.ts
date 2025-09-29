@@ -24,6 +24,111 @@ export async function GET() {
   }
 }
 
+async function getJobsForCompanies(supabase: any, userId: string, companyIds: number[]) {
+  const { preferences } = await getUserPreferences(supabase, userId);
+
+  const { data: applications, error: applicationsError } = await supabase
+    .from('applications')
+    .select('job_offer_id')
+    .eq('user_id', userId);
+
+  if (applicationsError) {
+    console.error('Error fetching user applications:', applicationsError);
+    return NextResponse.json({ error: 'Failed to fetch user applications' }, { status: 500 });
+  }
+
+  const appliedJobIds = applications.map((app: any) => app.job_offer_id);
+
+  let query = supabase
+    .from('job_offers')
+    .select(`
+      *,
+      company:companies(id, name, logo_url)
+    `)
+    .in('company_id', companyIds)
+    .eq('status', 'Open');
+
+  if (appliedJobIds.length > 0) {
+    query = query.not('id', 'in', `(${appliedJobIds.join(',')})`);
+  }
+
+  // Apply user preference filters
+  if (preferences) {
+    if (preferences.hidden_jobs && preferences.hidden_jobs.length > 0) {
+      query = query.not('id', 'in', `(${preferences.hidden_jobs.join(',')})`);
+    }
+
+    if (preferences.requires_sponsorship === false) {
+      query = query.neq('noSponsor', 1);
+    }
+
+    if (preferences.american_citizen === false) {
+      query = query.neq('usaCitizen', 1);
+    }
+
+    if (preferences.hideNG === true) {
+      query = query.neq('newGrad', 1);
+    }
+
+    if (preferences.hideET === true) {
+      query = query.neq('emergingTalent', 1);
+    }
+
+    if (preferences.hideInternships === true) {
+      query = query.not('and', '(newGrad.eq.0,emergingTalent.eq.0)');
+    }
+  }
+
+  const { data, error } = await query.order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching jobs for companies:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch jobs for companies' },
+      { status: 500 }
+    );
+  }
+
+  const jobOffers: JobOfferResponse[] = (data || [])
+    .filter((job: any) => job.company)
+    .map((job: any) => {
+      let preferenceScore = 0;
+
+      if (preferences) {
+        if (preferences.preferred_companies?.includes(job.company_id)) {
+          preferenceScore += 15;
+        }
+
+        if (preferences.preferred_categories && job.categories) {
+          const matchingCategories = job.categories.filter((cat: string) =>
+            preferences.preferred_categories.includes(cat)
+          ).length;
+          if (matchingCategories > 0) {
+            preferenceScore += matchingCategories * 10;
+          }
+        }
+      }
+
+      return {
+        ...job,
+        is_applied: appliedJobIds.includes(job.id),
+        is_favorite: preferences?.favorite_jobs?.includes(job.id) || false,
+        preference_score: preferenceScore,
+      };
+    });
+
+  jobOffers.sort((a, b) => {
+    const aScore = a.preference_score || 0;
+    const bScore = b.preference_score || 0;
+    if (aScore !== bScore) {
+      return bScore - aScore;
+    }
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  });
+
+  return NextResponse.json(jobOffers);
+}
+
 export async function POST(request: Request) {
   try {
     const supabase = await createClient();
@@ -36,13 +141,17 @@ export async function POST(request: Request) {
       );
     }
 
-    const { hiddenJobIds } = await request.json();
+    const { hiddenJobIds, companyIds } = await request.json();
 
-    if (!hiddenJobIds || !Array.isArray(hiddenJobIds) || hiddenJobIds.length === 0) {
-      return NextResponse.json([]);
+    if (hiddenJobIds && Array.isArray(hiddenJobIds) && hiddenJobIds.length > 0) {
+      return await getHiddenJobsForUser(supabase, hiddenJobIds);
     }
 
-    return await getHiddenJobsForUser(supabase, hiddenJobIds);
+    if (companyIds && Array.isArray(companyIds) && companyIds.length > 0) {
+      return await getJobsForCompanies(supabase, user.id, companyIds);
+    }
+
+    return NextResponse.json([]);
   } catch (error) {
     console.error('Error in hidden job offers endpoint:', error);
     return NextResponse.json(
@@ -170,7 +279,7 @@ async function getFilteredJobsForUser(
 
       if (preferences) {
         if (preferences.preferred_companies?.includes(job.company_id)) {
-          preferenceScore += 100;
+          preferenceScore += 15;
         }
 
         if (preferences.preferred_categories && job.categories) {
@@ -178,7 +287,7 @@ async function getFilteredJobsForUser(
             preferences.preferred_categories.includes(cat)
           ).length;
           if (matchingCategories > 0) {
-            preferenceScore += matchingCategories * 50;
+            preferenceScore += matchingCategories * 10;
           }
         }
       }
@@ -229,3 +338,5 @@ async function getHiddenJobsForUser(supabase: any, hiddenJobIds: string[]) {
 
   return NextResponse.json(jobOffers || []);
 }
+
+
