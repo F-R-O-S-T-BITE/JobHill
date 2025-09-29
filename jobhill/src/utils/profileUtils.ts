@@ -76,8 +76,17 @@ export function hasJobFilterChanges(pendingChanges: { preferences: { [key: strin
   )
 }
 
-export function hasCategoryChanges(pendingChanges: { categories: string[] }): boolean {
-  return pendingChanges.categories.length > 0
+export function hasCategoryChanges(pendingChanges: { categories: string[] | null }, currentCategories?: string[]): boolean {
+  if (pendingChanges.categories === null) return false
+
+  const pendingCats = pendingChanges.categories
+
+  if (!currentCategories) return pendingCats.length > 0
+
+  if (pendingCats.length !== currentCategories.length) return true
+
+  return !pendingCats.every(cat => currentCategories.includes(cat)) ||
+         !currentCategories.every(cat => pendingCats.includes(cat))
 }
 
 export function hasUnhiddenCompanies(

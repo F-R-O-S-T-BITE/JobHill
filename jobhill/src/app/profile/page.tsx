@@ -67,10 +67,10 @@ export default function Profile() {
   const [editMode, setEditMode] = useState(false)
   const [isSidebarOpen, setSidebarOpen] = useState(false)
   const [pendingChanges, setPendingChanges] = useState<{
-    categories: string[]
+    categories: string[] | null
     preferences: { [key: string]: any }
     companies: { preferred: number[], hidden: number[] }
-  }>({ categories: [], preferences: {}, companies: { preferred: [], hidden: [] } })
+  }>({ categories: null, preferences: {}, companies: { preferred: [], hidden: [] } })
   const router = useRouter()
 
   const { user, loading: authLoading } = useAuthModal()
@@ -94,7 +94,7 @@ export default function Profile() {
 
   useEffect(() => {
     if (preferencesData?.preferences && !editMode) {
-      setPendingChanges({ categories: [], preferences: {}, companies: { preferred: [], hidden: [] } })
+      setPendingChanges({ categories: null, preferences: {}, companies: { preferred: [], hidden: [] } })
     }
   }, [preferencesData?.preferences?.preferred_companies, preferencesData?.preferences?.hidden_companies, editMode])
 
@@ -103,7 +103,7 @@ export default function Profile() {
   const handleCategoryToggle = (category: string) => {
     if (!editMode || !preferencesData?.preferences) return
 
-    const currentCategories = pendingChanges.categories.length > 0
+    const currentCategories = pendingChanges.categories !== null
       ? pendingChanges.categories
       : preferencesData.preferences.preferred_categories
 
@@ -201,7 +201,7 @@ export default function Profile() {
                   <button
                     onClick={() => {
                       setEditMode(false)
-                      setPendingChanges({ categories: [], preferences: {}, companies: { preferred: [], hidden: [] } })
+                      setPendingChanges({ categories: null, preferences: {}, companies: { preferred: [], hidden: [] } })
                     }}
                     className="flex items-center gap-2 px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-semibold"
                   >
@@ -214,16 +214,16 @@ export default function Profile() {
                     if (editMode) {
                       try {
                         const needsToInvalidate = hasJobFilterChanges(pendingChanges)
-                        const hasCategoryUpdates = hasCategoryChanges(pendingChanges)
+                        const hasCategoryUpdates = hasCategoryChanges(pendingChanges, preferences?.preferred_categories)
                         const currentHiddenCompanies = preferences?.hidden_companies || []
                         const unhiddenCompanyIds = hasUnhiddenCompanies(pendingChanges, currentHiddenCompanies)
 
                         const promises = []
 
-                        if (pendingChanges.categories.length > 0) {
+                        if (hasCategoryUpdates) {
                           promises.push(updatePreference.mutateAsync({
                             field: 'preferred_categories',
-                            value: pendingChanges.categories,
+                            value: pendingChanges.categories || [],
                             action: 'set'
                           }))
                         }
@@ -276,13 +276,13 @@ export default function Profile() {
                           if (hasCategoryUpdates) {
                             const updatedPreferences = {
                               ...preferences,
-                              preferred_categories: pendingChanges.categories
+                              preferred_categories: pendingChanges.categories || []
                             }
                             recalculateJobScoresInCache(queryClient, updatedPreferences)
                           }
                         }
                         setEditMode(false)
-                        setPendingChanges({ categories: [], preferences: {}, companies: { preferred: [], hidden: [] } })
+                        setPendingChanges({ categories: null, preferences: {}, companies: { preferred: [], hidden: [] } })
                         toast.success('Preferences updated successfully', {
                           duration: 3000,
                           position: 'top-right',
@@ -382,12 +382,12 @@ export default function Profile() {
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-gray-900">Preferred Categories</h2>
                 <span className="text-sm text-gray-500">
-                  {(pendingChanges.categories.length > 0 ? pendingChanges.categories : preferences?.preferred_categories || []).length}/4 selected
+                  {(pendingChanges.categories !== null ? pendingChanges.categories : preferences?.preferred_categories || []).length}/4 selected
                 </span>
               </div>
               <div className="flex flex-wrap gap-2">
                 {categories.map((category) => {
-                  const currentCategories = pendingChanges.categories.length > 0
+                  const currentCategories = pendingChanges.categories !== null
                     ? pendingChanges.categories
                     : preferences?.preferred_categories || []
                   return (
