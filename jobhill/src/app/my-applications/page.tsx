@@ -107,8 +107,8 @@ export default function MyApplicationsPage() {
 
   return (
     <div className="bg-white min-h-screen">
-      <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 px-4 sm:px-6 xl:px-20 3xl:px-40 w-full max-w-[1700px] mx-auto py-6">
-        <div className="lg:w-[350px] lg:flex-shrink-0">
+      <div className="flex flex-col lg:flex-row gap-4 lg:gap-4 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 w-full mx-auto py-6">
+        <div className="lg:w-[300px] lg:flex-shrink-0">
           <div className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
             <ApplicationFilterPanel
               data={allApplications}
@@ -118,7 +118,7 @@ export default function MyApplicationsPage() {
           </div>
         </div>
 
-        <div className="flex-1 min-w-0 mt-6">
+        <div className="flex-1 min-w-0">
           {filteredApplications.length === 0 ? (
             <div className="flex items-center justify-center h-[400px]">
               <div className="flex flex-col items-center gap-4">
