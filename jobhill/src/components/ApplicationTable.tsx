@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { Application } from "@/interfaces/Application";
-import Image from "next/image";
 
 interface ApplicationTableProps {
   applications: Application[];
@@ -164,13 +163,21 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-10 w-10">
-                      <Image
+                      <img
                         className="h-10 w-10 rounded-full object-contain"
                         src={application.company_logo || "resources/Icons/default-company-logo.svg"}
                         alt={application.company_name}
                         width={40}
                         height={40}
+                         onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          target.nextElementSibling?.classList.remove('hidden');
+                        }}
                       />
+                        <div className={`w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center text-sm font-bold text-gray-600 ${application.company_logo ? 'hidden' : ''}`}>
+                        {application.company_name.charAt(0).toUpperCase()}
+                        </div>
                     </div>
                     <div className="ml-4">
                       <div className="text-sm font-medium text-gray-900">

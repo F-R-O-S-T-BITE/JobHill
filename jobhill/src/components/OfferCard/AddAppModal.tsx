@@ -71,11 +71,21 @@ export default function AddAppModal({
                     <div className={AddAppModalStyles.FormRow}>
 
                         <div className={AddAppModalStyles.CompanyRow}>
-                            <img 
-                                src={companyLogo} 
-                                alt={`${companyName} logo`} 
-                                className={AddAppModalStyles.CompanyLogo} 
-                            />
+                            <div className="w-12 h-12 flex-shrink-0">
+                                <img 
+                                    src={companyLogo} 
+                                    alt={`${companyName} logo`} 
+                                    className={AddAppModalStyles.CompanyLogo} 
+                                    onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.style.display = 'none';
+                                        target.nextElementSibling?.classList.remove('hidden');
+                                    }}
+                                />
+                                <div className={`w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center text-sm font-bold text-gray-600 ${companyLogo ? 'hidden' : ''}`}>
+                                    {companyName.charAt(0).toUpperCase()}
+                                </div>
+                            </div>
                             <div className={AddAppModalStyles.CompanyInfo}>
                                 <div className={AddAppModalStyles.CompanyName}>{companyName}</div>
                                 <div className={AddAppModalStyles.JobTitle}>{jobTitle}</div>
