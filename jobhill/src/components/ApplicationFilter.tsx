@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { DataFilterStyles } from "@/styles/DataFilterStyles";
 import { Application, ApplicationFilters } from "@/interfaces/Application";
 import { AutocompleteInput, MultiSelectDropdown, SelectDropdownWithIcon } from "./InputFilter";
@@ -8,15 +8,13 @@ import { DateFilterButton } from "./DateFilterButton";
 
 interface ApplicationFilterPanelProps {
   data: Application[];
-  onFilter: (filtered: Application[]) => void;
   filters: ApplicationFilters;
   setFilters: (filters: ApplicationFilters) => void;
 }
 
-const ApplicationFilterPanel: React.FC<ApplicationFilterPanelProps> = ({ 
-  data, 
-  onFilter, 
-  filters, 
+const ApplicationFilterPanel: React.FC<ApplicationFilterPanelProps> = ({
+  data,
+  filters,
   setFilters
 }) => {
   const [hasBeenFiltered, setHasBeenFiltered] = useState(false);
@@ -26,45 +24,14 @@ const ApplicationFilterPanel: React.FC<ApplicationFilterPanelProps> = ({
   const statusOptions = ["Delivered", "Process", "Canceled"];
   const referralOptions = ["Cold Apply", "Employee Ref", "Referred"];
 
-  const filteredData = useMemo(() => {
-    let filtered = [...data];
-
-    if (filters.company.length > 0) {
-      filtered = filtered.filter(app => 
-        filters.company.includes(app.company_name)
-      );
-    }
-
-    if (filters.status) {
-      filtered = filtered.filter(app => app.status === filters.status);
-    }
-
-    if (filters.referral) {
-      filtered = filtered.filter(app => app.referral_type === filters.referral);
-    }
-
-    if (filters.location) {
-      filtered = filtered.filter(app => app.location === filters.location);
-    }
-
-    filtered.sort((a, b) => {
-      const dateA = new Date(a.applied_date).getTime();
-      const dateB = new Date(b.applied_date).getTime();
-      return filters.order === "newest" ? dateB - dateA : dateA - dateB;
-    });
-
-    return filtered;
-  }, [data, filters]);
-
   useEffect(() => {
-    onFilter(filteredData);
     setHasBeenFiltered(
-      filters.company.length > 0 || 
-      filters.status !== "" || 
-      filters.referral !== "" || 
+      filters.company.length > 0 ||
+      filters.status !== "" ||
+      filters.referral !== "" ||
       filters.location !== ""
     );
-  }, [filteredData]);
+  }, [filters]);
 
   const handleReset = () => {
     setFilters({
@@ -82,7 +49,7 @@ const ApplicationFilterPanel: React.FC<ApplicationFilterPanelProps> = ({
     <div className={DataFilterStyles.Wrapper}>
       <div className="flex justify-between items-center mb-4">
         <p className={DataFilterStyles.Title}>
-          Showing {hasBeenFiltered ? filteredData.length : data.length} of {data.length} Applications
+          Showing {data.length} Applications {hasBeenFiltered ? "(filtered)" : ""}
         </p>
       </div>
 
