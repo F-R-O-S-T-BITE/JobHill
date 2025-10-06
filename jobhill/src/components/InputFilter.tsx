@@ -399,3 +399,72 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
         </div>
     );
 };
+
+export const SimpleDropdown: React.FC<{
+  value: string;
+  onChange: (value: string) => void;
+  options: string[];
+  placeholder: string;
+  className?: string;
+}> = ({
+  value,
+  onChange,
+  options,
+  placeholder,
+  className = ''
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleSelect = (option: string) => {
+    onChange(option);
+    setIsOpen(false);
+  };
+
+  return (
+    <div className={`relative w-full ${className}`} ref={dropdownRef}>
+      <div
+        className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white cursor-pointer flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-blue-500"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span className={value ? 'text-gray-900' : 'text-gray-500'}>
+          {value || placeholder}
+        </span>
+        <svg
+          className={`w-5 h-5 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
+
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+          {options.map((option) => (
+            <div
+              key={option}
+              className="px-3 py-2 cursor-pointer hover:bg-gray-100 text-gray-900"
+              onClick={() => handleSelect(option)}
+            >
+              {option}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};

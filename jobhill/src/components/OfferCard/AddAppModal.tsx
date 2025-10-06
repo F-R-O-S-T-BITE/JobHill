@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { AddAppModalStyles } from "@/styles/OfferCardStyles";
+import { SimpleDropdown } from "@/components/InputFilter";
 
 interface AddAppModalProps {
     onClose: () => void;
@@ -112,17 +113,12 @@ export default function AddAppModal({
 
                         <div className={AddAppModalStyles.FormGroup}>
                             <h3 className={AddAppModalStyles.FormLabel}>Status</h3>
-                            <select
+                            <SimpleDropdown
                                 value={formData.status}
-                                onChange={(e) => handleInputChange('status', e.target.value)}
-                                className={AddAppModalStyles.FormSelect}
-                            >
-                                {statusOptions.map((status) => (
-                                    <option key={status} value={status}>
-                                        {status}
-                                    </option>
-                                ))}
-                            </select>
+                                onChange={(value) => handleInputChange('status', value)}
+                                options={statusOptions}
+                                placeholder="Select Status"
+                            />
                         </div>
                     </div>
                     
@@ -131,17 +127,12 @@ export default function AddAppModal({
 
                         <div className={AddAppModalStyles.FormGroup}>
                             <h3 className={AddAppModalStyles.FormLabel}>Referral</h3>
-                            <select
+                            <SimpleDropdown
                                 value={formData.referralType}
-                                onChange={(e) => handleInputChange('referralType', e.target.value as 'Cold Apply' | 'Referred')}
-                                className={AddAppModalStyles.FormSelect}
-                            >
-                                {referralOptions.map((type) => (
-                                    <option key={type} value={type}>
-                                        {type}
-                                    </option>
-                                ))}
-                            </select>
+                                onChange={(value) => handleInputChange('referralType', value as 'Cold Apply' | 'Referred')}
+                                options={referralOptions}
+                                placeholder="Select Referral Type"
+                            />
                         </div>
                     </div>
                 </div>
