@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { useUserApplications, useUpdateApplicationStatus, useDeleteApplication } from "@/hooks/useApplications";
+import { useState } from "react";
+import { useFilteredApplications, useUpdateApplicationStatus, useDeleteApplication } from "@/hooks/useApplications";
 import { ApplicationFilters } from "@/interfaces/Application";
 import ApplicationFilterPanel from "@/components/ApplicationFilter";
 import ApplicationTable from "@/components/ApplicationTable";
@@ -17,16 +17,11 @@ export default function MyApplicationsPage() {
     order: "newest",
   });
 
-  const [filteredApplications, setFilteredApplications] = useState<any[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  
-  const { data: applications = [], isLoading, error } = useUserApplications();
+
+  const { data: applications = [], isLoading, error } = useFilteredApplications(filters);
   const updateStatusMutation = useUpdateApplicationStatus();
   const deleteApplicationMutation = useDeleteApplication();
-
-  const handleFilter = useCallback((filtered: any[]) => {
-    setFilteredApplications(filtered);
-  }, []);
 
   const handleUpdateStatus = async (applicationId: string, newStatus: string) => {
     try {
@@ -70,7 +65,6 @@ export default function MyApplicationsPage() {
     );
   }
 
-  const dataToShow = filteredApplications.length > 0 ? filteredApplications : applications;
 
   return (
     <div className="bg-white min-h-screen">
@@ -108,7 +102,6 @@ export default function MyApplicationsPage() {
               <div className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
                 <ApplicationFilterPanel
                   data={applications}
-                  onFilter={handleFilter}
                   filters={filters}
                   setFilters={setFilters}
                 />
@@ -117,7 +110,7 @@ export default function MyApplicationsPage() {
 
             <div className="flex-1 min-w-0 mt-6">
               <ApplicationTable
-                applications={dataToShow}
+                applications={applications}
                 onUpdateStatus={handleUpdateStatus}
                 onDeleteApplication={handleDeleteApplication}
                 onAddApplication={() => setIsAddModalOpen(true)}

@@ -1,11 +1,13 @@
 import { createClient } from '@/utils/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET(request: NextRequest) {
+export const revalidate = 21600; // 6 h 
+
+export async function GET() {
   try {
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
-    
+
     if (authError || !user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -13,41 +15,14 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const { searchParams } = new URL(request.url)
-    const company = searchParams.get('company')
-    const status = searchParams.get('status')
-    const referral = searchParams.get('referral')
-    const location = searchParams.get('location')
-    const order = searchParams.get('order') || 'newest'
-
-    let query = supabase
+    const { data: applications, error: fetchError } = await supabase
       .from('applications')
       .select(`
         *,
         companies:company_id(logo_url)
       `)
       .eq('user_id', user.id)
-
-    if (company) {
-      const companies = company.split(',')
-      query = query.in('company_name', companies)
-    }
-
-    if (status) {
-      query = query.eq('status', status)
-    }
-
-    if (referral) {
-      query = query.eq('referral_type', referral)
-    }
-
-    if (location) {
-      query = query.eq('location', location)
-    }
-
-    query = query.order('applied_date', { ascending: order === 'oldest' })
-
-    const { data: applications, error: fetchError } = await query
+      .order('applied_date', { ascending: false })
 
     if (fetchError) {
       console.error('Error fetching applications:', fetchError)
