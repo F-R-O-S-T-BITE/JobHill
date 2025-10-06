@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useFilteredApplications, useUpdateApplicationStatus, useDeleteApplication } from "@/hooks/useApplications";
+import { useUserApplications, useFilteredApplications, useUpdateApplicationStatus, useDeleteApplication } from "@/hooks/useApplications";
 import { ApplicationFilters } from "@/interfaces/Application";
 import ApplicationFilterPanel from "@/components/ApplicationFilter";
 import ApplicationTable from "@/components/ApplicationTable";
@@ -19,7 +19,8 @@ export default function MyApplicationsPage() {
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  const { data: applications = [], isLoading, error } = useFilteredApplications(filters);
+  const { data: allApplications = [], isLoading, error } = useUserApplications();
+  const { data: filteredApplications = [] } = useFilteredApplications(filters);
   const updateStatusMutation = useUpdateApplicationStatus();
   const deleteApplicationMutation = useDeleteApplication();
 
@@ -66,9 +67,9 @@ export default function MyApplicationsPage() {
   }
 
 
-  return (
-    <div className="bg-white min-h-screen">
-      {applications.length === 0 ? (
+  if (allApplications.length === 0) {
+    return (
+      <div className="bg-white min-h-screen">
         <div className="px-4 sm:px-6 xl:px-20 3xl:px-40 w-full max-w-[1700px] mx-auto py-6">
           <div className="flex items-center justify-center h-[400px]">
             <div className="flex flex-col items-center gap-4">
@@ -96,28 +97,63 @@ export default function MyApplicationsPage() {
             </div>
           </div>
         </div>
-      ) : (
-        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 px-4 sm:px-6 xl:px-20 3xl:px-40 w-full max-w-[1700px] mx-auto py-6">
-            <div className="lg:w-[350px] lg:flex-shrink-0">
-              <div className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
-                <ApplicationFilterPanel
-                  data={applications}
-                  filters={filters}
-                  setFilters={setFilters}
-                />
+        <AddApplicationModal
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white min-h-screen">
+      <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 px-4 sm:px-6 xl:px-20 3xl:px-40 w-full max-w-[1700px] mx-auto py-6">
+        <div className="lg:w-[350px] lg:flex-shrink-0">
+          <div className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
+            <ApplicationFilterPanel
+              data={allApplications}
+              filters={filters}
+              setFilters={setFilters}
+            />
+          </div>
+        </div>
+
+        <div className="flex-1 min-w-0 mt-6">
+          {filteredApplications.length === 0 ? (
+            <div className="flex items-center justify-center h-[400px]">
+              <div className="flex flex-col items-center gap-4">
+                <div className="text-gray-400 text-5xl">🔍</div>
+                <span className="text-lg font-mono font-bold text-black leading-tight text-center">
+                  No applications match your filters
+                </span>
+                <span className="text-sm text-gray-600 text-center max-w-md">
+                  Try adjusting your filters or clear them to see all applications.
+                </span>
+                <button
+                  onClick={() => setFilters({
+                    company: [],
+                    category: [],
+                    status: "",
+                    referral: "",
+                    location: "",
+                    order: "newest",
+                  })}
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Clear Filters
+                </button>
               </div>
             </div>
-
-            <div className="flex-1 min-w-0 mt-6">
-              <ApplicationTable
-                applications={applications}
-                onUpdateStatus={handleUpdateStatus}
-                onDeleteApplication={handleDeleteApplication}
-                onAddApplication={() => setIsAddModalOpen(true)}
-              />
-            </div>
+          ) : (
+            <ApplicationTable
+              applications={filteredApplications}
+              onUpdateStatus={handleUpdateStatus}
+              onDeleteApplication={handleDeleteApplication}
+              onAddApplication={() => setIsAddModalOpen(true)}
+            />
+          )}
         </div>
-      )}
+      </div>
 
       <AddApplicationModal
         isOpen={isAddModalOpen}
