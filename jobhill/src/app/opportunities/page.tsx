@@ -53,7 +53,15 @@ export default function OpportunitiesPage() {
 
     const handleFilterChange = useCallback((filtered: OfferCardProps[]) => {
         setFilteredData(filtered);
-    }, []);
+        // Auto-clear selected company when it has no jobs left after filtering
+        if (selectedCompany) {
+            const companyJobs = filtered.filter(job => job.companyId === selectedCompany.id);
+            if (companyJobs.length === 0) {
+                setSelectedCompany(null);
+                setShowCompanies(true);
+            }
+        }
+    }, [selectedCompany]);
 
     const handleBack = () => {
         setSelectedCompany(null);
