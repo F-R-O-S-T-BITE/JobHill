@@ -64,7 +64,6 @@ export async function signInWithGoogle() {
     },
   })
   
-  //console.log(data)
   if (error) {
     console.error('Error signing in with Google:', error)
     redirect('/error')
@@ -87,7 +86,6 @@ export async function signInWithGithub() {
      }
     },
   })
-  //console.log("data", data)
   if (error) {
     console.log('Error signing in with Github:', error)
     redirect('/error')
