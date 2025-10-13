@@ -64,6 +64,11 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
     });
   };
 
+  const truncateText = (text: string, maxLength: number = 30) => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  };
+
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
       <div className="bg-white border-b border-gray-200 px-6 py-4">
@@ -190,7 +195,9 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
                   <div className="text-sm text-gray-900">{application.role}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{application.location}</div>
+                  <div className="text-sm text-gray-900" title={application.location}>
+                    {truncateText(application.location)}
+                  </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900">
