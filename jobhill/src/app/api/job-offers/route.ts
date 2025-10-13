@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 import { getUserPreferences } from '@/utils/userPreferencesUtils';
+import { getUserAppliedJobIds } from '@/utils/applicationsUtils';
 import type {
   JobOfferResponse
 } from '@/interfaces/JobOffer';
@@ -27,17 +28,13 @@ export async function GET() {
 async function getJobsForCompanies(supabase: any, userId: string, companyIds: number[]) {
   const { preferences } = await getUserPreferences(supabase, userId);
 
-  const { data: applications, error: applicationsError } = await supabase
-    .from('applications')
-    .select('job_offer_id')
-    .eq('user_id', userId);
-
-  if (applicationsError) {
-    console.error('Error fetching user applications:', applicationsError);
+  let appliedJobIds: number[] = [];
+  try {
+    appliedJobIds = await getUserAppliedJobIds(supabase, userId);
+  } catch (error) {
+    console.error('Error fetching applied job IDs:', error);
     return NextResponse.json({ error: 'Failed to fetch user applications' }, { status: 500 });
   }
-
-  const appliedJobIds = applications.map((app: any) => app.job_offer_id);
 
   let query = supabase
     .from('job_offers')
@@ -201,20 +198,13 @@ async function getFilteredJobsForUser(
     return NextResponse.json({ error: 'Failed to fetch user preferences' }, { status: 500 });
   }
 
-  // Get user's applications to exclude applied jobs
-  // TODO: When we create a useApplications hook, we should use that instead 
-  // to avoid duplicate calls due to RLS policies
-  const { data: applications, error: applicationsError } = await supabase
-    .from('applications')
-    .select('job_offer_id')
-    .eq('user_id', userId);
-
-  if (applicationsError) {
-    console.error('Error fetching user applications:', applicationsError);
+  let appliedJobIds: number[] = [];
+  try {
+    appliedJobIds = await getUserAppliedJobIds(supabase, userId);
+  } catch (error) {
+    console.error('Error fetching applied job IDs:', error);
     return NextResponse.json({ error: 'Failed to fetch user applications' }, { status: 500 });
   }
-
-  const appliedJobIds = applications.map((app: any) => app.job_offer_id);
 
   let query = supabase
     .from('job_offers')

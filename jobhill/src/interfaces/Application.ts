@@ -2,6 +2,7 @@ export interface Application {
   id: string;
   job_offer_id: string;
   user_id: string;
+  company_id: number;
   company_name: string;
   role: string;
   location: string;
@@ -10,7 +11,7 @@ export interface Application {
   referral_type: 'Cold Apply' | 'Employee Ref' | 'Referred';
   status: 'Delivered' | 'Process' | 'Canceled';
   application_link?: string;
-  company_logo?: string;
+  company_logo?: string | null;
 }
 
 export interface ApplicationFilters {
