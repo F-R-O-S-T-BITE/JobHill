@@ -345,7 +345,7 @@ export function useUnhideJob() {
           `Job unhidden successfully`,
           {
             duration: 3000,
-            position: 'top-center',
+            position: 'bottom-right',
           }
         )
       }
