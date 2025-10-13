@@ -47,7 +47,7 @@ const OfferCardHolder: React.FC<OfferCardHolderProps> = ({
     
     const visibleOffers = offers.filter(offer => {
         const jobId = offer.id || `${offer.title}-${offer.company}`;
-        return !isJobHidden(jobId);
+        return !isJobHidden(jobId) && !isJobApplied(jobId);
     });
     const startIndex = (currentPage - 1) * pageSize;
     const endIndex = startIndex + pageSize;

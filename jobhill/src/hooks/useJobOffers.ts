@@ -4,6 +4,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import type { JobOffersApiResponse } from '@/interfaces/JobOffer'
 import { userPreferencesKeys, type UserPreferences } from './useUserPreferences'
+import { applicationsKeys } from './useApplications'
+import type { Application } from '@/interfaces/Application'
 
 async function fetchAllJobOffers(): Promise<JobOffersApiResponse> {
   const response = await fetch('/api/job-offers')
@@ -55,12 +57,36 @@ export function useCreateApplication() {
       
       return response.json()
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (response, variables) => {
+      queryClient.setQueryData(
+        applicationsKeys.userApplications(),
+        (oldData: Application[] | undefined) => {
+          if (!oldData) return oldData;
+
+          const newApplication: Application = {
+            id: response.application.id,
+            user_id: response.application.user_id,
+            job_offer_id: variables.job_offer_id,
+            company_id: response.application.company_id,
+            company_name: variables.company_name,
+            role: variables.role,
+            referral_type: variables.referral_type as 'Cold Apply' | 'Employee Ref' | 'Referred',
+            application_link: variables.application_link,
+            location: variables.location,
+            status: response.application.status || 'Delivered',
+            applied_date: response.application.applied_date,
+            last_updated: response.application.last_updated,
+            company_logo: response.application.company_logo || null,
+          };
+
+          return [newApplication, ...oldData];
+        }
+      );
+
       if ((window as any).markJobAsAppliedAndUpdate) {
         (window as any).markJobAsAppliedAndUpdate(variables.job_offer_id);
       }
-      
-      // Update cache to mark job as applied after animation completes
+
       setTimeout(() => {
         queryClient.setQueryData(
           jobOffersKeys.allJobs(),
@@ -69,11 +95,8 @@ export function useCreateApplication() {
 
             return {
               ...oldData,
-              jobs: oldData.jobs.map(job =>
-                job.id === variables.job_offer_id
-                  ? { ...job, is_applied: true }
-                  : job
-              ),
+              jobs: oldData.jobs.filter(job => job.id !== variables.job_offer_id),
+              total: oldData.total - 1,
             }
           }
         )
