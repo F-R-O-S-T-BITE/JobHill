@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { DataFilterStyles } from "@/styles/DataFilterStyles";
-import { Application, ApplicationFilters } from "@/interfaces/Application";
+import { Application, ApplicationFilters, APPLICATION_STATUSES } from "@/interfaces/Application";
 import { AutocompleteInput, MultiSelectDropdown, SelectDropdownWithIcon } from "./InputFilter";
 import { getUniqueValues } from "@/utils/getUniqueValues";
 import { DateFilterButton } from "./DateFilterButton";
@@ -20,8 +20,7 @@ const ApplicationFilterPanel: React.FC<ApplicationFilterPanelProps> = ({
   const [hasBeenFiltered, setHasBeenFiltered] = useState(false);
 
   const companies = getUniqueValues(data, "company_name");
-  const locations = getUniqueValues(data, "location");
-  const statusOptions = ["Delivered", "Process", "Canceled"];
+  const statusOptions = [...APPLICATION_STATUSES];
   const referralOptions = ["Cold Apply", "Employee Ref", "Referred"];
 
   useEffect(() => {
@@ -66,6 +65,27 @@ const ApplicationFilterPanel: React.FC<ApplicationFilterPanelProps> = ({
         }
       />
 
+      <div className="relative w-full">
+        <img
+          src="resources/Icons/Components_Cards/location_icon_cards.png"
+          alt="Location"
+          className={`${DataFilterStyles.LeftFieldImage} w-[1.5rem] h-[1.5rem]`}
+        />
+        <input
+          type="text"
+          placeholder="Location"
+          value={filters.location}
+          onChange={(e) => setFilters({ ...filters, location: e.target.value })}
+          className={`${DataFilterStyles.Input} w-full outline-none bg-transparent text-[#0353A4]`}
+          aria-label="Location"
+        />
+        <img
+          src="/resources/Icons/search_icon.png"
+          alt="Search"
+          className={DataFilterStyles.RightFieldImage}
+        />
+      </div>
+
       <SelectDropdownWithIcon
         aria_label="Status"
         iconSrc="resources/Icons/Components_Cards/category_icon_cards.png"
@@ -85,17 +105,6 @@ const ApplicationFilterPanel: React.FC<ApplicationFilterPanelProps> = ({
         onChange={(val) => setFilters({ ...filters, referral: val })}
         options={referralOptions}
         placeholder="Referral"
-        inputClassName="w-[1.5rem] h-[1.5rem]"
-      />
-
-      <SelectDropdownWithIcon
-        aria_label="Location"
-        iconSrc="resources/Icons/Components_Cards/location_icon_cards.png"
-        altText="Location"
-        value={filters.location}
-        onChange={(val) => setFilters({ ...filters, location: val })}
-        options={locations}
-        placeholder="Location"
         inputClassName="w-[1.5rem] h-[1.5rem]"
       />
 

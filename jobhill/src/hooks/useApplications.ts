@@ -62,7 +62,7 @@ export function useFilteredApplications(filters?: ApplicationFilters) {
       if (filters.company?.length && !filters.company.includes(app.company_name)) return false;
       if (filters.status && app.status !== filters.status) return false;
       if (filters.referral && app.referral_type !== filters.referral) return false;
-      if (filters.location && app.location !== filters.location) return false;
+      if (filters.location && !app.location.toLowerCase().includes(filters.location.toLowerCase())) return false;
       return true;
     }).sort((a, b) => {
       const dateA = new Date(a.applied_date);
