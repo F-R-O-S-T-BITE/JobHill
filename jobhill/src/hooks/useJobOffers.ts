@@ -35,51 +35,37 @@ export function useJobOffers() {
 // Hook for creating/applying to a job application
 export function useCreateApplication() {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
-    mutationFn: async (applicationData: { 
+    mutationFn: async (applicationData: {
       job_offer_id: string
       company_name: string
       role: string
       referral_type: string
       application_link: string
       location: string
+      status?: string
+      applied_date?: string
+      company_logo?: string
     }) => {
       const response = await fetch('/api/applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(applicationData),
       })
-      
+
       if (!response.ok) {
         throw new Error('Failed to create application')
       }
-      
+
       return response.json()
     },
-    onSuccess: (response, variables) => {
+    onSuccess: (createdApplication: Application, variables) => {
       queryClient.setQueryData(
         applicationsKeys.userApplications(),
         (oldData: Application[] | undefined) => {
-          if (!oldData) return oldData;
-
-          const newApplication: Application = {
-            id: response.application.id,
-            user_id: response.application.user_id,
-            job_offer_id: variables.job_offer_id,
-            company_id: response.application.company_id,
-            company_name: variables.company_name,
-            role: variables.role,
-            referral_type: variables.referral_type as 'Cold Apply' | 'Employee Ref' | 'Referred',
-            application_link: variables.application_link,
-            location: variables.location,
-            status: response.application.status || 'Delivered',
-            applied_date: response.application.applied_date,
-            last_updated: response.application.last_updated,
-            company_logo: response.application.company_logo || null,
-          };
-
-          return [newApplication, ...oldData];
+          if (!oldData) return [createdApplication];
+          return [createdApplication, ...oldData];
         }
       );
 

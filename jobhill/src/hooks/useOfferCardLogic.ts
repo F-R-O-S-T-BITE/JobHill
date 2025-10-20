@@ -98,24 +98,27 @@ export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
                     role: CardLogic.card.title,
                     referral_type: applicationData.referralType,
                     application_link: CardLogic.card.applicationLink || '',
-                    location: Array.isArray(CardLogic.card.location) 
-                        ? CardLogic.card.location.join(', ') 
-                        : CardLogic.card.location
+                    location: Array.isArray(CardLogic.card.location)
+                        ? CardLogic.card.location.join(', ')
+                        : CardLogic.card.location,
+                    status: applicationData.status,
+                    applied_date: applicationData.dateApplied,
+                    company_logo: CardLogic.card.logoSrc
                 });
 
                 setIsAddModalOpen(false);
-                
+
                 showApplicationSuccessToast({
                     companyLogo: CardLogic.card.logoSrc,
                     jobTitle: CardLogic.card.title,
                     companyName: CardLogic.card.company
                 });
-                
+
             } catch (error) {
                 console.error('Failed to register application:', error);
             }
         });
-    }, [CardLogic.card.id, CardLogic.card.company, CardLogic.card.title, CardLogic.card.applicationLink, CardLogic.card.location, requireAuth, createApplicationMutation]);
+    }, [CardLogic.card.id, CardLogic.card.company, CardLogic.card.title, CardLogic.card.applicationLink, CardLogic.card.location, CardLogic.card.logoSrc, requireAuth, createApplicationMutation]);
 
     const handleApplyClick = useCallback(() => {
         window.open(CardLogic.card.applicationLink);

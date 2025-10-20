@@ -138,7 +138,10 @@ export async function POST(request: NextRequest) {
         applied_date: applied_date || new Date().toISOString().split('T')[0],
         last_updated: new Date().toISOString().split('T')[0]
       })
-      .select()
+      .select(`
+        *,
+        companies:company_id(logo_url)
+      `)
       .single()
 
     if (insertError) {
@@ -149,11 +152,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    return NextResponse.json({
-      success: true,
-      message: 'Application created successfully',
-      application: newApplication
-    }, { status: 201 })
+    const transformedApplication = {
+      ...newApplication,
+      company_logo: newApplication.companies?.logo_url || null
+    }
+
+    return NextResponse.json(transformedApplication, { status: 201 })
 
   } catch (error) {
     console.error('Error in applications API:', error)
