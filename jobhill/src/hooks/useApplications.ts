@@ -98,10 +98,12 @@ export function useCreateApplication() {
 
       return response.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: applicationsKeys.userApplications(),
-      });
+    onSuccess: (createdApplication: Application) => {
+      // Add new application to cache
+      queryClient.setQueryData<Application[]>(
+        applicationsKeys.userApplications(),
+        (old) => [createdApplication, ...(old || [])]
+      );
     },
   });
 }
@@ -112,10 +114,33 @@ export function useUpdateApplicationStatus() {
   return useMutation({
     mutationFn: ({ applicationId, status }: { applicationId: string; status: string }) =>
       updateApplicationStatus(applicationId, status),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: applicationsKeys.userApplications(),
-      });
+    onMutate: async ({ applicationId, status }) => {
+      await queryClient.cancelQueries({ queryKey: applicationsKeys.userApplications() });
+      const previousApplications = queryClient.getQueryData<Application[]>(applicationsKeys.userApplications());
+
+      queryClient.setQueryData<Application[]>(
+        applicationsKeys.userApplications(),
+        (old) => old?.map(app =>
+          app.id === applicationId
+            ? { ...app, status: status as Application['status'], last_updated: new Date().toISOString() }
+            : app
+        )
+      );
+
+      return { previousApplications };
+    },
+    onSuccess: (updatedApplication) => {
+      queryClient.setQueryData<Application[]>(
+        applicationsKeys.userApplications(),
+        (old) => old?.map(app =>
+          app.id === updatedApplication.id ? updatedApplication : app
+        )
+      );
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousApplications) {
+        queryClient.setQueryData(applicationsKeys.userApplications(), context.previousApplications);
+      }
     },
   });
 }
@@ -125,10 +150,21 @@ export function useDeleteApplication() {
 
   return useMutation({
     mutationFn: deleteApplication,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: applicationsKeys.userApplications(),
-      });
+    onMutate: async (applicationId) => {
+      await queryClient.cancelQueries({ queryKey: applicationsKeys.userApplications() });
+      const previousApplications = queryClient.getQueryData<Application[]>(applicationsKeys.userApplications());
+
+      queryClient.setQueryData<Application[]>(
+        applicationsKeys.userApplications(),
+        (old) => old?.filter(app => app.id !== applicationId)
+      );
+
+      return { previousApplications };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousApplications) {
+        queryClient.setQueryData(applicationsKeys.userApplications(), context.previousApplications);
+      }
     },
   });
 }
