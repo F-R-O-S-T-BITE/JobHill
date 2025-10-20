@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Application } from "@/interfaces/Application";
+import { Application, APPLICATION_STATUSES } from "@/interfaces/Application";
 
 interface ApplicationTableProps {
   applications: Application[];
@@ -32,12 +32,26 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Delivered":
-        return "bg-green-100 text-green-800";
-      case "Process":
+      case "Applied":
+        return "bg-blue-100 text-blue-800";
+      case "OA":
+      case "Behavioral":
+      case "Technical 1":
+      case "Technical 2":
+      case "Technical 3":
+      case "Technical 4":
         return "bg-yellow-100 text-yellow-800";
+      case "Offer":
+        return "bg-green-100 text-green-800";
+      case "Declined":
+      case "Rejected":
+      case "Ghosted":
       case "Canceled":
         return "bg-red-100 text-red-800";
+      case "Delivered":
+        return "bg-purple-100 text-purple-800";
+      case "Process":
+        return "bg-orange-100 text-orange-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -220,9 +234,11 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
                     onChange={(e) => onUpdateStatus(application.id, e.target.value)}
                     className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border-none focus:ring-2 focus:ring-blue-500 ${getStatusColor(application.status)}`}
                   >
-                    <option value="Delivered">Delivered</option>
-                    <option value="Process">Process</option>
-                    <option value="Canceled">Canceled</option>
+                    {APPLICATION_STATUSES.map((status) => (
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
+                    ))}
                   </select>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
