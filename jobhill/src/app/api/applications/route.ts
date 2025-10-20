@@ -61,14 +61,16 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { 
-      job_offer_id, 
-      company_name, 
-      role, 
-      referral_type, 
-      application_link, 
+    const {
+      job_offer_id,
+      company_name,
+      role,
+      referral_type,
+      application_link,
       location,
-      company_id 
+      company_id,
+      status,
+      applied_date
     } = body
 
     if (!job_offer_id || !company_name || !role || !referral_type) {
@@ -132,8 +134,8 @@ export async function POST(request: NextRequest) {
         referral_type: referral_type,
         application_link: application_link,
         location: location,
-        status: 'Delivered',
-        applied_date: new Date().toISOString().split('T')[0], // Today's date
+        status: status || 'Applied',
+        applied_date: applied_date || new Date().toISOString().split('T')[0],
         last_updated: new Date().toISOString().split('T')[0]
       })
       .select()

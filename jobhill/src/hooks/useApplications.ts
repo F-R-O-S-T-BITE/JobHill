@@ -83,6 +83,8 @@ export function useCreateApplication() {
       role: string;
       location: string;
       company_logo?: string;
+      status?: string;
+      applied_date?: string;
     }) => {
       const response = await fetch('/api/applications', {
         method: 'POST',
