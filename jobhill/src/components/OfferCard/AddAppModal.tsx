@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AddAppModalStyles } from "@/styles/OfferCardStyles";
 import { SimpleDropdown } from "@/components/InputFilter";
+import { ApplicationStatus, APPLICATION_STATUSES } from "@/interfaces/Application";
 
 interface AddAppModalProps {
     onClose: () => void;
@@ -13,7 +14,7 @@ interface AddAppModalProps {
 interface ApplicationData {
     dateApplied: string;
     referralType: 'Cold Apply' | 'Referred';
-    status: string;
+    status: ApplicationStatus;
 }
 
 export default function AddAppModal({ 
@@ -31,10 +32,7 @@ export default function AddAppModal({
         status: 'Applied'
     });
 
-    const statusOptions = [
-        'Applied', 'OA', 'Behavioral', 'Technical 1', 'Technical 2', 
-        'Technical 3', 'Technical 4', 'Offer', 'Declined', 'Rejected', 'Ghosted'
-    ];
+    const statusOptions = [...APPLICATION_STATUSES];
 
     const referralOptions = ['Cold Apply', 'Referred'];
 
