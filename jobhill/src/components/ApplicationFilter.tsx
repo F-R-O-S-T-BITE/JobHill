@@ -8,12 +8,14 @@ import { DateFilterButton } from "./DateFilterButton";
 
 interface ApplicationFilterPanelProps {
   data: Application[];
+  filteredData: Application[];
   filters: ApplicationFilters;
   setFilters: (filters: ApplicationFilters) => void;
 }
 
 const ApplicationFilterPanel: React.FC<ApplicationFilterPanelProps> = ({
   data,
+  filteredData,
   filters,
   setFilters
 }) => {
@@ -48,7 +50,7 @@ const ApplicationFilterPanel: React.FC<ApplicationFilterPanelProps> = ({
     <div className={DataFilterStyles.Wrapper}>
       <div className="flex justify-between items-center mb-4">
         <p className={DataFilterStyles.Title}>
-          Showing {data.length} Applications {hasBeenFiltered ? "(filtered)" : ""}
+          Showing {filteredData.length} {hasBeenFiltered ? `of ${data.length}` : ""} Application{filteredData.length !== 1 ? 's' : ''}
         </p>
       </div>
 

@@ -6,6 +6,7 @@ import { ApplicationFilters } from "@/interfaces/Application";
 import ApplicationFilterPanel from "@/components/ApplicationFilter";
 import ApplicationTable from "@/components/ApplicationTable";
 import AddApplicationModal from "@/components/Modals/AddApplicationModal";
+import DeleteConfirmationModal from "@/components/Modals/DeleteConfirmationModal";
 
 export default function MyApplicationsPage() {
   const [filters, setFilters] = useState<ApplicationFilters>({
@@ -18,6 +19,8 @@ export default function MyApplicationsPage() {
   });
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [applicationToDelete, setApplicationToDelete] = useState<{ id: string; companyName: string; role: string } | null>(null);
 
   const { data: allApplications = [], isLoading, error } = useUserApplications();
   const { data: filteredApplications = [] } = useFilteredApplications(filters);
@@ -35,10 +38,22 @@ export default function MyApplicationsPage() {
     }
   };
 
-  const handleDeleteApplication = async (applicationId: string) => {
-    if (window.confirm("Are you sure you want to delete this application?")) {
+  const handleDeleteApplication = (applicationId: string) => {
+    const application = allApplications.find(app => app.id === applicationId);
+    if (application) {
+      setApplicationToDelete({
+        id: applicationId,
+        companyName: application.company_name,
+        role: application.role,
+      });
+      setDeleteModalOpen(true);
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (applicationToDelete) {
       try {
-        await deleteApplicationMutation.mutateAsync(applicationId);
+        await deleteApplicationMutation.mutateAsync(applicationToDelete.id);
       } catch (error) {
         console.error("Error deleting application:", error);
       }
@@ -112,6 +127,7 @@ export default function MyApplicationsPage() {
           <div className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
             <ApplicationFilterPanel
               data={allApplications}
+              filteredData={filteredApplications}
               filters={filters}
               setFilters={setFilters}
             />
@@ -159,6 +175,18 @@ export default function MyApplicationsPage() {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
       />
+
+      {applicationToDelete && (
+        <DeleteConfirmationModal
+          isOpen={deleteModalOpen}
+          onClose={() => setDeleteModalOpen(false)}
+          onConfirm={confirmDelete}
+          applicationInfo={{
+            companyName: applicationToDelete.companyName,
+            role: applicationToDelete.role,
+          }}
+        />
+      )}
     </div>
   );
 }
