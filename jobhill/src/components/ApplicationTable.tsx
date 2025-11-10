@@ -184,7 +184,7 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
                     <div className="flex-shrink-0 h-10 w-10">
                       <img
                         className="h-10 w-10 rounded-full object-contain"
-                        src={application.company_logo || "resources/Icons/default-company-logo.svg"}
+                        src={application.company_logo || "resources/Icons/Components_Cards/Company_Filter_Cards.png"}
                         alt={application.company_name}
                         width={40}
                         height={40}

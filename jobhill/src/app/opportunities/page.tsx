@@ -19,7 +19,7 @@ export default function OpportunitiesPage() {
 
         const offers = jobOffersData.jobs.map(job => ({
             id: job.id,
-            logoSrc: job.company?.logo_url || '/resources/Icons/default-company-logo.svg',
+            logoSrc: job.company?.logo_url || '/resources/Icons/Components_Cards/Company_Filter_Cards.png',
             publish_date: formatPublishDate(job.created_at),
             title: job.job_title,
             company: job.company?.name || 'Unknown Company',
