@@ -1,25 +1,31 @@
 "use client"
 
-import { useState,useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useRef } from "react";
 import { OfferCardLogic } from "@/interfaces/OfferCard";
 import { useAuthModal } from "@/contexts/AuthModalContext";
 import { showHideJobToast } from "@/components/Toast/HideJobToast";
 import { showApplicationSuccessToast } from "@/components/Toast/ApplicationSuccessToast";
-import { hideJob, unhideJob } from "@/components/OfferCard/OfferCardHolder";
 import { useUserPreferences, useFavoriteJob, useUnfavoriteJob } from "@/hooks/useUserPreferences";
 import { useCreateApplication, useHideJob } from "@/hooks/useJobOffers";
+import { useQueryClient } from '@tanstack/react-query';
+import { jobOffersKeys } from "@/hooks/useJobOffers";
+import type { JobOffersApiResponse } from '@/interfaces/JobOffer';
 
 export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
     const [isConfirmationAppliedModalOpen,setisConfirmationAppliedModalOpen] = useState(false); //Modal for asking if user applied to the job, after redirecting
     const [isAddModalOpen,setIsAddModalOpen] = useState(false); //Modal for adding new application
     const {user, openLoginModal} = useAuthModal();
-    
+    const queryClient = useQueryClient();
+
     // Get user preferences and mutations
     const { data: userPreferencesData } = useUserPreferences();
     const favoriteJobMutation = useFavoriteJob();
     const unfavoriteJobMutation = useUnfavoriteJob();
     const hideJobMutation = useHideJob();
     const createApplicationMutation = useCreateApplication();
+
+    // Track pending hide to handle undo
+    const pendingHideRef = useRef<{ jobId: string; cancelled: boolean } | null>(null);
     
     // Check if job is favorited based on cached preferences
     const isFavorite = useMemo(() => {
@@ -38,31 +44,109 @@ export function useOfferCardLogic(CardLogic:OfferCardLogic)  {
     }, [user, openLoginModal]);
     
 
-    const handleHideClick= useCallback(() => {
+    const handleHideClick = useCallback(() => {
         return requireAuth(() => {
             const jobId = CardLogic.card.id || `${CardLogic.card.title}-${CardLogic.card.company}`;
-            // Hide job UI 
-            hideJob(jobId);
-            // Update the grid display
-            if ((window as any).updateOfferCardHolder) {
-                (window as any).updateOfferCardHolder();
+
+            // Store the hidden job data and current state for potential restoration
+            const allJobsData = queryClient.getQueryData<JobOffersApiResponse>(jobOffersKeys.allJobs());
+            const hiddenJob = allJobsData?.jobs.find(job => job.id === jobId);
+            const userPreferencesData = queryClient.getQueryData(['user-preferences', 'preferences']) as any;
+            const previousPreferences = userPreferencesData;
+
+            // Set up pending hide tracking
+            pendingHideRef.current = { jobId, cancelled: false };
+
+            // Optimistically update all caches immediately
+            // 1. Remove from job offers
+            queryClient.setQueryData(
+                jobOffersKeys.allJobs(),
+                (oldData: JobOffersApiResponse | undefined) => {
+                    if (!oldData) return oldData;
+                    return {
+                        ...oldData,
+                        jobs: oldData.jobs.filter(job => job.id !== jobId),
+                        total: oldData.total - 1,
+                    };
+                }
+            );
+
+            // 2. Add to user preferences hidden_jobs
+            if (userPreferencesData && hiddenJob) {
+                const currentHiddenJobIds = userPreferencesData.preferences?.hidden_jobs || [];
+                queryClient.setQueryData(
+                    ['user-preferences', 'preferences'],
+                    {
+                        ...userPreferencesData,
+                        preferences: {
+                            ...userPreferencesData.preferences,
+                            hidden_jobs: [...currentHiddenJobIds, jobId]
+                        }
+                    }
+                );
+
+                // 3. Add to hidden jobs cache
+                queryClient.setQueryData(
+                    jobOffersKeys.hiddenJobs(),
+                    (oldHiddenJobs: any) => {
+                        const currentHiddenJobs = oldHiddenJobs || [];
+                        return [...currentHiddenJobs, hiddenJob];
+                    }
+                );
             }
+
+            // Show toast with undo option
             showHideJobToast({
                 companyLogo: CardLogic.card.logoSrc,
                 jobTitle: CardLogic.card.title,
                 companyName: CardLogic.card.company,
                 onUndo: () => {
-                    unhideJob(jobId);
-                    if ((window as any).updateOfferCardHolder) {
-                        (window as any).updateOfferCardHolder();
+                    // Mark as cancelled
+                    if (pendingHideRef.current?.jobId === jobId) {
+                        pendingHideRef.current.cancelled = true;
+                    }
+
+                    // Restore all caches
+                    if (hiddenJob) {
+                        // 1. Restore to job offers
+                        queryClient.setQueryData(
+                            jobOffersKeys.allJobs(),
+                            (oldData: JobOffersApiResponse | undefined) => {
+                                if (!oldData) return oldData;
+                                return {
+                                    ...oldData,
+                                    jobs: [hiddenJob, ...oldData.jobs],
+                                    total: oldData.total + 1,
+                                };
+                            }
+                        );
+
+                        // 2. Remove from user preferences
+                        queryClient.setQueryData(
+                            ['user-preferences', 'preferences'],
+                            previousPreferences
+                        );
+
+                        // 3. Remove from hidden jobs cache
+                        queryClient.setQueryData(
+                            jobOffersKeys.hiddenJobs(),
+                            (oldHiddenJobs: any) => {
+                                if (!oldHiddenJobs) return [];
+                                return oldHiddenJobs.filter((job: any) => job.id !== jobId);
+                            }
+                        );
                     }
                 },
                 onExpire: () => {
-                    hideJobMutation.mutate(jobId);
+                    // Only persist to server if not cancelled
+                    if (pendingHideRef.current?.jobId === jobId && !pendingHideRef.current.cancelled) {
+                        hideJobMutation.mutate(jobId);
+                    }
+                    pendingHideRef.current = null;
                 }
             });
         });
-    }, [CardLogic.card.logoSrc, CardLogic.card.title, CardLogic.card.company, CardLogic.card.id, requireAuth, hideJobMutation]);
+    }, [CardLogic.card.logoSrc, CardLogic.card.title, CardLogic.card.company, CardLogic.card.id, requireAuth, hideJobMutation, queryClient]);
 
     const handleFavoriteClick = useCallback(() => {
         return requireAuth(() => {

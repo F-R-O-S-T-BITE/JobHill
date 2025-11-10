@@ -61,6 +61,7 @@ export function useCreateApplication() {
       return response.json()
     },
     onSuccess: (createdApplication: Application, variables) => {
+      // Add to applications cache
       queryClient.setQueryData(
         applicationsKeys.userApplications(),
         (oldData: Application[] | undefined) => {
@@ -69,24 +70,19 @@ export function useCreateApplication() {
         }
       );
 
-      if ((window as any).markJobAsAppliedAndUpdate) {
-        (window as any).markJobAsAppliedAndUpdate(variables.job_offer_id);
-      }
+      // Remove from job offers cache immediately (optimistic update)
+      queryClient.setQueryData(
+        jobOffersKeys.allJobs(),
+        (oldData: JobOffersApiResponse | undefined) => {
+          if (!oldData) return oldData
 
-      setTimeout(() => {
-        queryClient.setQueryData(
-          jobOffersKeys.allJobs(),
-          (oldData: JobOffersApiResponse | undefined) => {
-            if (!oldData) return oldData
-
-            return {
-              ...oldData,
-              jobs: oldData.jobs.filter(job => job.id !== variables.job_offer_id),
-              total: oldData.total - 1,
-            }
+          return {
+            ...oldData,
+            jobs: oldData.jobs.filter(job => job.id !== variables.job_offer_id),
+            total: oldData.total - 1,
           }
-        )
-      }, 1000);
+        }
+      )
     },
   })
 }

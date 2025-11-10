@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { Eye, Calendar } from 'lucide-react'
 import type { JobOfferResponse } from '@/interfaces/JobOffer'
 import { useUnhideJob } from '@/hooks/useJobOffers'
-import { unhideJobAndUpdate } from '@/components/OfferCard/OfferCardHolder'
 
 interface HiddenJobsSectionProps {
   hiddenJobs: JobOfferResponse[]
@@ -88,7 +87,6 @@ export default function HiddenJobsSection({
   const handleUnhide = (jobId: string) => {
     // Start fade-out animation
     setUnhidingJobs(prev => new Set(prev).add(jobId))
-    unhideJobAndUpdate(jobId)
 
     setTimeout(() => {
       unhideJobMutation.mutate(jobId, {
