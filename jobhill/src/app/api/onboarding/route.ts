@@ -2,6 +2,9 @@ import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 import type { OnboardingData, Company } from '@/interfaces/JobOffer';
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export async function POST(request: Request) {
   try {
     const supabase = await createClient();

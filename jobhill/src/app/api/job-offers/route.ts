@@ -1,3 +1,6 @@
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 import { getUserPreferences } from '@/utils/userPreferencesUtils';
@@ -5,8 +8,6 @@ import { getUserAppliedJobIds } from '@/utils/applicationsUtils';
 import type {
   JobOfferResponse
 } from '@/interfaces/JobOffer';
-
-export const revalidate = 21600; // 6 horas 
 
 export async function GET() {
   try {

@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "preview": "next start -p 3000"
   },
   "dependencies": {
     "@hcaptcha/react-hcaptcha": "^1.12.0",
