@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { DataFilterStyles } from "@/styles/DataFilterStyles";
 import { Application, ApplicationFilters, APPLICATION_STATUSES } from "@/interfaces/Application";
-import { AutocompleteInput, MultiSelectDropdown, SelectDropdownWithIcon } from "./InputFilter";
+import { AutocompleteInput, MultiSelectDropdown, SelectDropdownWithIcon, InputWithIcons } from "./InputFilter";
 import { getUniqueValues } from "@/utils/getUniqueValues";
 import { DateFilterButton } from "./DateFilterButton";
 
@@ -67,26 +67,14 @@ const ApplicationFilterPanel: React.FC<ApplicationFilterPanelProps> = ({
         }
       />
 
-      <div className="relative w-full">
-        <img
-          src="resources/Icons/Components_Cards/location_icon_cards.png"
-          alt="Location"
-          className={`${DataFilterStyles.LeftFieldImage} w-[1.5rem] h-[1.5rem]`}
-        />
-        <input
-          type="text"
-          placeholder="Location"
-          value={filters.location}
-          onChange={(e) => setFilters({ ...filters, location: e.target.value })}
-          className={`${DataFilterStyles.Input} w-full outline-none bg-transparent text-[#0353A4]`}
-          aria-label="Location"
-        />
-        <img
-          src="/resources/Icons/search_icon.png"
-          alt="Search"
-          className={DataFilterStyles.RightFieldImage}
-        />
-      </div>
+      <InputWithIcons
+        placeholder="Location"
+        value={filters.location}
+        onChange={(e) => setFilters({ ...filters, location: e.target.value })}
+        leftIcon="resources/Icons/Components_Cards/location_icon_cards.png"
+        rightIcon="resources/Icons/search_icon.png"
+        inputClassName={DataFilterStyles.Input}
+      />
 
       <SelectDropdownWithIcon
         aria_label="Status"

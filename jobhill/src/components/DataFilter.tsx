@@ -98,18 +98,16 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter, setSh
                 inputClassName={DataFilterStyles.Input}
             />
 
-            {shouldShowRoleLevelFilter && (
-                <SelectDropdownWithIcon
-                    aria_label="Role Level"
-                    iconSrc="resources/Icons/Components_Cards/category_icon_cards.png"
-                    altText="Role Level"
-                    value={filters.newGrad}
-                    onChange={(val) => setFilters({ ...filters, newGrad: val })}
-                    options={dynamicRoleLevelOptions}
-                    placeholder="Role Level"
-                    inputClassName="w-[1.5rem] h-[1.5rem]"
-                />
-            )}
+                        <InputWithIcons
+                placeholder="Location"
+                value={filters.location}
+                onChange={(e) => setFilters({ ...filters, location: e.target.value })}
+                leftIcon="resources/Icons/Components_Cards/location_icon_cards.png"
+                rightIcon="resources/Icons/search_icon.png"
+                inputClassName={DataFilterStyles.Input}
+            />
+
+          
 
             <MultiSelectDropdown
                 iconSrc="resources/Icons/Components_Cards/category_icon_cards.png"
@@ -134,16 +132,20 @@ const DataFilterPanel: React.FC<DataFilterPanelProps> = ({ data, onFilter, setSh
                 placeholder="Modality"
                 inputClassName="-translate-x-1/6 w-[2rem] h-[2rem]"
             />
-            <SelectDropdownWithIcon
-                aria_label="Location"
-                iconSrc="resources/Icons/Components_Cards/location_icon_cards.png"
-                altText="Location"
-                value={filters.location}
-                onChange={(val) => setFilters({ ...filters, location: val })}
-                options={locations}
-                placeholder="Location"
-                inputClassName="w-[1.5rem] h-[1.5rem]"
-            />
+
+              {shouldShowRoleLevelFilter && (
+                <SelectDropdownWithIcon
+                    aria_label="Role Level"
+                    iconSrc="resources/Icons/Components_Cards/category_icon_cards.png"
+                    altText="Role Level"
+                    value={filters.newGrad}
+                    onChange={(val) => setFilters({ ...filters, newGrad: val })}
+                    options={dynamicRoleLevelOptions}
+                    placeholder="Role Level"
+                    inputClassName="w-[1.5rem] h-[1.5rem]"
+                />
+            )}
+
             
             <DateFilterButton
                 value={filters.order as "newest"|"oldest"}
