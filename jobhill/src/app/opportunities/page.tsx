@@ -19,7 +19,7 @@ export default function OpportunitiesPage() {
 
         const offers = jobOffersData.jobs.map(job => ({
             id: job.id,
-            logoSrc: job.company?.logo_url || '/resources/Icons/default-company-logo.svg',
+            logoSrc: job.company?.logo_url || '/resources/Icons/Components_Cards/Company_Filter_Cards.png',
             publish_date: formatPublishDate(job.created_at),
             title: job.job_title,
             company: job.company?.name || 'Unknown Company',
@@ -53,7 +53,15 @@ export default function OpportunitiesPage() {
 
     const handleFilterChange = useCallback((filtered: OfferCardProps[]) => {
         setFilteredData(filtered);
-    }, []);
+        // Auto-clear selected company when it has no jobs left after filtering
+        if (selectedCompany) {
+            const companyJobs = filtered.filter(job => job.companyId === selectedCompany.id);
+            if (companyJobs.length === 0) {
+                setSelectedCompany(null);
+                setShowCompanies(true);
+            }
+        }
+    }, [selectedCompany]);
 
     const handleBack = () => {
         setSelectedCompany(null);

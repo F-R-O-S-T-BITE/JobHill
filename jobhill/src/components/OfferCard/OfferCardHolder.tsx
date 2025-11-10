@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import OfferCard from "./OfferCard";
 import { OfferCardProps } from "@/interfaces/OfferCard";
 import '../slider.module.css'
@@ -8,69 +8,28 @@ interface OfferCardHolderProps {
     offers: OfferCardProps[];
 }
 
-let globalHiddenJobs = new Set<string>();
-let globalAppliedJobs = new Set<string>();
-
-export const hideJob = (jobId: string) => {
-    globalHiddenJobs.add(jobId);
-};
-
-export const unhideJob = (jobId: string) => {
-    globalHiddenJobs.delete(jobId);
-};
-
-export const unhideJobAndUpdate = (jobId: string) => {
-    unhideJob(jobId);
-    if ((window as any).updateOfferCardHolder) {
-        (window as any).updateOfferCardHolder();
-    }
-};
-
-export const isJobHidden = (jobId: string) => {
-    return globalHiddenJobs.has(jobId);
-};
-
-export const markJobAsApplied = (jobId: string) => {
-    globalAppliedJobs.add(jobId);
-};
-
-export const isJobApplied = (jobId: string) => {
-    return globalAppliedJobs.has(jobId);
-};
-
-const OfferCardHolder: React.FC<OfferCardHolderProps> = ({ 
+const OfferCardHolder: React.FC<OfferCardHolderProps> = ({
     offers
 }) => {
     const [currentPage, setCurrentPage] = useState(1);
-    const [, forceUpdate] = useState({});
-    const pageSize = 50; 
-    
-    const visibleOffers = offers.filter(offer => {
-        const jobId = offer.id || `${offer.title}-${offer.company}`;
-        return !isJobHidden(jobId);
-    });
+    const pageSize = 50;
+
+    const visibleOffers = useMemo(() => {
+        return offers;
+    }, [offers]);
+
     const startIndex = (currentPage - 1) * pageSize;
     const endIndex = startIndex + pageSize;
     const paginatedOffers = visibleOffers.slice(startIndex, endIndex);
     const totalPages = Math.ceil(visibleOffers.length / pageSize);
-    
-  
-    const handleForceUpdate = () => {
-        forceUpdate({});
-        
+
+    // Auto-adjust page if current page exceeds total pages
+    useEffect(() => {
         const newTotalPages = Math.ceil(visibleOffers.length / pageSize);
         if (currentPage > newTotalPages && newTotalPages > 0) {
             setCurrentPage(newTotalPages);
         }
-    };
-    
-    const markJobAsAppliedAndUpdate = (jobId: string) => {
-        markJobAsApplied(jobId);
-        handleForceUpdate();
-    };
-    
-    (window as any).updateOfferCardHolder = handleForceUpdate;
-    (window as any).markJobAsAppliedAndUpdate = markJobAsAppliedAndUpdate;
+    }, [visibleOffers.length, currentPage, pageSize]);
     
     const handlePageChange = (newPage: number) => {
         setCurrentPage(newPage);

@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { AddAppModalStyles } from "@/styles/OfferCardStyles";
+import { SimpleDropdown } from "@/components/InputFilter";
+import { ApplicationStatus, APPLICATION_STATUSES } from "@/interfaces/Application";
 
 interface AddAppModalProps {
     onClose: () => void;
@@ -12,7 +14,7 @@ interface AddAppModalProps {
 interface ApplicationData {
     dateApplied: string;
     referralType: 'Cold Apply' | 'Referred';
-    status: string;
+    status: ApplicationStatus;
 }
 
 export default function AddAppModal({ 
@@ -30,10 +32,7 @@ export default function AddAppModal({
         status: 'Applied'
     });
 
-    const statusOptions = [
-        'Applied', 'OA', 'Behavioral', 'Technical 1', 'Technical 2', 
-        'Technical 3', 'Technical 4', 'Offer', 'Declined', 'Rejected', 'Ghosted'
-    ];
+    const statusOptions = [...APPLICATION_STATUSES];
 
     const referralOptions = ['Cold Apply', 'Referred'];
 
@@ -71,11 +70,21 @@ export default function AddAppModal({
                     <div className={AddAppModalStyles.FormRow}>
 
                         <div className={AddAppModalStyles.CompanyRow}>
-                            <img 
-                                src={companyLogo} 
-                                alt={`${companyName} logo`} 
-                                className={AddAppModalStyles.CompanyLogo} 
-                            />
+                            <div className="w-12 h-12 flex-shrink-0">
+                                <img 
+                                    src={companyLogo} 
+                                    alt={`${companyName} logo`} 
+                                    className={AddAppModalStyles.CompanyLogo} 
+                                    onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.style.display = 'none';
+                                        target.nextElementSibling?.classList.remove('hidden');
+                                    }}
+                                />
+                                <div className={`w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center text-sm font-bold text-gray-600 ${companyLogo ? 'hidden' : ''}`}>
+                                    {companyName.charAt(0).toUpperCase()}
+                                </div>
+                            </div>
                             <div className={AddAppModalStyles.CompanyInfo}>
                                 <div className={AddAppModalStyles.CompanyName}>{companyName}</div>
                                 <div className={AddAppModalStyles.JobTitle}>{jobTitle}</div>
@@ -102,17 +111,12 @@ export default function AddAppModal({
 
                         <div className={AddAppModalStyles.FormGroup}>
                             <h3 className={AddAppModalStyles.FormLabel}>Status</h3>
-                            <select
+                            <SimpleDropdown
                                 value={formData.status}
-                                onChange={(e) => handleInputChange('status', e.target.value)}
-                                className={AddAppModalStyles.FormSelect}
-                            >
-                                {statusOptions.map((status) => (
-                                    <option key={status} value={status}>
-                                        {status}
-                                    </option>
-                                ))}
-                            </select>
+                                onChange={(value) => handleInputChange('status', value)}
+                                options={statusOptions}
+                                placeholder="Select Status"
+                            />
                         </div>
                     </div>
                     
@@ -121,17 +125,12 @@ export default function AddAppModal({
 
                         <div className={AddAppModalStyles.FormGroup}>
                             <h3 className={AddAppModalStyles.FormLabel}>Referral</h3>
-                            <select
+                            <SimpleDropdown
                                 value={formData.referralType}
-                                onChange={(e) => handleInputChange('referralType', e.target.value as 'Cold Apply' | 'Referred')}
-                                className={AddAppModalStyles.FormSelect}
-                            >
-                                {referralOptions.map((type) => (
-                                    <option key={type} value={type}>
-                                        {type}
-                                    </option>
-                                ))}
-                            </select>
+                                onChange={(value) => handleInputChange('referralType', value as 'Cold Apply' | 'Referred')}
+                                options={referralOptions}
+                                placeholder="Select Referral Type"
+                            />
                         </div>
                     </div>
                 </div>

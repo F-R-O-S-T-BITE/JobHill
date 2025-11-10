@@ -4,6 +4,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import type { JobOffersApiResponse } from '@/interfaces/JobOffer'
 import { userPreferencesKeys, type UserPreferences } from './useUserPreferences'
+import { applicationsKeys } from './useApplications'
+import type { Application } from '@/interfaces/Application'
 
 async function fetchAllJobOffers(): Promise<JobOffersApiResponse> {
   const response = await fetch('/api/job-offers')
@@ -33,51 +35,54 @@ export function useJobOffers() {
 // Hook for creating/applying to a job application
 export function useCreateApplication() {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
-    mutationFn: async (applicationData: { 
+    mutationFn: async (applicationData: {
       job_offer_id: string
       company_name: string
       role: string
       referral_type: string
       application_link: string
       location: string
+      status?: string
+      applied_date?: string
+      company_logo?: string
     }) => {
       const response = await fetch('/api/applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(applicationData),
       })
-      
+
       if (!response.ok) {
         throw new Error('Failed to create application')
       }
-      
+
       return response.json()
     },
-    onSuccess: (_, variables) => {
-      if ((window as any).markJobAsAppliedAndUpdate) {
-        (window as any).markJobAsAppliedAndUpdate(variables.job_offer_id);
-      }
-      
-      // Update cache to mark job as applied after animation completes
-      setTimeout(() => {
-        queryClient.setQueryData(
-          jobOffersKeys.allJobs(),
-          (oldData: JobOffersApiResponse | undefined) => {
-            if (!oldData) return oldData
+    onSuccess: (createdApplication: Application, variables) => {
+      // Add to applications cache
+      queryClient.setQueryData(
+        applicationsKeys.userApplications(),
+        (oldData: Application[] | undefined) => {
+          if (!oldData) return [createdApplication];
+          return [createdApplication, ...oldData];
+        }
+      );
 
-            return {
-              ...oldData,
-              jobs: oldData.jobs.map(job =>
-                job.id === variables.job_offer_id
-                  ? { ...job, is_applied: true }
-                  : job
-              ),
-            }
+      // Remove from job offers cache immediately (optimistic update)
+      queryClient.setQueryData(
+        jobOffersKeys.allJobs(),
+        (oldData: JobOffersApiResponse | undefined) => {
+          if (!oldData) return oldData
+
+          return {
+            ...oldData,
+            jobs: oldData.jobs.filter(job => job.id !== variables.job_offer_id),
+            total: oldData.total - 1,
           }
-        )
-      }, 1000);
+        }
+      )
     },
   })
 }
@@ -322,7 +327,7 @@ export function useUnhideJob() {
           `Job unhidden successfully`,
           {
             duration: 3000,
-            position: 'top-center',
+            position: 'bottom-right',
           }
         )
       }

@@ -1,6 +1,53 @@
 import { createClient } from '@/utils/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 
+export const revalidate = 21600; // 6 h 
+
+export async function GET() {
+  try {
+    const supabase = await createClient()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    const { data: applications, error: fetchError } = await supabase
+      .from('applications')
+      .select(`
+        *,
+        companies:company_id(logo_url)
+      `)
+      .eq('user_id', user.id)
+      .order('applied_date', { ascending: false })
+
+    if (fetchError) {
+      console.error('Error fetching applications:', fetchError)
+      return NextResponse.json(
+        { error: 'Failed to fetch applications' },
+        { status: 500 }
+      )
+    }
+
+    const transformedApplications = applications?.map(app => ({
+      ...app,
+      company_logo: app.companies?.logo_url || null
+    })) || []
+
+    return NextResponse.json(transformedApplications)
+
+  } catch (error) {
+    console.error('Error in applications GET API:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
@@ -14,14 +61,16 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { 
-      job_offer_id, 
-      company_name, 
-      role, 
-      referral_type, 
-      application_link, 
+    const {
+      job_offer_id,
+      company_name,
+      role,
+      referral_type,
+      application_link,
       location,
-      company_id 
+      company_id,
+      status,
+      applied_date
     } = body
 
     if (!job_offer_id || !company_name || !role || !referral_type) {
@@ -85,11 +134,14 @@ export async function POST(request: NextRequest) {
         referral_type: referral_type,
         application_link: application_link,
         location: location,
-        status: 'Applied', // Default status
-        applied_date: new Date().toISOString().split('T')[0], // Today's date
+        status: status || 'Applied',
+        applied_date: applied_date || new Date().toISOString().split('T')[0],
         last_updated: new Date().toISOString().split('T')[0]
       })
-      .select()
+      .select(`
+        *,
+        companies:company_id(logo_url)
+      `)
       .single()
 
     if (insertError) {
@@ -100,11 +152,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    return NextResponse.json({
-      success: true,
-      message: 'Application created successfully',
-      application: newApplication
-    }, { status: 201 })
+    const transformedApplication = {
+      ...newApplication,
+      company_logo: newApplication.companies?.logo_url || null
+    }
+
+    return NextResponse.json(transformedApplication, { status: 201 })
 
   } catch (error) {
     console.error('Error in applications API:', error)

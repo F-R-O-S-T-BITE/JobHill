@@ -2,6 +2,9 @@ import { createClient } from '@/utils/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { getUserPreferences } from '@/utils/userPreferencesUtils'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export async function GET() {
   try {
     const supabase = await createClient()

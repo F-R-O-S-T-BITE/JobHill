@@ -1,0 +1,172 @@
+'use client';
+
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
+import { Application, ApplicationFilters, CreateApplicationData } from '@/interfaces/Application';
+
+async function fetchAllUserApplications(): Promise<Application[]> {
+  const response = await fetch('/api/applications');
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch applications: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+async function updateApplicationStatus(applicationId: string, status: string): Promise<Application> {
+  const response = await fetch(`/api/applications/${applicationId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status }),
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to update application status');
+  }
+  
+  return response.json();
+}
+
+async function deleteApplication(applicationId: string): Promise<void> {
+  const response = await fetch(`/api/applications/${applicationId}`, {
+    method: 'DELETE',
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to delete application');
+  }
+}
+
+const applicationsKeys = {
+  all: ['applications'] as const,
+  userApplications: () => [...applicationsKeys.all, 'user'] as const,
+};
+
+export function useUserApplications() {
+  return useQuery({
+    queryKey: applicationsKeys.userApplications(),
+    queryFn: fetchAllUserApplications,
+    staleTime: 6 * 60 * 60 * 1000, 
+    placeholderData: (previousData) => previousData,
+  });
+}
+
+export function useFilteredApplications(filters?: ApplicationFilters) {
+  const { data: allApplications, ...rest } = useUserApplications();
+
+  const filteredApplications = useMemo(() => {
+    if (!allApplications || !filters) return allApplications;
+
+    return allApplications.filter(app => {
+      if (filters.company?.length && !filters.company.includes(app.company_name)) return false;
+      if (filters.status && app.status !== filters.status) return false;
+      if (filters.referral && app.referral_type !== filters.referral) return false;
+      if (filters.location && !app.location.toLowerCase().includes(filters.location.toLowerCase())) return false;
+      return true;
+    }).sort((a, b) => {
+      const dateA = new Date(a.applied_date);
+      const dateB = new Date(b.applied_date);
+      return filters.order === 'oldest' ? dateA.getTime() - dateB.getTime() : dateB.getTime() - dateA.getTime();
+    });
+  }, [allApplications, filters]);
+
+  return { data: filteredApplications, ...rest };
+}
+
+export function useCreateApplication() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (applicationData: CreateApplicationData & {
+      company_name: string;
+      role: string;
+      location: string;
+      company_logo?: string;
+      status?: string;
+      applied_date?: string;
+    }) => {
+      const response = await fetch('/api/applications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(applicationData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create application');
+      }
+
+      return response.json();
+    },
+    onSuccess: (createdApplication: Application) => {
+      // Add new application to cache
+      queryClient.setQueryData<Application[]>(
+        applicationsKeys.userApplications(),
+        (old) => [createdApplication, ...(old || [])]
+      );
+    },
+  });
+}
+
+export function useUpdateApplicationStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ applicationId, status }: { applicationId: string; status: string }) =>
+      updateApplicationStatus(applicationId, status),
+    onMutate: async ({ applicationId, status }) => {
+      await queryClient.cancelQueries({ queryKey: applicationsKeys.userApplications() });
+      const previousApplications = queryClient.getQueryData<Application[]>(applicationsKeys.userApplications());
+
+      queryClient.setQueryData<Application[]>(
+        applicationsKeys.userApplications(),
+        (old) => old?.map(app =>
+          app.id === applicationId
+            ? { ...app, status: status as Application['status'], last_updated: new Date().toISOString() }
+            : app
+        )
+      );
+
+      return { previousApplications };
+    },
+    onSuccess: (updatedApplication) => {
+      queryClient.setQueryData<Application[]>(
+        applicationsKeys.userApplications(),
+        (old) => old?.map(app =>
+          app.id === updatedApplication.id ? updatedApplication : app
+        )
+      );
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousApplications) {
+        queryClient.setQueryData(applicationsKeys.userApplications(), context.previousApplications);
+      }
+    },
+  });
+}
+
+export function useDeleteApplication() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteApplication,
+    onMutate: async (applicationId) => {
+      await queryClient.cancelQueries({ queryKey: applicationsKeys.userApplications() });
+      const previousApplications = queryClient.getQueryData<Application[]>(applicationsKeys.userApplications());
+
+      queryClient.setQueryData<Application[]>(
+        applicationsKeys.userApplications(),
+        (old) => old?.filter(app => app.id !== applicationId)
+      );
+
+      return { previousApplications };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousApplications) {
+        queryClient.setQueryData(applicationsKeys.userApplications(), context.previousApplications);
+      }
+    },
+  });
+}
+
+export { applicationsKeys };
