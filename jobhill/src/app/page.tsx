@@ -44,13 +44,18 @@ export default function Home() {
       <footer className="bg-[#0353A4] text-white py-8">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-center items-center md:justify-between mb-8">
+            
             <div className="flex gap-8 mb-6 md:mb-0">
+           {/* Footer Links
               <a href="#" className="hover:underline">About us</a>
               <a href="#" className="hover:underline">Discover</a>
-              <a href="#" className="hover:underline">Explore</a>
+              <a href="#" className="hover:underline">Explore</a>      
+               */}
+
             </div>
+         
             
-            <div className="w-16 h-16 mb-6 md:mb-0 bg-white rounded-full flex items-center justify-center p-1.5">
+            <div className="w-16 h-16  md:mb-0 bg-white rounded-full flex items-center justify-center ">
               <Image
                 src="/resources/FROSTBITE_Logo_Footer.png"
                 alt="FROSTBITE Logo"
@@ -61,12 +66,14 @@ export default function Home() {
             </div>
             
             <div className="flex gap-8">
+              {/* Legal Links 
               <a href="#" className="hover:underline">Terms of Service</a>
               <a href="#" className="hover:underline">Privacy Policy</a>
+              */}
             </div>
           </div>
-          <div className="border-t border-blue-400 my-4"></div>
-          <div className="text-center md:text-left">
+          <div className="border-t border-blue-400 "></div>
+          <div className="text-center ">
             <p>© 2025 F.R.O.S.T. BITE All rights reserved.</p>
           </div>
         </div>
