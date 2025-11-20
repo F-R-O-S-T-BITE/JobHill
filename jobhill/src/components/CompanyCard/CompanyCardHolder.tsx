@@ -2,10 +2,10 @@
 import { CompanyCardProps } from "@/interfaces/OfferCard";
 import { OfferCardHolderStyles } from "@/styles/OfferCardStyles";
 import CompanyCard from "./CompanyCard";
-import { useUpdatePreference } from "@/hooks/useUserPreferences";
+import { useUpdatePreference, useUserPreferences } from "@/hooks/useUserPreferences";
 import { useHideCompany } from "@/hooks/useJobOffers";
 import { showHideCompanyToast } from "@/components/Toast/HideCompanyToast";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 interface CompanyCardHolderProps {
     companies: CompanyCardProps[];
@@ -16,6 +16,7 @@ const CompanyCardHolder = ({ companies, onCompanyClick }: CompanyCardHolderProps
     const updatePreference = useUpdatePreference();
     const hideCompany = useHideCompany();
     const [hiddenCompanies, setHiddenCompanies] = useState<Set<number>>(new Set());
+    const { data: userPreferencesData } = useUserPreferences();
 
     const handleHideCompany = async (companyId: number, isCurrentlyPreferred: boolean = false) => {
         const company = companies.find(c => c.id === companyId);
@@ -90,10 +91,26 @@ const CompanyCardHolder = ({ companies, onCompanyClick }: CompanyCardHolderProps
 
     const visibleCompanies = companies.filter(company => !hiddenCompanies.has(company.id));
 
+    const sortedCompanies = useMemo(() => {
+        const preferredCompanyIds = userPreferencesData?.preferences?.preferred_companies || [];
+
+        return [...visibleCompanies].sort((a, b) => {
+            const aIsPreferred = preferredCompanyIds.includes(a.id);
+            const bIsPreferred = preferredCompanyIds.includes(b.id);
+
+            // Preferred companies first
+            if (aIsPreferred && !bIsPreferred) return -1;
+            if (!aIsPreferred && bIsPreferred) return 1;
+
+            // Then alphabetically by name
+            return a.name.localeCompare(b.name);
+        });
+    }, [visibleCompanies, userPreferencesData?.preferences?.preferred_companies]);
+
     return (
         <div className={OfferCardHolderStyles.Wrapper}>
             <div className={OfferCardHolderStyles.CompanyGrid}>
-                {visibleCompanies.map((company) => (
+                {sortedCompanies.map((company) => (
                     <CompanyCard
                         key={company.id}
                         card={company}
