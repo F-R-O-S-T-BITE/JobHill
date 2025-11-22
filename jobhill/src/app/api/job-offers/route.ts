@@ -90,37 +90,41 @@ async function getJobsForCompanies(supabase: any, userId: string, companyIds: nu
   const jobOffers: JobOfferResponse[] = (data || [])
     .filter((job: any) => job.company)
     .map((job: any) => {
-      let preferenceScore = 0;
+      // Calculate relevance tier
+      const isPreferredCompany = preferences?.preferred_companies?.includes(job.company_id) || false;
 
-      if (preferences) {
-        if (preferences.preferred_companies?.includes(job.company_id)) {
-          preferenceScore += 15;
-        }
+      const matchingCategories = preferences?.preferred_categories && job.categories
+        ? job.categories.filter((cat: string) => preferences.preferred_categories.includes(cat))
+        : [];
 
-        if (preferences.preferred_categories && job.categories) {
-          const matchingCategories = job.categories.filter((cat: string) =>
-            preferences.preferred_categories.includes(cat)
-          ).length;
-          if (matchingCategories > 0) {
-            preferenceScore += matchingCategories * 10;
-          }
-        }
+      const hasMatchingCategory = matchingCategories.length > 0;
+
+      // Determine tier: lower number = higher priority
+      let relevanceTier = 3; // Default: no match
+      if (isPreferredCompany && hasMatchingCategory) {
+        relevanceTier = 1; // Best: preferred company + matching categories
+      } else if (isPreferredCompany || hasMatchingCategory) {
+        relevanceTier = 2; // Good: preferred company OR matching categories
       }
 
       return {
         ...job,
         is_applied: appliedJobIds.includes(job.id),
         is_favorite: preferences?.favorite_jobs?.includes(job.id) || false,
-        preference_score: preferenceScore,
+        relevance_tier: relevanceTier,
+        is_preferred_company: isPreferredCompany,
+        matching_categories: matchingCategories,
       };
     });
 
+  // Sort by tier first, then by date within each tier
   jobOffers.sort((a, b) => {
-    const aScore = a.preference_score || 0;
-    const bScore = b.preference_score || 0;
-    if (aScore !== bScore) {
-      return bScore - aScore;
+    // Sort by tier (lower tier number = higher priority)
+    if (a.relevance_tier !== b.relevance_tier) {
+      return a.relevance_tier - b.relevance_tier;
     }
+
+    // Within same tier, sort by date (newest first)
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
 
@@ -266,37 +270,41 @@ async function getFilteredJobsForUser(
   const jobOffers: JobOfferResponse[] = data
     .filter((job: any) => job.company) // Filter out jobs without company data
     .map((job: any) => {
-      let preferenceScore = 0;
+      // Calculate relevance tier
+      const isPreferredCompany = preferences?.preferred_companies?.includes(job.company_id) || false;
 
-      if (preferences) {
-        if (preferences.preferred_companies?.includes(job.company_id)) {
-          preferenceScore += 15;
-        }
+      const matchingCategories = preferences?.preferred_categories && job.categories
+        ? job.categories.filter((cat: string) => preferences.preferred_categories.includes(cat))
+        : [];
 
-        if (preferences.preferred_categories && job.categories) {
-          const matchingCategories = job.categories.filter((cat: string) =>
-            preferences.preferred_categories.includes(cat)
-          ).length;
-          if (matchingCategories > 0) {
-            preferenceScore += matchingCategories * 10;
-          }
-        }
+      const hasMatchingCategory = matchingCategories.length > 0;
+
+      // Determine tier: lower number = higher priority
+      let relevanceTier = 3; // Default: no match
+      if (isPreferredCompany && hasMatchingCategory) {
+        relevanceTier = 1; // Best: preferred company + matching categories
+      } else if (isPreferredCompany || hasMatchingCategory) {
+        relevanceTier = 2; // Good: preferred company OR matching categories
       }
 
-    return {
-      ...job,
-      is_applied: appliedJobIds.includes(job.id),
-      is_favorite: preferences?.favorite_jobs?.includes(job.id) || false,
-      preference_score: preferenceScore,
-    };
-  });
+      return {
+        ...job,
+        is_applied: appliedJobIds.includes(job.id),
+        is_favorite: preferences?.favorite_jobs?.includes(job.id) || false,
+        relevance_tier: relevanceTier,
+        is_preferred_company: isPreferredCompany,
+        matching_categories: matchingCategories,
+      };
+    });
 
+  // Sort by tier first, then by date within each tier
   jobOffers.sort((a, b) => {
-    const aScore = a.preference_score || 0;
-    const bScore = b.preference_score || 0;
-    if (aScore !== bScore) {
-      return bScore - aScore;
+    // Sort by tier (lower tier number = higher priority)
+    if (a.relevance_tier !== b.relevance_tier) {
+      return a.relevance_tier - b.relevance_tier;
     }
+
+    // Within same tier, sort by date (newest first)
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
 

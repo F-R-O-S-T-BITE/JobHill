@@ -4,19 +4,22 @@ export interface OfferCardTag {
 }
 
 export interface OfferCardProps {
-    id?: string; 
-    logoSrc: string; 
-    publish_date: string; 
-    title: string; 
-    company: string; 
+    id?: string;
+    logoSrc: string;
+    publish_date: string;
+    title: string;
+    company: string;
     location: string[];
-    tags: OfferCardTag[]; 
+    tags: OfferCardTag[];
     isHidden?: boolean;
     isFavorite?: boolean;
     isApplied?: boolean;
     applicationLink?: string;
     companyId?: number;
-    preferenceScore?: number; 
+    preferenceScore?: number;
+    relevanceTier?: number;
+    isPreferredCompany?: boolean;
+    matchingCategories?: string[];
 }
 
 export interface UserPreferences {
