@@ -6,6 +6,7 @@ import type { Company, JobOfferResponse, JobOffersApiResponse } from '@/interfac
 import { PREFERENCES_WRITE_SCOPE, userPreferencesKeys, type UserPreferences } from './useUserPreferences'
 import { applicationsKeys } from './useApplications'
 import type { Application } from '@/interfaces/Application'
+import { decodeJobOffers, isCompactJobOffers } from '@/utils/jobOffersCodec'
 
 async function fetchAllJobOffers(): Promise<JobOffersApiResponse> {
   const response = await fetch('/api/job-offers')
@@ -14,19 +15,27 @@ async function fetchAllJobOffers(): Promise<JobOffersApiResponse> {
     throw new Error(`Failed to fetch job offers (${response.status})`)
   }
 
-  const data: JobOffersApiResponse & { companies?: Record<string, Company> } = await response.json()
+  const data = await response.json()
 
-  // La API manda cada empresa una sola vez; aquí se vuelve a poner en cada oferta
-  if (data.companies) {
-    const companies = data.companies
-    data.jobs = data.jobs.map((job: JobOfferResponse) => ({
+  // La API manda las ofertas en formato compacto (arreglos + textos y empresas una sola vez);
+  // aquí se vuelven a armar los objetos que usan los componentes
+  if (isCompactJobOffers(data)) {
+    const meta = data as unknown as Omit<JobOffersApiResponse, 'jobs'>
+    return { total: meta.total, userPreferences: meta.userPreferences, jobs: decodeJobOffers(data) }
+  }
+
+  // Formato anterior (por si una versión vieja del servidor sigue respondiendo)
+  const legacy: JobOffersApiResponse & { companies?: Record<string, Company> } = data
+  if (legacy.companies) {
+    const companies = legacy.companies
+    legacy.jobs = legacy.jobs.map((job: JobOfferResponse) => ({
       ...job,
       company: job.company ?? companies[String(job.company_id)],
     }))
-    delete data.companies
+    delete legacy.companies
   }
 
-  return data
+  return legacy
 }
 
 const jobOffersKeys = {

@@ -6,6 +6,7 @@ import { NextResponse } from 'next/server';
 import { getUserPreferences } from '@/utils/userPreferencesUtils';
 import { getUserAppliedJobIds } from '@/utils/applicationsUtils';
 import { fetchAllRows } from '@/utils/supabase/fetchAllRows';
+import { encodeJobOffers } from '@/utils/jobOffersCodec';
 
 // Solo las columnas que usa la interfaz (antes era select *)
 const JOB_COLUMNS =
@@ -223,8 +224,7 @@ async function getPublicJobs(supabase: any) {
   const { jobs, companies } = splitCompanies(jobOffers);
 
   return NextResponse.json({
-    jobs,
-    companies,
+    ...encodeJobOffers(jobs, companies),
     total: count || 0,
   });
 }
@@ -341,8 +341,7 @@ async function getFilteredJobsForUser(
   const { jobs, companies } = splitCompanies(jobOffers);
 
   return NextResponse.json({
-    jobs,
-    companies,
+    ...encodeJobOffers(jobs, companies),
     total: jobs.length,
     userPreferences: preferences,
   });
