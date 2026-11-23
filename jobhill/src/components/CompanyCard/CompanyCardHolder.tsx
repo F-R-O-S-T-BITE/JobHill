@@ -1,4 +1,5 @@
 "use client";
+// components/CompanyCard/CompanyCardHolder.tsx
 import { CompanyCardProps } from "@/interfaces/OfferCard";
 import { OfferCardHolderStyles } from "@/styles/OfferCardStyles";
 import CompanyCard from "./CompanyCard";
@@ -6,6 +7,8 @@ import { useUpdatePreference, useUserPreferences } from "@/hooks/useUserPreferen
 import { useHideCompany } from "@/hooks/useJobOffers";
 import { showHideCompanyToast } from "@/components/Toast/HideCompanyToast";
 import { useState, useMemo } from "react";
+import { Building2 } from "lucide-react";
+import EmptyState from "@/components/ui/EmptyState";
 
 interface CompanyCardHolderProps {
     companies: CompanyCardProps[];
@@ -71,27 +74,8 @@ const CompanyCardHolder = ({ companies, onCompanyClick }: CompanyCardHolderProps
         }
     };
 
-    if (companies.length === 0) {
-        return (
-            <div className={OfferCardHolderStyles.Wrapper}>
-                <div className="flex items-center justify-center h-[400px]">
-                    <div className="flex flex-col items-center gap-4">
-                        <div className="text-gray-400 text-6xl">🏢</div>
-                        <span className="text-base xm:text-[1.25rem] sm:text-[1.5rem] font-mono font-bold text-black leading-tight text-center">
-                            No companies match your filters
-                        </span>
-                        <span className="text-sm text-gray-600 text-center max-w-md">
-                            Try adjusting your search criteria or clear some filters
-                        </span>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    const visibleCompanies = companies.filter(company => !hiddenCompanies.has(company.id));
-
     const sortedCompanies = useMemo(() => {
+        const visibleCompanies = companies.filter(company => !hiddenCompanies.has(company.id));
         const preferredCompanyIds = userPreferencesData?.preferences?.preferred_companies || [];
 
         return [...visibleCompanies].sort((a, b) => {
@@ -105,7 +89,17 @@ const CompanyCardHolder = ({ companies, onCompanyClick }: CompanyCardHolderProps
             // Then alphabetically by name
             return a.name.localeCompare(b.name);
         });
-    }, [visibleCompanies, userPreferencesData?.preferences?.preferred_companies]);
+    }, [companies, hiddenCompanies, userPreferencesData?.preferences?.preferred_companies]);
+
+    if (companies.length === 0) {
+        return (
+            <EmptyState
+                icon={Building2}
+                title="No companies match your filters"
+                description="Try adjusting your search criteria or clear some filters."
+            />
+        );
+    }
 
     return (
         <div className={OfferCardHolderStyles.Wrapper}>

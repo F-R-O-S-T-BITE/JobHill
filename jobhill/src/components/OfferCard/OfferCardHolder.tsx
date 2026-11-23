@@ -1,77 +1,72 @@
-import { useState, useMemo, useEffect } from "react";
+// components/OfferCard/OfferCardHolder.tsx
+import { useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import OfferCard from "./OfferCard";
 import { OfferCardProps } from "@/interfaces/OfferCard";
-import '../slider.module.css'
 import { OfferCardHolderStyles } from "@/styles/OfferCardStyles";
 
 interface OfferCardHolderProps {
     offers: OfferCardProps[];
 }
 
-const OfferCardHolder: React.FC<OfferCardHolderProps> = ({
-    offers
-}) => {
+const PAGE_SIZE = 50;
+
+const OfferCardHolder: React.FC<OfferCardHolderProps> = ({ offers }) => {
     const [currentPage, setCurrentPage] = useState(1);
-    const pageSize = 50;
 
-    const visibleOffers = useMemo(() => {
-        return offers;
-    }, [offers]);
+    const totalPages = Math.ceil(offers.length / PAGE_SIZE);
+    const startIndex = (currentPage - 1) * PAGE_SIZE;
+    const paginatedOffers = offers.slice(startIndex, startIndex + PAGE_SIZE);
 
-    const startIndex = (currentPage - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    const paginatedOffers = visibleOffers.slice(startIndex, endIndex);
-    const totalPages = Math.ceil(visibleOffers.length / pageSize);
-
-    // Auto-adjust page if current page exceeds total pages
+    // Ajusta la página si los filtros reducen el total
     useEffect(() => {
-        const newTotalPages = Math.ceil(visibleOffers.length / pageSize);
-        if (currentPage > newTotalPages && newTotalPages > 0) {
-            setCurrentPage(newTotalPages);
+        if (currentPage > totalPages && totalPages > 0) {
+            setCurrentPage(totalPages);
         }
-    }, [visibleOffers.length, currentPage, pageSize]);
-    
+    }, [totalPages, currentPage]);
+
     const handlePageChange = (newPage: number) => {
         setCurrentPage(newPage);
-        // Scroll to top when changing pages
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-  return (
-    <div className={OfferCardHolderStyles.Wrapper}>
-        {/* Card Grid */}
-        <div className={OfferCardHolderStyles.Grid}>
-            {paginatedOffers.map((offer, idx) => (
-                <OfferCard key={offer.id || `${offer.title}-${offer.company}-${idx}`} card={offer} userPreferences={{ showAddModal: true }} />
-            ))}
-        </div>
-
-        {/* Pagination */}
-        {visibleOffers.length > 0 && totalPages > 1 && (
-            <div className="flex justify-center items-center gap-4 mt-8 mb-4">
-                <button
-                    disabled={currentPage === 1}
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    className="px-6 py-2 rounded-md text-sm font-medium border border-blue-600 text-blue-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#0353A4] hover:text-white"
-                >
-                    Previous
-                </button>
-
-                <span className="text-sm text-gray-700 font-medium px-4">
-                    Page {currentPage} of {totalPages}
-                </span>
-
-                <button
-                    disabled={currentPage >= totalPages}
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    className="px-6 py-2 rounded-md text-sm font-medium border border-blue-600 text-blue-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#0353A4] hover:text-white"
-                >
-                    Next
-                </button>
+    return (
+        <div className={OfferCardHolderStyles.Wrapper}>
+            <div className={OfferCardHolderStyles.Grid}>
+                {paginatedOffers.map((offer, idx) => (
+                    <OfferCard
+                        key={offer.id || `${offer.title}-${offer.company}-${idx}`}
+                        card={offer}
+                        userPreferences={{ showAddModal: true }}
+                    />
+                ))}
             </div>
-        )}
-    </div>
-  );
+
+            {totalPages > 1 && (
+                <nav className="mt-8 flex items-center justify-between gap-3 sm:justify-center sm:gap-4" aria-label="Pagination">
+                    <button
+                        disabled={currentPage === 1}
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        className="btn-secondary"
+                    >
+                        <ChevronLeft className="h-4 w-4" />
+                        <span className="hidden xs:inline">Previous</span>
+                    </button>
+                    <span className="text-sm font-medium text-slate-600">
+                        Page <span className="text-slate-900">{currentPage}</span> of {totalPages}
+                    </span>
+                    <button
+                        disabled={currentPage >= totalPages}
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        className="btn-secondary"
+                    >
+                        <span className="hidden xs:inline">Next</span>
+                        <ChevronRight className="h-4 w-4" />
+                    </button>
+                </nav>
+            )}
+        </div>
+    );
 };
 
 export default OfferCardHolder;

@@ -2,6 +2,8 @@ import { useState } from "react";
 import { AddAppModalStyles } from "@/styles/OfferCardStyles";
 import { SimpleDropdown } from "@/components/InputFilter";
 import { ApplicationStatus, APPLICATION_STATUSES } from "@/interfaces/Application";
+import { X } from 'lucide-react';
+import CompanyLogo from '@/components/ui/CompanyLogo';
 
 interface AddAppModalProps {
     onClose: () => void;
@@ -58,11 +60,7 @@ export default function AddAppModal({
                         className={AddAppModalStyles.CloseButton}
                         aria-label="Close modal"
                     >
-                        <img 
-                            src="/resources/Icons/Components_Cards/quit_component_cards.png" 
-                            alt="Close" 
-                            className={AddAppModalStyles.CloseIcon} 
-                        />
+                        <X className={AddAppModalStyles.CloseIcon} />
                     </button>
                 </div>
                 <div className={AddAppModalStyles.FormSection}>
@@ -70,21 +68,7 @@ export default function AddAppModal({
                     <div className={AddAppModalStyles.FormRow}>
 
                         <div className={AddAppModalStyles.CompanyRow}>
-                            <div className="w-12 h-12 flex-shrink-0">
-                                <img 
-                                    src={companyLogo} 
-                                    alt={`${companyName} logo`} 
-                                    className={AddAppModalStyles.CompanyLogo} 
-                                    onError={(e) => {
-                                        const target = e.target as HTMLImageElement;
-                                        target.style.display = 'none';
-                                        target.nextElementSibling?.classList.remove('hidden');
-                                    }}
-                                />
-                                <div className={`w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center text-sm font-bold text-gray-600 ${companyLogo ? 'hidden' : ''}`}>
-                                    {companyName.charAt(0).toUpperCase()}
-                                </div>
-                            </div>
+                            <CompanyLogo src={companyLogo} name={companyName} className="h-12 w-12" />
                             <div className={AddAppModalStyles.CompanyInfo}>
                                 <div className={AddAppModalStyles.CompanyName}>{companyName}</div>
                                 <div className={AddAppModalStyles.JobTitle}>{jobTitle}</div>

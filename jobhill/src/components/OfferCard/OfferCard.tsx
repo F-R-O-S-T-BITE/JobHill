@@ -1,17 +1,19 @@
+// components/OfferCard/OfferCard.tsx
+import { CheckCircle2, Clock, EyeOff, ExternalLink, MapPin, Plus, Star } from "lucide-react";
 import { useOfferCardLogic } from "@/hooks/useOfferCardLogic";
 import { OfferCardProps, UserPreferences } from "@/interfaces/OfferCard";
-import { OfferCardStyles } from "@/styles/OfferCardStyles";
+import { OfferCardStyles as s } from "@/styles/OfferCardStyles";
+import CompanyLogo from "@/components/ui/CompanyLogo";
 import ConfirmAppliedModal from "./ConfirmAppliedModal";
 import AddAppModal from "./AddAppModal";
 
+const formatLocation = (location: string[] | string) => {
+    if (!Array.isArray(location)) return location;
+    if (location.length > 1) return `${location[0]} +${location.length - 1} more`;
+    return location[0] ?? 'Location not specified';
+};
 
-const OfferCard = ({card,userPreferences}:{card:OfferCardProps,userPreferences:UserPreferences} ) => {
-
-    const OfferCardLogic ={
-        card:card,
-        userPreferences:userPreferences
-    }
-
+const OfferCard = ({ card, userPreferences }: { card: OfferCardProps, userPreferences: UserPreferences }) => {
     const {
         isFavorite,
         handleHideClick,
@@ -24,136 +26,93 @@ const OfferCard = ({card,userPreferences}:{card:OfferCardProps,userPreferences:U
         handleCancelShowAddModal,
         handleShowAddModal,
         handleRegisterNewApplication
-    } = useOfferCardLogic(OfferCardLogic);
+    } = useOfferCardLogic({ card, userPreferences });
 
-    return  (
-        <div className="w-full flex justify-center">
-            <div className={`${OfferCardStyles.Card} ${OfferCardStyles.CardVisible}`}>
-            {/* Top Section */}
-                <div className={OfferCardStyles.CardTop}>
-                    <div className={OfferCardStyles.Row}>
-                        {/* Logo*/}
-                        <div className={OfferCardStyles.LogoDiv}>
-                            <img
-                                src={card.logoSrc}
-                                alt="Company Logo"
-                                className={OfferCardStyles.Logo}
-                                onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.style.display = 'none';
-                                target.nextElementSibling?.classList.remove('hidden');
-                            }}
-                          />
-                        <div className={`w-[4rem] h-[4rem] sm:w-20 sm:h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center text-lg sm:text-xl font-bold text-gray-600 ${card.logoSrc ? 'hidden' : ''}`}>
-                          {card.company.charAt(0).toUpperCase()}
-                        </div>
+    const allLocations = Array.isArray(card.location) ? card.location.join(' · ') : card.location;
 
-                            
+    return (
+        <>
+            <article className={s.Card}>
+                <div className={s.CardTop}>
+                    <CompanyLogo src={card.logoSrc} name={card.company} className="h-12 w-12 sm:h-14 sm:w-14" />
+
+                    <div className={s.CardContent}>
+                        <p className={s.CompanyText}>{card.company}</p>
+                        <h3 className={s.TitleText} title={card.title}>{card.title}</h3>
+                        <div className={s.MetaRow}>
+                            <span className={s.LocationText} title={allLocations}>
+                                <MapPin className={s.MetaIcon} aria-hidden="true" />
+                                <span className="truncate">{formatLocation(card.location)}</span>
+                            </span>
+                            <span className={s.MetaItem}>
+                                <Clock className={s.MetaIcon} aria-hidden="true" />
+                                {card.publish_date}
+                            </span>
+                            {card.isApplied && (
+                                <span className={s.AppliedBadge}>
+                                    <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
+                                    Applied
+                                </span>
+                            )}
                         </div>
-                        {/*Info*/}
-                        <div className={OfferCardStyles.CardContentRow}>
-                            <div className={OfferCardStyles.CardContent}>
-                                <span className={OfferCardStyles.DateText}>{card.publish_date}</span>
-                                <span className={OfferCardStyles.TitleText}>{card.title}</span>
-                                <span className={OfferCardStyles.CompanyText}>{card.company}</span>
-                                <span className={OfferCardStyles.LocationText}>
-                                    {Array.isArray(card.location)
-                                    ? card.location.length > 1
-                                        ? `+${card.location.length} locations`
-                                        : card.location[0]
-                                    : card.location}</span>
-                            </div>
-                        </div>
-                        {/* Favorite Button */}
-                        <button
-                            aria-label="Favorite-Button"
-                            className={OfferCardStyles.FavoriteIcon}
-                            onClick={handleFavoriteClick}
-                            type="button"
-                        >
-                            <img
-                                src={isFavorite 
-                                    ? "/resources/Icons/Cards/Favorite_Selected_Cards.png"
-                                    : "/resources/Icons/Cards/Favorite_NOTSelected_Cards.png"
-                                }
-                                alt="Favorite"
-                                className={OfferCardStyles.FavoriteIcon}
-                            />
-                        </button>
                     </div>
-                </div>
-                
-                {/*Tags*/}
-                <div className={`flex flex-col gap-3 items-start sm:flex-row flex-1 bg-[#FAF6F6] pl-3 sm:px-4 pb-2 `}>
-                    <div className={OfferCardStyles.TagsRow}>
-                        {card.tags.map((tag, idx) =>
-                            tag.type === "category" ? (
-                                <span key={idx} className={OfferCardStyles.CategoryTag}>
-                                    {tag.label}
-                                </span>
-                                ) : 
-                                tag.type === "extra_critical_requirements" ? (
-                                <span key={idx} className={OfferCardStyles.CriticalTag}>
-                                    {tag.label}
-                                </span>
-                                ) : 
-                                (
-                                <span key={idx} className={OfferCardStyles.CommonTag}>
-                                    {tag.label}
-                                </span>
-                            )
-                        )}
-                    </div>
-                </div>
-                {/* Bottom Section */}
-                <div className={OfferCardStyles.CardBottom}>
-                    {/* Hide Button */}
+
                     <button
-                        className={OfferCardStyles.HideButton}
-                        onClick={handleHideClick}
-                        aria-label="Hide"
                         type="button"
+                        aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                        aria-pressed={isFavorite}
+                        className={s.FavoriteButton}
+                        onClick={handleFavoriteClick}
                     >
-                        <img
-                            src="/resources/Icons/Cards/hide_icon_Cards.png"
-                            alt="Hide"
-                            className={OfferCardStyles.HideIcon}
-                        />
-                        Hide
+                        <Star className={`${s.FavoriteIcon} ${isFavorite ? 'fill-amber-400 text-amber-400' : ''}`} />
                     </button>
-                    <div className={OfferCardStyles.GroupedButtons}>
-                        {/* Add Application Button */}
-                        <button
-                            aria-label="Add Application"
-                            className={OfferCardStyles.AddApplicationButton}
-                            onClick={handleAddClick}
-                            type="button"
-                        >
-                            <img
-                                src="/resources/Icons/Cards/Add_icon_Cards.png"
-                                alt="Add"
-                                className={OfferCardStyles.AddIcon}
-                            />
-                            Add Application
+                </div>
+
+                {card.tags.length > 0 && (
+                    <ul className={s.TagsRow} aria-label="Job tags">
+                        {card.tags.map((tag, idx) => (
+                            <li
+                                key={`${tag.type}-${tag.label}-${idx}`}
+                                className={
+                                    tag.type === "category"
+                                        ? s.CategoryTag
+                                        : tag.type === "extra_critical_requirements"
+                                            ? s.CriticalTag
+                                            : s.CommonTag
+                                }
+                            >
+                                {tag.label}
+                            </li>
+                        ))}
+                    </ul>
+                )}
+
+                <div className={s.Spacer} />
+
+                <div className={s.CardBottom}>
+                    <button
+                        type="button"
+                        className={s.HideButton}
+                        onClick={handleHideClick}
+                        aria-label="Hide this job"
+                    >
+                        <EyeOff className={s.ActionIcon} />
+                        <span className="hidden xs:inline">Hide</span>
+                    </button>
+                    <div className={s.GroupedButtons}>
+                        <button type="button" className={s.AddApplicationButton} onClick={handleAddClick}>
+                            <Plus className={s.ActionIcon} />
+                            <span>Track</span>
                         </button>
-                        {/* Apply Button */}
-                        <button
-                            aria-label="Apply-Button"
-                            className={OfferCardStyles.ApplyButton}
-                            onClick={handleApplyClick}
-                            type="button"
-                        >
-                            <img
-                                src="/resources/Icons/Cards/externallink_icon_cards.png"
-                                alt="Apply"
-                                className={OfferCardStyles.ApplyIcon}
-                            />
+                        <button type="button" className={s.ApplyButton} onClick={handleApplyClick}>
                             Apply
+                            <ExternalLink className={s.ActionIcon} />
                         </button>
                     </div>
                 </div>
-            </div> 
-            {isConfirmationAppliedModalOpen && ( 
+            </article>
+
+            {isConfirmationAppliedModalOpen && (
                 <ConfirmAppliedModal
                     onClose={handleCancelShowConfirmationAddModal}
                     onAdd={handleShowAddModal}
@@ -169,7 +128,7 @@ const OfferCard = ({card,userPreferences}:{card:OfferCardProps,userPreferences:U
                     companyLogo={card.logoSrc}
                 />
             )}
-        </div>
+        </>
     )
 }
 
