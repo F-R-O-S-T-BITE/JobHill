@@ -129,11 +129,14 @@ export function useUpdateApplicationStatus() {
 
       return { previousApplications };
     },
-    onSuccess: (updatedApplication) => {
+    onSuccess: (result) => {
+      // La API responde { success, application }; conservamos company_logo del cache
+      const updated = (result as unknown as { application?: Application }).application;
+      if (!updated) return;
       queryClient.setQueryData<Application[]>(
         applicationsKeys.userApplications(),
         (old) => old?.map(app =>
-          app.id === updatedApplication.id ? updatedApplication : app
+          app.id === updated.id ? { ...app, ...updated, company_logo: app.company_logo } : app
         )
       );
     },
@@ -157,6 +160,89 @@ export function useDeleteApplication() {
       queryClient.setQueryData<Application[]>(
         applicationsKeys.userApplications(),
         (old) => old?.filter(app => app.id !== applicationId)
+      );
+
+      return { previousApplications };
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousApplications) {
+        queryClient.setQueryData(applicationsKeys.userApplications(), context.previousApplications);
+      }
+    },
+  });
+}
+
+type BulkAction =
+  | { action: 'delete'; ids: string[] }
+  | { action: 'update_status'; ids: string[]; status: string };
+
+interface BulkResult {
+  success: boolean;
+  affectedIds: string[];
+  status?: string;
+  last_updated?: string;
+}
+
+async function runBulkAction(payload: BulkAction): Promise<BulkResult> {
+  const response = await fetch('/api/applications/bulk', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error('Bulk action failed');
+  }
+
+  return response.json();
+}
+
+/** Borra varias aplicaciones a la vez (con actualización optimista). */
+export function useBulkDeleteApplications() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (ids: string[]) => runBulkAction({ action: 'delete', ids }),
+    onMutate: async (ids) => {
+      await queryClient.cancelQueries({ queryKey: applicationsKeys.userApplications() });
+      const previousApplications = queryClient.getQueryData<Application[]>(applicationsKeys.userApplications());
+      const toDelete = new Set(ids);
+
+      queryClient.setQueryData<Application[]>(
+        applicationsKeys.userApplications(),
+        (old) => old?.filter(app => !toDelete.has(app.id))
+      );
+
+      return { previousApplications };
+    },
+    onError: (_error, _ids, context) => {
+      if (context?.previousApplications) {
+        queryClient.setQueryData(applicationsKeys.userApplications(), context.previousApplications);
+      }
+    },
+  });
+}
+
+/** Cambia el estado de varias aplicaciones a la vez (con actualización optimista). */
+export function useBulkUpdateApplicationStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ ids, status }: { ids: string[]; status: string }) =>
+      runBulkAction({ action: 'update_status', ids, status }),
+    onMutate: async ({ ids, status }) => {
+      await queryClient.cancelQueries({ queryKey: applicationsKeys.userApplications() });
+      const previousApplications = queryClient.getQueryData<Application[]>(applicationsKeys.userApplications());
+      const toUpdate = new Set(ids);
+      const now = new Date().toISOString();
+
+      queryClient.setQueryData<Application[]>(
+        applicationsKeys.userApplications(),
+        (old) => old?.map(app =>
+          toUpdate.has(app.id)
+            ? { ...app, status: status as Application['status'], last_updated: now }
+            : app
+        )
       );
 
       return { previousApplications };
