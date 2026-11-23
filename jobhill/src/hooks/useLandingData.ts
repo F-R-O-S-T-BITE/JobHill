@@ -12,7 +12,7 @@ export interface CompanyLogo {
 
 export interface JobStats {
   newInternRoles: number;
-  newDataMLPositions: number;
+  newGradRoles: number;
   newSWEPositions: number;
   totalOpportunities: number;
 }
@@ -28,7 +28,7 @@ const defaultLogos: CompanyLogo[] = [
 
 const defaultStats: JobStats = {
   newInternRoles: 1230,
-  newDataMLPositions: 463,
+  newGradRoles: 120,
   newSWEPositions: 828,
   totalOpportunities: 13000
 };
@@ -89,12 +89,7 @@ export function useLandingData() {
 
     const newInternRoles = weeklyJobs.length;
 
-    const newDataMLPositions = weeklyJobs.filter((job: JobOfferResponse) => 
-      job.categories && (
-        job.categories.includes('AI & ML') || 
-        job.categories.includes('Data & Analytics')
-      )
-    ).length;
+    const newGradRoles = weeklyJobs.filter((job: JobOfferResponse) => job.newGrad === 1).length;
 
     const newSWEPositions = weeklyJobs.filter((job: JobOfferResponse) => 
       job.categories && job.categories.includes('SWE')
@@ -102,7 +97,7 @@ export function useLandingData() {
 
     return {
       newInternRoles,
-      newDataMLPositions,
+      newGradRoles,
       newSWEPositions,
       totalOpportunities: jobs.length
     };
