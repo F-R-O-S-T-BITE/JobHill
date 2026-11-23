@@ -4,12 +4,12 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 //Styles and Components
-import '../../globals.css';
 import { FaGoogle, FaGithub, FaEye, FaEyeSlash } from "react-icons/fa";
 import { LoginStyles } from '@/styles/LoginStyles';
 import CaptchaModal from "@/components/Modals/CaptchaModal";
 //Hooks and Actions
 import { useLoginRegister } from '@/hooks/useLoginRegister';
+import { AntTrailScene } from "@/components/mascots";
 
 
 
@@ -37,13 +37,9 @@ export default function Login() {
 
     return (
         <div className={LoginStyles.container}>
-            <div
-                className={LoginStyles.leftPanel}
-                style={{
-                    backgroundImage: "url('/resources/ants/Login_background.png')",
-                    transform: "translateZ(0)",
-                }}
-            />
+            <div className={LoginStyles.leftPanel}>
+                <AntTrailScene palette="dusk" className="absolute inset-0 h-full w-full" />
+            </div>
             <div className={LoginStyles.rightPanel}>
                 <div className={LoginStyles.box}>
                               <Link href="/" >
@@ -60,7 +56,7 @@ export default function Login() {
                             </div>
                         )}
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                            <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
                                 Email address
                             </label>
                             <input
@@ -77,10 +73,10 @@ export default function Login() {
                         </div>
                         <div className="relative">
                             <div className="flex justify-between items-center mb-1">
-                                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                                <label htmlFor="password" className="block text-sm font-medium text-slate-700">
                                     Password
                                 </label>
-                                <Link href="/forgot-password" className="text-sm text-[#0353A4] hover:underline cursor-pointer">
+                                <Link href="/forgot-password" className="text-sm text-brand-600 hover:underline cursor-pointer">
                                     forgot password
                                 </Link>
                             </div>
@@ -99,7 +95,7 @@ export default function Login() {
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
                                 >
                                     {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
                                 </button>
@@ -112,9 +108,9 @@ export default function Login() {
                                 id="rememberCheckbox"
                                 checked={formData.rememberMe}
                                 onChange={handleChange}
-                                className="h-4 w-4 text-[#0353A4] border-gray-300 rounded cursor-pointer"
+                                className="h-4 w-4 rounded accent-brand-600 cursor-pointer"
                             />
-                            <label htmlFor="rememberCheckbox" className="ml-2 text-[14px] font-poppins text-black">
+                            <label htmlFor="rememberCheckbox" className="ml-2 text-sm text-slate-600">
                                 Remember for 30 days
                             </label>
                         </div>
@@ -127,16 +123,16 @@ export default function Login() {
                         </button>
                     </form>
 
-                    <div className="my-6 text-center text-[14px] font-poppins text-black flex items-center justify-between">
-                        <div className="w-1/3 h-px bg-gray-300"></div>
+                    <div className="my-6 text-center text-sm text-slate-600 flex items-center justify-between">
+                        <div className="w-1/3 h-px bg-slate-300"></div>
                         <span className="px-2">or</span>
-                        <div className="w-1/3 h-px bg-gray-300"></div>
+                        <div className="w-1/3 h-px bg-slate-300"></div>
                     </div>
 
                     <button
                         onClick={handleGoogleSignIn}
                         disabled={isLoading}
-                        className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins mb-3 text-black hover:bg-gray-100 transition-colors cursor-pointer disabled:opacity-70"
+                        className="btn-secondary w-full py-3 mb-3"
                     >
                         <FaGoogle className="text-red-500 mr-2" />
                         Sign in with Google
@@ -145,15 +141,15 @@ export default function Login() {
                     <button
                         onClick={handleGithubSignIn}
                         disabled={isLoading}
-                        className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins text-black hover:bg-gray-100 transition-colors cursor-pointer disabled:opacity-70"
+                        className="btn-secondary w-full py-3"
                     >
                         <FaGithub className="mr-2" />
                         Sign in with Github
                     </button>
 
-                    <div className="mt-6 text-center text-[14px] font-poppins text-black">
+                    <div className="mt-6 text-center text-sm text-slate-600">
                         Don't have an account?{" "}
-                        <Link href="/register" className="text-[#0353A4] font-medium hover:underline">
+                        <Link href="/register" className="text-brand-600 font-medium hover:underline">
                             Sign Up
                         </Link>
                     </div>

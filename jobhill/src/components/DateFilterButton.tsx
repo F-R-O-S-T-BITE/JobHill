@@ -1,3 +1,4 @@
+// components/DateFilterButton.tsx
 import { DataFilterStyles } from "@/styles/DataFilterStyles";
 import { useState } from "react";
 
@@ -10,8 +11,8 @@ export const DateFilterButton = ({ value, onChange }: {
   const [open, setOpen] = useState(false);
 
   const labelMap: Record<DateOrder, string> = {
-    newest: "Order by Newest First",
-    oldest: "Order by Oldest First",
+    newest: "Newest first",
+    oldest: "Oldest first",
   };
 
   const handleSelect = (val: DateOrder) => {
@@ -22,27 +23,33 @@ export const DateFilterButton = ({ value, onChange }: {
   return (
     <div className="relative w-full">
       <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
         onClick={() => setOpen(prev => !prev)}
         className={DataFilterStyles.ButtonDateSelector}
       >
-        <span>{labelMap[value]}</span>
+        <span><span className="text-slate-500">Sort:</span> {labelMap[value]}</span>
         <img
           src="/resources/Icons/Components_Cards/OrderbyFirst_Icon_Cards.png"
-          alt="Chevron"
+          alt=""
           className={`${DataFilterStyles.IconDateSelector} ${open ? 'rotate-180' : ''}`}
         />
       </button>
 
       {open && (
-        <div className="absolute z-10 w-full bg-white border border-[#D9D9D9] rounded-md shadow-md mt-1 ">
+        <div className="absolute z-20 mt-1 w-full rounded-lg border border-slate-200 bg-white p-1 shadow-pop" role="listbox">
           {Object.entries(labelMap).map(([val, label]) => (
-            <div
+            <button
+              type="button"
+              role="option"
+              aria-selected={val === value}
               key={val}
               onClick={() => handleSelect(val as DateOrder)}
-              className={DataFilterStyles.ValueDateSelector}
+              className={`${DataFilterStyles.ValueDateSelector} block w-full text-left ${val === value ? 'font-semibold text-brand-700' : ''}`}
             >
               {label}
-            </div>
+            </button>
           ))}
         </div>
       )}

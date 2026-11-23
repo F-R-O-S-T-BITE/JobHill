@@ -27,6 +27,9 @@ export interface JobOfferResponse extends JobOffer {
   is_applied?: boolean;
   is_favorite?: boolean;
   preference_score?: number;
+  relevance_tier?: number;
+  is_preferred_company?: boolean;
+  matching_categories?: string[];
 }
 
 export interface JobOffersFilters {

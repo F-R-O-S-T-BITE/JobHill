@@ -1,10 +1,11 @@
+// styles/RegisterStyles.ts
 export const RegisterStyles = {
-    container: "flex flex-col md:flex-row h-screen w-full bg-white overflow-hidden",
-    leftPanel: "w-full md:w-1/2 flex items-center justify-center bg-white h-screen overflow-auto",
-    rightPanel: "hidden md:block md:w-1/2 bg-cover bg-center bg-no-repeat h-screen",
-    box: "max-w-md w-full p-4 text-center",
-    title: "text-[50px] md:text-[60px] font-black font-inter text-[#0353A4] leading-tight",
-    text: "text-[14px] font-medium font-poppins text-black mb-6",
-    input: "w-full border border-gray-300 px-3 py-2 rounded font-poppins text-black",
-    button: "w-full bg-[#0353A4] text-white py-2 rounded font-poppins font-medium cursor-pointer hover:bg-[#034383] transition-colors disabled:bg-opacity-70 disabled:cursor-not-allowed"
+    container: "grid min-h-dvh w-full bg-white md:grid-cols-2",
+    leftPanel: "flex items-center justify-center px-4 py-10 sm:px-6 lg:px-10",
+    rightPanel: "relative hidden overflow-hidden bg-brand-900 md:block",
+    box: "w-full max-w-sm text-center",
+    title: "inline-block font-display text-4xl font-extrabold tracking-tight text-brand-600 sm:text-5xl",
+    text: "mb-8 mt-1 text-sm text-slate-500",
+    input: "field py-3",
+    button: "btn-primary w-full py-3 text-base"
 };

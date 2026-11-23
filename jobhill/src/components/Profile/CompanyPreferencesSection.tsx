@@ -24,9 +24,9 @@ function CompanyCard({ company, isPreferred, isHidden, onPrefer, onHide, disable
   disabled?: boolean
 }) {
   return (
-    <div className={`p-4 border border-gray-200 rounded-lg ${disabled ? 'opacity-50' : 'hover:bg-gray-50'} transition-colors`}>
+    <div className={`p-4 border border-slate-200 rounded-lg ${disabled ? 'opacity-50' : 'hover:bg-slate-50'} transition-colors`}>
       <div className="flex items-center space-x-3">
-        <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+        <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center">
           {company.logo_url ? (
             <img src={company.logo_url} alt={company.name} className="w-8 h-8 object-contain"
             onError={(e) => {
@@ -35,12 +35,12 @@ function CompanyCard({ company, isPreferred, isHidden, onPrefer, onHide, disable
               target.nextElementSibling?.classList.remove('hidden');
                }}/>
           ) : null}
-          <div className={`w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center text-sm font-bold text-gray-600 ${company.logo_url ? 'hidden' : ''}`}>
+          <div className={`w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg flex items-center justify-center text-sm font-bold text-slate-600 ${company.logo_url ? 'hidden' : ''}`}>
             {company.name.charAt(0).toUpperCase()}
           </div>
         </div>
         <div className="flex-1">
-          <h4 className="font-medium text-gray-900">{company.name}</h4>
+          <h4 className="font-medium text-slate-900">{company.name}</h4>
         </div>
         <div className="flex space-x-2">
           <button
@@ -48,8 +48,8 @@ function CompanyCard({ company, isPreferred, isHidden, onPrefer, onHide, disable
             disabled={disabled}
             className={`p-2 rounded-lg transition-colors ${
               isPreferred
-                ? 'bg-blue-100 text-[#0466C8]'
-                : 'bg-gray-100 text-gray-400 hover:bg-blue-50 hover:text-[#0466C8]'
+                ? 'bg-brand-100 text-brand-500'
+                : 'bg-slate-100 text-slate-400 hover:bg-brand-50 hover:text-brand-500'
             } ${disabled ? 'cursor-not-allowed' : ''}`}
             title={isPreferred ? 'Remove from preferred' : 'Mark as preferred'}
           >
@@ -61,7 +61,7 @@ function CompanyCard({ company, isPreferred, isHidden, onPrefer, onHide, disable
             className={`p-2 rounded-lg transition-colors ${
               isHidden
                 ? 'bg-red-100 text-red-600'
-                : 'bg-gray-100 text-gray-400 hover:bg-red-50 hover:text-red-500'
+                : 'bg-slate-100 text-slate-400 hover:bg-red-50 hover:text-red-500'
             } ${disabled ? 'cursor-not-allowed' : ''}`}
             title={isHidden ? 'Show company' : 'Hide company'}
           >
@@ -112,20 +112,20 @@ export default function CompanyPreferencesSection({
   }) || []
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-900">Company Preferences</h2>
-        <div className="flex space-x-4 text-sm">
+    <div className="card p-4 sm:p-6">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-lg font-semibold text-slate-900">Company Preferences</h2>
+        <div className="flex flex-wrap gap-2 text-sm">
           <button
             onClick={() => setFilterMode(filterMode === 'preferred' ? 'all' : 'preferred')}
             className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg transition-colors ${
               filterMode === 'preferred'
-                ? 'bg-blue-100 text-[#0466C8]'
-                : 'hover:bg-blue-50 text-gray-600 hover:text-[#0466C8]'
+                ? 'bg-brand-100 text-brand-500'
+                : 'hover:bg-brand-50 text-slate-600 hover:text-brand-500'
             }`}
             title={filterMode === 'preferred' ? 'Show all companies' : 'Show only preferred companies'}
           >
-            <Star className={`w-4 h-4 ${filterMode === 'preferred' ? 'text-[#0466C8] fill-current' : 'text-[#0466C8] fill-current'}`} />
+            <Star className={`w-4 h-4 ${filterMode === 'preferred' ? 'text-brand-500 fill-current' : 'text-brand-500 fill-current'}`} />
             <span>
               {actualPreferredCount} preferred
             </span>
@@ -135,7 +135,7 @@ export default function CompanyPreferencesSection({
             className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg transition-colors ${
               filterMode === 'hidden'
                 ? 'bg-red-100 text-red-600'
-                : 'hover:bg-red-50 text-gray-600 hover:text-red-500'
+                : 'hover:bg-red-50 text-slate-600 hover:text-red-500'
             }`}
             title={filterMode === 'hidden' ? 'Show all companies' : 'Show only hidden companies'}
           >
@@ -152,26 +152,26 @@ export default function CompanyPreferencesSection({
           placeholder="Search companies..."
           value={companySearch}
           onChange={(e) => setCompanySearch(e.target.value)}
-          leftIcon="resources/Icons/Components_Cards/Company_Filter_Cards.png"
-          rightIcon="resources/Icons/search_icon.png"
-          inputClassName="w-full border border-gray-300 hover:border-[#0466C8] rounded-md pl-10 pr-10 py-2 text-md text-[#0353A4] placeholder-gray-400 focus:ring-2 focus:ring-[#0353A4] focus:border-transparent"
+          leftIcon="/resources/Icons/Components_Cards/Company_Filter_Cards.png"
+          rightIcon="/resources/Icons/search_icon.png"
+          inputClassName="w-full border border-slate-300 hover:border-brand-500 rounded-md pl-10 pr-10 py-2 text-md text-brand-600 placeholder-slate-400 focus:ring-2 focus:ring-brand-600 focus:border-transparent"
         />
       </div>
 
       {companiesLoading ? (
         <div className="text-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0353A4] mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading companies...</p>
+          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-brand-100 border-t-brand-600"></div>
+          <p className="text-slate-600">Loading companies...</p>
         </div>
       ) : (
         <>
           {filterMode !== 'all' && (
-            <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600">
+            <div className="mb-4 p-3 bg-slate-50 rounded-lg">
+              <p className="text-sm text-slate-600">
                 Showing {filterMode === 'preferred' ? 'preferred' : 'hidden'} companies only.{' '}
                 <button
                   onClick={() => setFilterMode('all')}
-                  className="text-[#0466C8] hover:underline font-medium"
+                  className="text-brand-500 hover:underline font-medium"
                 >
                   Show all companies
                 </button>
@@ -181,7 +181,7 @@ export default function CompanyPreferencesSection({
 
           {filteredCompanies.length === 0 ? (
             <div className="text-center py-8">
-              <div className="text-gray-400 mb-4">
+              <div className="text-slate-400 mb-4">
                 {filterMode === 'preferred' ? (
                   <Star className="w-12 h-12 mx-auto" />
                 ) : filterMode === 'hidden' ? (
@@ -192,13 +192,13 @@ export default function CompanyPreferencesSection({
                   </svg>
                 )}
               </div>
-              <p className="text-gray-500 font-medium">
+              <p className="text-slate-500 font-medium">
                 {filterMode === 'preferred' && 'No preferred companies found'}
                 {filterMode === 'hidden' && 'No hidden companies found'}
                 {filterMode === 'all' && 'No companies match your search'}
               </p>
               {filterMode !== 'all' && (
-                <p className="text-sm text-gray-400 mt-2">
+                <p className="text-sm text-slate-400 mt-2">
                   {filterMode === 'preferred'
                     ? 'Start preferring companies to see them here'
                     : 'Companies you hide will appear here'}

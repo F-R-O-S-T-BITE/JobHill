@@ -1,3 +1,4 @@
+// components/InputFilter.tsx
 import React, {useState, useRef, useEffect} from "react";
 import { InputWithIconsProps, SelectWithIconProps,MultiSelectProps, SingleSelectDropdownProps, AutocompleteInputProps } from "@/interfaces/InputFilter";
 import { DataFilterStyles } from "@/styles/DataFilterStyles";
@@ -14,7 +15,7 @@ export const InputWithIcons: React.FC<InputWithIconsProps> = ({
         <div className="relative w-full">
             <img
                 src={leftIcon}
-                alt="left icon"
+                alt=""
                 className={DataFilterStyles.LeftFieldImage}
             />
             <input
@@ -26,7 +27,7 @@ export const InputWithIcons: React.FC<InputWithIconsProps> = ({
             {rightIcon && (
                 <img
                 src={rightIcon}
-                alt="right icon"
+                alt=""
                 className={DataFilterStyles.RightFieldImage}
                 />
             )}
@@ -118,7 +119,7 @@ export const MultiSelectDropdown: React.FC<MultiSelectProps> = ({
     return (
         <div className="relative w-full" ref={dropdownRef}>
         <div
-            className={`${DataFilterStyles.Dropdown} flex items-center gap-2 cursor-pointer h-auto text-[#0353A4] min-h-[3rem] p-2`}
+            className={`${DataFilterStyles.Dropdown} flex items-center gap-2 cursor-pointer h-auto text-brand-600 min-h-[2.75rem] py-2`}
             onClick={() => setIsOpen(!isOpen)}
         >
             <img
@@ -132,12 +133,12 @@ export const MultiSelectDropdown: React.FC<MultiSelectProps> = ({
                     {value.slice(0, displayLimit).map((item) => (
                         <span
                         key={item}
-                        className="text-md text-[#0353A4]"
+                        className="inline-flex items-center rounded-md bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700"
                         >
                         {item}
                         <button
                             onClick={(e) => handleRemoveOption(e, item)}
-                            className="ml-2 text-[#0353A4] hover:text-blue-900"
+                            className="ml-1 text-brand-400 hover:text-brand-800"
                         >
                             &times;
                         </button>
@@ -145,13 +146,13 @@ export const MultiSelectDropdown: React.FC<MultiSelectProps> = ({
                     ))}
 
                     {value.length > displayLimit && (
-                        <span className="text-md text-[#0353A4] font-medium ml-1">
-                        y {value.length - displayLimit} más...
+                        <span className="ml-1 text-xs font-medium text-slate-500">
+                        +{value.length - displayLimit} more
                         </span>
                     )}
                     </>
                 ) : (
-                    <span className={''}>{placeholder}</span>
+                    <span className="text-slate-400">{placeholder}</span>
                 )}
             </div>
             <img
@@ -162,11 +163,11 @@ export const MultiSelectDropdown: React.FC<MultiSelectProps> = ({
         </div>
 
         {isOpen && (
-            <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+            <ul className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-slate-200 bg-white p-1 shadow-pop">
                 {options.map((option) => (
                     <li
                         key={option}
-                        className="px-4 py-2 text-[#0353A4] hover:bg-gray-100 cursor-pointer flex items-center"
+                        className="flex cursor-pointer items-center rounded-md px-3 py-2 text-sm text-slate-700 hover:bg-brand-50 hover:text-brand-700"
                         onClick={() => handleSelectOption(option)}
                     >
                     <input
@@ -174,7 +175,7 @@ export const MultiSelectDropdown: React.FC<MultiSelectProps> = ({
                         type="checkbox"
                         checked={value.includes(option)}
                         readOnly
-                        className="mr-2"
+                        className="mr-2 h-4 w-4 accent-brand-600"
                     />
                     {option}
                     </li>
@@ -223,7 +224,7 @@ export const SelectDropdownWithIcon: React.FC<SingleSelectDropdownProps> = ({
     return (
         <div className="relative w-full" ref={dropdownRef}>
         <div
-            className={`${DataFilterStyles.Dropdown} flex items-center gap-2 cursor-pointer h-auto text-[#0353A4] min-h-[3rem] p-2`}
+            className={`${DataFilterStyles.Dropdown} flex items-center gap-2 cursor-pointer h-auto text-brand-600 min-h-[2.75rem] py-2`}
             onClick={() => setIsOpen(!isOpen)}
         >
             <img
@@ -233,17 +234,17 @@ export const SelectDropdownWithIcon: React.FC<SingleSelectDropdownProps> = ({
             />
             <div className="flex flex-wrap gap-1 flex-grow items-center">
                 {value ? (
-                    <span className="text-md text-[#0353A4]">
+                    <span className="inline-flex items-center rounded-md bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700">
                         {value}
                         <button
                             onClick={handleClearSelection}
-                            className="ml-2 text-[#0353A4] hover:text-blue-900"
+                            className="ml-1 text-brand-400 hover:text-brand-800"
                         >
                             &times;
                         </button>
                     </span>
                 ) : (
-                    <span className={''}>{placeholder}</span>
+                    <span className="text-slate-400">{placeholder}</span>
                 )}
             </div>
             <img
@@ -254,11 +255,11 @@ export const SelectDropdownWithIcon: React.FC<SingleSelectDropdownProps> = ({
         </div>
 
         {isOpen && (
-            <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+            <ul className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-slate-200 bg-white p-1 shadow-pop">
                 {options.map((option) => (
                     <li
                         key={option}
-                        className="px-4 py-2 text-[#0353A4] hover:bg-gray-100 cursor-pointer flex items-center"
+                        className="flex cursor-pointer items-center rounded-md px-3 py-2 text-sm text-slate-700 hover:bg-brand-50 hover:text-brand-700"
                         onClick={() => handleSelectOption(option)}
                     >
                     <input
@@ -266,7 +267,7 @@ export const SelectDropdownWithIcon: React.FC<SingleSelectDropdownProps> = ({
                         type="radio"
                         checked={value === option}
                         readOnly
-                        className="mr-2"
+                        className="mr-2 h-4 w-4 accent-brand-600"
                     />
                     {option}
                     </li>
@@ -351,12 +352,12 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
                         {value.map((item) => (
                             <span
                                 key={item}
-                                className="bg-blue-100 text-[#0353A4] px-2 py-1 rounded text-xs flex items-center gap-1"
+                                className="flex items-center gap-1 rounded-md bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700"
                             >
                                 {item}
                                 <button
                                     onClick={() => handleRemoveOption(item)}
-                                    className="text-[#0353A4] hover:text-blue-900"
+                                    className="text-brand-400 hover:text-brand-800"
                                 >
                                     &times;
                                 </button>
@@ -372,7 +373,7 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
                     value={searchTerm}
                     onChange={handleInputChange}
                     onKeyDown={handleKeyDown}
-                    className="w-full outline-none bg-transparent text-[#0353A4]"
+                    className="w-full bg-transparent text-slate-900 outline-none placeholder:text-slate-400"
                     aria-label={aria_label}
                 />
             </div>
@@ -384,11 +385,11 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
             />
 
             {isOpen && filteredOptions.length > 0 && (
-                <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                <ul className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-slate-200 bg-white p-1 shadow-pop">
                     {filteredOptions.map((option) => (
                         <li
                             key={option}
-                            className="px-4 py-2 text-[#0353A4] hover:bg-gray-100 cursor-pointer"
+                            className="flex cursor-pointer items-center rounded-md px-3 py-2 text-sm text-slate-700 hover:bg-brand-50 hover:text-brand-700"
                             onClick={() => handleSelectOption(option)}
                         >
                             {option}
@@ -436,14 +437,14 @@ export const SimpleDropdown: React.FC<{
   return (
     <div className={`relative w-full ${className}`} ref={dropdownRef}>
       <div
-        className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white cursor-pointer flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="field flex cursor-pointer items-center justify-between"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span className={value ? 'text-gray-900' : 'text-gray-500'}>
+        <span className={value ? 'text-slate-900' : 'text-slate-400'}>
           {value || placeholder}
         </span>
         <svg
-          className={`w-5 h-5 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`w-5 h-5 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -453,11 +454,11 @@ export const SimpleDropdown: React.FC<{
       </div>
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+        <div className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-slate-200 bg-white p-1 shadow-pop">
           {options.map((option) => (
             <div
               key={option}
-              className="px-3 py-2 cursor-pointer hover:bg-gray-100 text-gray-900"
+              className="flex cursor-pointer items-center rounded-md px-3 py-2 text-sm text-slate-700 hover:bg-brand-50 hover:text-brand-700"
               onClick={() => handleSelect(option)}
             >
               {option}

@@ -1,10 +1,13 @@
 import { useState, useMemo } from "react";
 import { OfferCardProps } from "@/interfaces/OfferCard";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
 
 export function useDataFilterLogic(data: OfferCardProps[], selectedCompany?: {id: number, name: string} | null) {
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [showHiddenOnly, setShowHiddenOnly] = useState(false);
   const [showAppliedJobs, setShowAppliedJobs] = useState(false);
+  const { data: userPreferencesData } = useUserPreferences();
+
   const [filters, setFilters] = useState({
     company: [] as string[],
     role: "",
@@ -68,18 +71,20 @@ export function useDataFilterLogic(data: OfferCardProps[], selectedCompany?: {id
         return true;
       })
       .sort((a, b) => {
-        const aScore = a.preferenceScore || 0;
-        const bScore = b.preferenceScore || 0;
+        // Sort by tier first (lower tier = higher priority)
+        const aTier = a.relevanceTier || 3;
+        const bTier = b.relevanceTier || 3;
 
-        if (aScore === bScore) {
-          return filters.order === "newest"
-            ? new Date(b.publish_date).getTime() - new Date(a.publish_date).getTime()  
-            : new Date(a.publish_date).getTime() - new Date(b.publish_date).getTime(); 
+        if (aTier !== bTier) {
+          return aTier - bTier;
         }
 
-        return bScore - aScore;
+        // Within same tier, sort by date
+        return filters.order === "newest"
+          ? new Date(b.publish_date).getTime() - new Date(a.publish_date).getTime()
+          : new Date(a.publish_date).getTime() - new Date(b.publish_date).getTime();
       });
-  }, [data, showFavoritesOnly, filters, selectedCompany]);
+  }, [data, showFavoritesOnly, filters, selectedCompany, userPreferencesData?.preferences?.preferred_companies]);
 
   return {
     filteredData,

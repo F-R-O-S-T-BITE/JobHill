@@ -1,6 +1,7 @@
 import { toast } from 'react-hot-toast';
 import { ApplicationSuccessToastStyles } from '@/styles/OfferCardStyles';
 import { ApplicationSuccessToastProps } from '@/interfaces/Toasters';
+import CompanyLogo from '@/components/ui/CompanyLogo';
 
 export default function ApplicationSuccessToast({ 
   companyLogo, 
@@ -14,11 +15,7 @@ export default function ApplicationSuccessToast({
       <div className={ApplicationSuccessToastStyles.ToastShadow}></div>
       <div className={ApplicationSuccessToastStyles.Container}>
         <div className={ApplicationSuccessToastStyles.LogoContainer}>
-          <img
-            src={companyLogo}
-            alt={`${companyName} logo`}
-            className={ApplicationSuccessToastStyles.Logo}
-          />
+          <CompanyLogo src={companyLogo} name={companyName} className="h-9 w-9" rounded="rounded-lg" />
         </div>
         
         <div className={ApplicationSuccessToastStyles.Content}>

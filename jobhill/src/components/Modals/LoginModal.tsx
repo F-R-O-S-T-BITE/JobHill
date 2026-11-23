@@ -1,66 +1,69 @@
+// components/Modals/LoginModal.tsx
 'use client';
 
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { X } from 'lucide-react';
+import { LockKeyhole, X } from 'lucide-react';
 import { useAuthModal } from '@/contexts/AuthModalContext';
 
 export default function LoginModal() {
   const { showLoginModal, closeLoginModal } = useAuthModal();
   const router = useRouter();
 
+  useEffect(() => {
+    if (!showLoginModal) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && closeLoginModal();
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [showLoginModal, closeLoginModal]);
+
   if (!showLoginModal) return null;
 
-  const handleLogin = () => {
-    router.push('/login');
-    closeLoginModal();
-  };
-
-  const handleRegister = () => {
-    router.push('/register');
+  const go = (path: string) => {
+    router.push(path);
     closeLoginModal();
   };
 
   return (
-    <>
-      <div 
-        className="fixed inset-0 bg-white/50 z-40"
+    <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
+      <div
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm animate-fade-in"
         onClick={closeLoginModal}
+        aria-hidden="true"
       />
-      
-      {/* Modal */}
-      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl z-50 p-8 max-w-md w-full mx-4">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="login-modal-title"
+        className="relative w-full max-w-md rounded-t-3xl bg-white p-6 shadow-pop animate-slide-up sm:rounded-2xl sm:p-8"
+      >
         <button
-          aria-label="Close-Login-Modal"
+          aria-label="Close"
           onClick={closeLoginModal}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 cursor-pointer"
+          className="absolute right-4 top-4 rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
         >
-          <X size={24} />
+          <X size={20} />
         </button>
-        
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">
+
+        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+          <LockKeyhole className="h-6 w-6" />
+        </div>
+        <h2 id="login-modal-title" className="font-display text-2xl font-bold text-slate-900">
           Sign in to continue
         </h2>
-        
-        <p className="text-gray-600 mb-6">
-          You need to be logged in to access this feature. Please sign in or create an account to continue.
+        <p className="mt-2 text-slate-600">
+          You need an account to use this feature. Sign in or create one — it only takes a minute.
         </p>
-        
-        <div className="space-y-3">
-          <button
-            onClick={handleLogin}
-            className="w-full bg-[#0353A4] text-white py-3 rounded hover:bg-[#03459E] transition-colors font-semibold"
-          >
-            Login
+
+        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          <button onClick={() => go('/register')} className="btn-secondary py-3 sm:order-1">
+            Create account
           </button>
-          
-          <button
-            onClick={handleRegister}
-            className="w-full border-2 border-[#0353A4] text-[#0353A4] py-3 rounded hover:bg-[#0353A4] hover:text-white transition-colors font-semibold"
-          >
-            Create Account
+          <button onClick={() => go('/login')} className="btn-primary py-3 sm:order-2">
+            Log in
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 }

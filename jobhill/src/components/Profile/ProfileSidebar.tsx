@@ -1,6 +1,8 @@
+// components/Profile/ProfileSidebar.tsx
 'use client'
 
-import {  Settings } from 'lucide-react'
+import { LogOut, Settings } from 'lucide-react'
+import { AntWaving } from '@/components/mascots'
 
 type ActiveSection = 'preferences' | 'apply-extension'
 
@@ -11,8 +13,11 @@ interface ProfileSidebarProps {
   activeSection: ActiveSection
   setActiveSection: (section: ActiveSection) => void
   handleSignOut: () => void
-  isSidebarOpen: boolean
 }
+
+const SECTIONS: { id: ActiveSection; label: string; icon: typeof Settings }[] = [
+  { id: 'preferences', label: 'Preferences', icon: Settings },
+]
 
 export default function ProfileSidebar({
   user,
@@ -21,63 +26,59 @@ export default function ProfileSidebar({
   activeSection,
   setActiveSection,
   handleSignOut,
-  isSidebarOpen
 }: ProfileSidebarProps) {
   return (
-    <div className={`fixed inset-y-0 left-0 transform md:relative md:translate-x-0 transition duration-200 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} z-30 w-64 md:w-1/4 lg:w-1/5 bg-white shadow-lg flex flex-col h-full mt-16 md:mt-0`}>
-      {/* User Profile Section */}
-      <div className=" p-4 sm:p-6 text-center">
-        <div className="relative inline-block ">
-          {avatarUrl ? (
-            <img
-              src={avatarUrl}
-              alt={displayName}
-              className="w-24 h-24 sm:w-24 sm:h-24 lg:w-40 lg:h-40 rounded-full border-2 border-[#0353A4] shadow-md"
-            />
-          ) : (
-            <div className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 rounded-full border-2 border-[#0353A4] flex items-center justify-center">
-             <img className='rounded-full w-full h-full object-cover' src="resources/ants/jobmigaShirt.png" alt="" />
+    <aside className="lg:sticky lg:top-24 lg:self-start">
+      <div className="card overflow-hidden">
+        {/* Perfil: horizontal en móvil, vertical en desktop */}
+        <div className="relative">
+          <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-br from-brand-500 to-brand-700 lg:h-20" />
+          <div className="relative flex items-center gap-4 px-4 pb-4 pt-6 lg:flex-col lg:px-6 lg:pt-8 lg:text-center">
+            <div className="h-20 w-20 shrink-0 overflow-hidden rounded-full bg-brand-50 ring-4 ring-white shadow-md lg:h-28 lg:w-28">
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={displayName}
+                  referrerPolicy="no-referrer"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <AntWaving title="Jobmiga waving" className="mt-2 h-full w-full scale-110" />
+              )}
             </div>
-          )}
+            <div className="min-w-0 pt-6 lg:pt-0">
+              <h2 className="truncate font-display text-base font-bold text-slate-900 lg:text-lg">{displayName}</h2>
+              <p className="truncate text-sm text-slate-500">{user?.email || ''}</p>
+            </div>
+          </div>
         </div>
-        <h2 className="mt-2 text-sm sm:text-base font-bold text-gray-900 truncate px-2">{displayName}</h2>
-        <p className="text-xs text-gray-500 truncate">{user?.email || ''}</p>
-      </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 p-3 sm:p-4 space-y-2">
-          <button
-              onClick={() => setActiveSection('preferences')}
-              className={`w-full flex items-center justify-center space-x-2 sm:space-x-3 px-2 sm:px-3 py-2 text-center rounded-lg transition-colors ${
-                activeSection === 'preferences'
-                  ? 'bg-[#0353A4] text-white'
-                  : 'text-gray-700 hover:bg-gray-100'
+        {/* Navegación */}
+        <nav className="flex gap-2 border-t border-slate-100 p-3 lg:flex-col" aria-label="Profile sections">
+          {SECTIONS.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => setActiveSection(id)}
+              aria-current={activeSection === id ? 'page' : undefined}
+              className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors lg:justify-start ${
+                activeSection === id
+                  ? 'bg-brand-50 text-brand-700'
+                  : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
-            <Settings className="w-4 h-4" />
-            <span className="font-medium text-xs sm:text-sm">Preferences</span>
+              <Icon className="h-4 w-4" />
+              {label}
+            </button>
+          ))}
+          <button
+            onClick={handleSignOut}
+            className="flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50 lg:justify-start"
+          >
+            <LogOut className="h-4 w-4" />
+            Log out
           </button>
-        {/* Disabled Section 
-        <button
-          onClick={() => setActiveSection('apply-extension')}
-          disabled={false}
-          className="w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg transition-colors text-gray-400 cursor-not-allowed opacity-50"
-        >
-          <Building2 className="w-4 h-4" />
-          <span className="font-medium text-sm">Apply Extension</span>
-        </button>
-        */}
-        <div className="flex justify-center ">
-        <button
-          onClick={handleSignOut}
-          className={`w-full  p-2 flex items-center justify-center rounded-lg bg-[#C80404] hover:bg-red-700 transition-colors text-white`}
-        >
-          <span className="font-medium text-xs sm:text-sm">Log Out</span>
-        </button>
+        </nav>
       </div>
-      </nav>
-
-    
-    </div>
+    </aside>
   )
 }

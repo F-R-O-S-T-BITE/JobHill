@@ -1,81 +1,78 @@
+// app/page.tsx
 import Image from "next/image"
-import './globals.css';
+import Link from "next/link";
+import { Sparkles } from "lucide-react";
 import LandingBody from "@/components/LandingBody";
 import GetStartedButton from "@/components/GetStartedButton";
+import { AntWorking } from "@/components/mascots";
 
 export const revalidate = 14400;
 
 export default function Home() {
   return (
-    <div className="min-h-screen font-poppins">
-
-      <section className="w-full bg-[#FDF5E9] py-12 md:py-16">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center">
-            <div className="md:w-1/2 mb-8 md:mb-0">
-              <h2 className="text-6xl font-bold mb-2 text-[#000000]">
-                Looking for an <br />
-                <span className="text-[#0353A4] mt-1 inline-block">Internship?</span>
-              </h2>
-              <p className="text-[20px] my-4 text-[#000000]">
-                <span className="text-[#0353A4] font-medium">Jobhill:</span> Your go-to platform for finding
-                <span className="text-[#0353A4]"> internships</span>. Discover
-                opportunities, manage applications, and 
-                <span className="text-[#0353A4]"> start your journey</span> by
-                signing in or creating an account.
-              </p>
+    <div className="min-h-screen">
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-cream">
+        <div
+          className="pointer-events-none absolute -right-40 -top-40 h-[520px] w-[520px] rounded-full bg-brand-200/40 blur-3xl"
+          aria-hidden="true"
+        />
+        <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 py-14 sm:px-6 sm:py-20 md:grid-cols-2 lg:px-8 lg:py-24">
+          <div className="text-center md:text-left">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-brand-700 shadow-sm ring-1 ring-brand-100 sm:text-sm">
+              <Sparkles className="h-3.5 w-3.5" />
+              New internships added every day
+            </span>
+            <h1 className="mt-5 font-display text-4xl font-bold leading-[1.1] tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
+              Looking for an <span className="text-brand-600">internship?</span>
+            </h1>
+            <p className="mx-auto mt-5 max-w-xl text-lg text-slate-600 md:mx-0 sm:text-xl">
+              <span className="font-semibold text-brand-600">Jobhill</span> is your go-to platform for finding
+              internships. Discover opportunities, manage your applications and start your journey today.
+            </p>
+            <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center md:justify-start">
               <GetStartedButton />
+              <Link href="/opportunities" className="btn-ghost px-5 py-3 text-base">
+                Browse opportunities
+              </Link>
             </div>
-            
-            <div className="hidden md:flex md:w-1/2 justify-end pr-4">
-              <Image
-                src="/resources/ants/Banner_Home.png"
-                alt="Internship illustration"
-                width={400}
-                height={400}
-                priority
-                className="w-full h-auto max-w-sm"
-              />
-            </div>
+          </div>
+
+          <div className="flex justify-center md:justify-end">
+            <AntWorking
+              title="A Jobhill ant working on its laptop"
+              className="h-auto w-4/5 max-w-xs sm:max-w-sm md:w-full md:max-w-md"
+            />
           </div>
         </div>
       </section>
-      <LandingBody/>
-      <footer className="bg-[#0353A4] text-white py-8">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-center items-center md:justify-between mb-8">
-            
-            <div className="flex gap-8 mb-6 md:mb-0">
-           {/* Footer Links
-              <a href="#" className="hover:underline">About us</a>
-              <a href="#" className="hover:underline">Discover</a>
-              <a href="#" className="hover:underline">Explore</a>      
-               */}
 
-            </div>
-         
-            
-            <div className="w-16 h-16  md:mb-0 bg-white rounded-full flex items-center justify-center ">
+      <LandingBody />
+
+      {/* Footer */}
+      <footer className="bg-brand-900 text-brand-100">
+        <div className="mx-auto flex max-w-7xl flex-col items-center gap-6 px-4 py-10 sm:px-6 md:flex-row md:justify-between lg:px-8">
+          <div className="flex flex-col items-center gap-2 md:items-start">
+            <span className="font-display text-2xl font-extrabold tracking-tight text-white">JOBHILL</span>
+            <p className="text-sm text-brand-200">Helping you find your next opportunity.</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white">
               <Image
                 src="/resources/FROSTBITE_Logo_Footer.png"
-                alt="FROSTBITE Logo"
-                width={56}
-                height={56}
+                alt="F.R.O.S.T. BITE logo"
+                width={40}
+                height={40}
                 className="object-contain"
               />
             </div>
-            
-            <div className="flex gap-8">
-              {/* Legal Links 
-              <a href="#" className="hover:underline">Terms of Service</a>
-              <a href="#" className="hover:underline">Privacy Policy</a>
-              */}
-            </div>
+            <span className="text-sm">Built by F.R.O.S.T. BITE</span>
           </div>
-          <div className="border-t border-blue-400 "></div>
-          <div className="text-center ">
-            <p>© 2025 F.R.O.S.T. BITE All rights reserved.</p>
-          </div>
+        </div>
+        <div className="border-t border-white/10">
+          <p className="mx-auto max-w-7xl px-4 py-5 text-center text-xs text-brand-200 sm:px-6 lg:px-8">
+            © {new Date().getFullYear()} F.R.O.S.T. BITE. All rights reserved.
+          </p>
         </div>
       </footer>
     </div>

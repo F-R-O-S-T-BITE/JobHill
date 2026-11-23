@@ -2,6 +2,7 @@ import { toast } from 'react-hot-toast';
 import { useState, useEffect, useRef } from 'react';
 import { HideJobToastStyles } from '@/styles/OfferCardStyles';
 import { HideJobToastProps } from '@/interfaces/Toasters';
+import CompanyLogo from '@/components/ui/CompanyLogo';
 
 export default function HideJobToast({ 
   companyLogo, 
@@ -52,11 +53,7 @@ export default function HideJobToast({
       <div className={HideJobToastStyles.Container}>
         <div className={HideJobToastStyles.ContentRow}>
           <div className={HideJobToastStyles.LogoContainer}>
-            <img
-              src={companyLogo}
-              alt={`${companyName} logo`}
-              className={HideJobToastStyles.Logo}
-            />
+            <CompanyLogo src={companyLogo} name={companyName} className="h-9 w-9" rounded="rounded-lg" />
           </div>
           
           <div className={HideJobToastStyles.Content}>

@@ -1,14 +1,18 @@
+// styles/DataFilterStyles.ts
+const fieldBase = "w-full rounded-lg border border-slate-200 bg-white text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 hover:border-slate-300 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10";
+
 export const DataFilterStyles = {
-  Wrapper: " w-full max-w-full border rounded-xl bg-white p-4 flex flex-col gap-3 shadow-md",
-  Title: "text-[#0353A4] font-semibold text-xl",
-  Checkbox: "flex items-center gap-2 text-lg text-[#001845]",
-  Input: "w-full border border-[#D9D9D9] hover:border-[#0466C8] rounded-md pl-10 pr-10 py-2 text-md text-[#0353A4] placeholder-dataFilter",
-  Dropdown: "w-full  border border-[#D9D9D9] hover:border-[#0466C8] rounded-md text-md px-3 py-2 pl-10 pr-10 text-[#0353A4] placeholder-dataFilter ",
-  ButtonPrimary: "bg-[#0466C8] text-white px-4 py-2 rounded-md text-lg font-semibold",
-  ButtonSecondary: "bg-[#D9D9D9] text-[#001845] px-4 py-2 rounded-md text-lg font-semibold",
-  LeftFieldImage:"absolute left-3 top-1/2 -translate-y-1/2 w-[1.25rem] h-[1.25rem] object-contain max-w-full max-h-full",
-  RightFieldImage:"absolute right-3 top-1/2 -translate-y-1/2 w-[1.25rem] h-[1.25rem] pointer-events-none object-contain max-w-full max-h-full",
-  ValueDateSelector: 'px-4 py-2 text-md text-[#0353A4] bg-white hover:bg-[#0353A4] hover:text-white cursor-pointer',
-  IconDateSelector: "w-[1.25rem] h-[1.25rem] transform transition-transform",
-  ButtonDateSelector: "w-full flex justify-center items-center gap-2 text-[#0353A4] border border-[#D9D9D9] rounded-md px-4 py-2 rounded-md text-md text-left focus:outline-none hover:border-[#0466C8]",
+  Wrapper: "flex w-full flex-col gap-3 lg:card lg:p-5",
+  Title: "text-sm font-medium text-slate-500",
+  Checkbox: "flex select-none items-center gap-2.5 rounded-lg px-1 py-1 text-sm font-medium text-slate-700",
+  CheckboxInput: "h-4 w-4 rounded accent-brand-600",
+  Input: `${fieldBase} py-2.5 pl-10 pr-10`,
+  Dropdown: `${fieldBase} appearance-none px-3 py-2.5 pl-10 pr-10`,
+  ButtonPrimary: "btn-primary w-full",
+  ButtonSecondary: "btn-secondary w-full",
+  LeftFieldImage: "pointer-events-none absolute z-10 left-3 top-1/2 h-5 w-5 max-h-full max-w-full -translate-y-1/2 object-contain opacity-80",
+  RightFieldImage: "pointer-events-none absolute z-10 right-3 top-1/2 h-5 w-5 max-h-full max-w-full -translate-y-1/2 object-contain opacity-60",
+  ValueDateSelector: "cursor-pointer rounded-md px-3 py-2 text-sm text-slate-700 hover:bg-brand-50 hover:text-brand-700",
+  IconDateSelector: "h-4 w-4 opacity-60 transition-transform",
+  ButtonDateSelector: `${fieldBase} flex items-center justify-between gap-2 px-3.5 py-2.5 text-left`,
 };

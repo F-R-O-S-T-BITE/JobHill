@@ -1,49 +1,43 @@
+/* components/slider.module.css */
 @keyframes scroll {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
 
 .slider {
-  background: white;
-  height: 90px;
+  height: 96px;
   margin: auto;
   overflow: hidden;
   position: relative;
-  width: auto;
-}
-
-.slider::before,
-.slider::after {
-  background: linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
-  content: "";
-  height: 100px;
-  position: absolute;
-  width: 150px;
-  z-index: 2;
-}
-
-.slider::after {
-  right: 0;
-  top: 0;
-  transform: rotateZ(180deg);
-}
-
-.slider::before {
-  left: 0;
-  top: 0;
+  width: 100%;
+  /* Desvanece los bordes sin tapar los logos en pantallas chicas */
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
 }
 
 .slideTrack {
-  animation: scroll 30s linear infinite;
+  animation: scroll 40s linear infinite;
   display: flex;
-  width: fit-content
+  width: fit-content;
+}
+
+.slider:hover .slideTrack {
+  animation-play-state: paused;
 }
 
 .slide {
-  height: 100px;
-  width: 150px;
+  height: 96px;
+  width: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .slide { width: 110px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slideTrack { animation: none; }
 }

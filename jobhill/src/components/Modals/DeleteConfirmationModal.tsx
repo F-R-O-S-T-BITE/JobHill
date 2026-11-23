@@ -1,6 +1,8 @@
 "use client";
+// components/Modals/DeleteConfirmationModal.tsx
 
-import { CompanyCardStyles } from "@/styles/OfferCardStyles";
+import { Trash2 } from "lucide-react";
+import { OfferCardModalStyles } from "@/styles/OfferCardStyles";
 
 interface DeleteConfirmationModalProps {
   isOpen: boolean;
@@ -26,28 +28,22 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center text-center z-50">
-      <div className={CompanyCardStyles.Modal}>
-        <h3 className={CompanyCardStyles.ModalTitle}>
-          Delete Application
-        </h3>
-        <p className="text-gray-600 mb-4">
-          Are you sure you want to delete your application for <br />
-          <strong>{applicationInfo.role}</strong> at <strong>{applicationInfo.companyName}</strong>?
-          <br />
+    <div className={OfferCardModalStyles.Overlay} onClick={onClose}>
+      <div className={OfferCardModalStyles.Modal} role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-red-50 text-red-600">
+          <Trash2 className="h-6 w-6" />
+        </div>
+        <h3 className={OfferCardModalStyles.Title}>Delete application?</h3>
+        <p className={OfferCardModalStyles.Subtitle}>
+          Your application for <strong className="text-slate-900">{applicationInfo.role}</strong> at{' '}
+          <strong className="text-slate-900">{applicationInfo.companyName}</strong> will be permanently removed.
         </p>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-gray-500 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors cursor-pointer"
-          >
+        <div className={OfferCardModalStyles.ButtonRow}>
+          <button onClick={onClose} className={OfferCardModalStyles.CancelButton}>
             Cancel
           </button>
-          <button
-            onClick={handleConfirm}
-            className="px-4 py-2  bg-[#0353A4] text-white rounded-md hover:bg-[#004181] transition-colors cursor-pointer"
-          >
-            Delete Application
+          <button onClick={handleConfirm} className="btn-danger w-full py-3 sm:w-auto sm:px-6">
+            Delete
           </button>
         </div>
       </div>
