@@ -5,6 +5,7 @@ import { useCreateApplication } from "@/hooks/useApplications";
 import { ApplicationStatus, APPLICATION_STATUSES } from "@/interfaces/Application";
 import { AddAppModalStyles } from "@/styles/OfferCardStyles";
 import { SimpleDropdown } from "@/components/InputFilter";
+import { X } from 'lucide-react';
 
 interface AddApplicationModalProps {
   isOpen: boolean;
@@ -83,15 +84,11 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
             className={AddAppModalStyles.CloseButton}
             aria-label="Close modal"
           >
-            <img
-              src="/resources/Icons/Components_Cards/quit_component_cards.png"
-              alt="Close"
-              className={AddAppModalStyles.CloseIcon}
-            />
+<X className={AddAppModalStyles.CloseIcon} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
           <div className={AddAppModalStyles.FormSection}>
             {/* Company Name */}
             <div className={AddAppModalStyles.FormRow}>

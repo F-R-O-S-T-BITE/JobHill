@@ -1,12 +1,94 @@
+// components/ApplicationTable.tsx
 "use client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { ChevronLeft, ChevronRight, ExternalLink, MapPin, Plus, Search, Trash2 } from "lucide-react";
 import { Application, APPLICATION_STATUSES } from "@/interfaces/Application";
+import CompanyLogo from "@/components/ui/CompanyLogo";
+import EmptyState from "@/components/ui/EmptyState";
 
 interface ApplicationTableProps {
   applications: Application[];
   onUpdateStatus: (applicationId: string, newStatus: string) => void;
   onDeleteApplication: (applicationId: string) => void;
   onAddApplication: () => void;
+}
+
+const STATUS_STYLES: Record<string, string> = {
+  Applied: "bg-brand-50 text-brand-700 ring-brand-200",
+  OA: "bg-amber-50 text-amber-800 ring-amber-200",
+  Behavioral: "bg-amber-50 text-amber-800 ring-amber-200",
+  "Technical 1": "bg-amber-50 text-amber-800 ring-amber-200",
+  "Technical 2": "bg-amber-50 text-amber-800 ring-amber-200",
+  "Technical 3": "bg-amber-50 text-amber-800 ring-amber-200",
+  "Technical 4": "bg-amber-50 text-amber-800 ring-amber-200",
+  Offer: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+  Declined: "bg-red-50 text-red-700 ring-red-200",
+  Rejected: "bg-red-50 text-red-700 ring-red-200",
+  Ghosted: "bg-slate-100 text-slate-600 ring-slate-200",
+  Canceled: "bg-slate-100 text-slate-600 ring-slate-200",
+  Delivered: "bg-violet-50 text-violet-700 ring-violet-200",
+  Process: "bg-orange-50 text-orange-700 ring-orange-200",
+};
+
+const REFERRAL_STYLES: Record<string, string> = {
+  "Cold Apply": "bg-slate-100 text-slate-700",
+  "Employee Ref": "bg-orange-50 text-orange-700",
+  Referred: "bg-emerald-50 text-emerald-700",
+};
+
+const formatDate = (dateString: string) =>
+  new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+/** Devuelve un rango compacto de páginas: 1 … 4 5 6 … 12 */
+function getPageRange(current: number, total: number): (number | '…')[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const pages: (number | '…')[] = [1];
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
+  if (start > 2) pages.push('…');
+  for (let i = start; i <= end; i++) pages.push(i);
+  if (end < total - 1) pages.push('…');
+  pages.push(total);
+  return pages;
+}
+
+function StatusSelect({ application, onUpdateStatus }: { application: Application; onUpdateStatus: ApplicationTableProps['onUpdateStatus'] }) {
+  return (
+    <select
+      value={application.status}
+      onChange={(e) => onUpdateStatus(application.id, e.target.value)}
+      aria-label={`Status for ${application.role} at ${application.company_name}`}
+      className={`rounded-full border-0 py-1 pl-2.5 pr-7 text-xs font-semibold ring-1 ring-inset focus:outline-none focus:ring-2 focus:ring-brand-500 ${STATUS_STYLES[application.status] ?? 'bg-slate-100 text-slate-700 ring-slate-200'}`}
+    >
+      {APPLICATION_STATUSES.map((status) => (
+        <option key={status} value={status}>{status}</option>
+      ))}
+    </select>
+  );
+}
+
+function RowActions({ application, onDeleteApplication }: { application: Application; onDeleteApplication: (id: string) => void }) {
+  return (
+    <div className="flex items-center gap-1">
+      <button
+        onClick={() => application.application_link && window.open(application.application_link, '_blank', 'noopener,noreferrer')}
+        disabled={!application.application_link}
+        className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-brand-50 hover:text-brand-600 disabled:pointer-events-none disabled:opacity-30"
+        aria-label="Open application link"
+        title="Open application link"
+      >
+        <ExternalLink className="h-4 w-4" />
+      </button>
+      <button
+        onClick={() => onDeleteApplication(application.id)}
+        className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
+        aria-label="Delete application"
+        title="Delete application"
+      >
+        <Trash2 className="h-4 w-4" />
+      </button>
+    </div>
+  );
 }
 
 const ApplicationTable: React.FC<ApplicationTableProps> = ({
@@ -19,323 +101,200 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
   const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredApplications = applications.filter(app =>
-    app.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    app.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    app.location.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredApplications = useMemo(() => {
+    const q = searchTerm.toLowerCase();
+    return applications.filter(app =>
+      app.company_name.toLowerCase().includes(q) ||
+      app.role.toLowerCase().includes(q) ||
+      app.location.toLowerCase().includes(q)
+    );
+  }, [applications, searchTerm]);
 
-  const indexOfLastApp = currentPage * entriesPerPage;
-  const indexOfFirstApp = indexOfLastApp - entriesPerPage;
+  const totalPages = Math.max(1, Math.ceil(filteredApplications.length / entriesPerPage));
+  const page = Math.min(currentPage, totalPages);
+  const indexOfFirstApp = (page - 1) * entriesPerPage;
+  const indexOfLastApp = indexOfFirstApp + entriesPerPage;
   const currentApplications = filteredApplications.slice(indexOfFirstApp, indexOfLastApp);
-  const totalPages = Math.ceil(filteredApplications.length / entriesPerPage);
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Applied":
-        return "bg-blue-100 text-blue-800";
-      case "OA":
-      case "Behavioral":
-      case "Technical 1":
-      case "Technical 2":
-      case "Technical 3":
-      case "Technical 4":
-        return "bg-yellow-100 text-yellow-800";
-      case "Offer":
-        return "bg-green-100 text-green-800";
-      case "Declined":
-      case "Rejected":
-      case "Ghosted":
-      case "Canceled":
-        return "bg-red-100 text-red-800";
-      case "Delivered":
-        return "bg-purple-100 text-purple-800";
-      case "Process":
-        return "bg-orange-100 text-orange-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getReferralColor = (referral: string) => {
-    switch (referral) {
-      case "Cold Apply":
-        return "bg-blue-100 text-blue-800";
-      case "Employee Ref":
-        return "bg-orange-100 text-orange-800";
-      case "Referred":
-        return "bg-green-100 text-green-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
-  };
-
-  const truncateText = (text: string, maxLength: number = 30) => {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
-  };
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-          <div className="flex items-center space-x-6">
-            <div className="flex items-center space-x-2">
-              <span className="text-gray-700 text-sm">Search:</span>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="px-3 py-1 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0353A4] focus:border-[#0353A4]"
-                placeholder="Search applications..."
-              />
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <span className="text-gray-700 text-sm">Show</span>
-              <select
-                value={entriesPerPage}
-                onChange={(e) => {
-                  setEntriesPerPage(Number(e.target.value));
-                  setCurrentPage(1);
-                }}
-                className="px-3 py-1 text-sm border border-gray-300 rounded bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0353A4] focus:border-[#0353A4]"
-              >
-                <option value={10}>10</option>
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-              </select>
-              <span className="text-gray-700 text-sm">entries</span>
-            </div>
-          </div>
-          
-          <div className="flex items-center">
-            <button
-              onClick={onAddApplication}
-              className="bg-[#0353A4] hover:bg-[#03459E] text-white px-4 py-2 rounded text-sm font-medium transition-colors duration-200 flex items-center space-x-2"
+    <div className="card overflow-hidden">
+      {/* Toolbar */}
+      <div className="flex flex-col gap-3 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative w-full sm:max-w-xs">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            type="search"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="field py-2 pl-9"
+            placeholder="Search company, role or location"
+            aria-label="Search applications"
+          />
+        </div>
+
+        <div className="flex items-center justify-between gap-3">
+          <label className="flex items-center gap-2 text-sm text-slate-500">
+            <span className="hidden sm:inline">Show</span>
+            <select
+              value={entriesPerPage}
+              onChange={(e) => {
+                setEntriesPerPage(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+              className="field w-auto py-2 pr-8"
+              aria-label="Entries per page"
             >
-              <span>+</span>
-              <span>Add Application</span>
-            </button>
-          </div>
+              {[10, 25, 50, 100].map(n => <option key={n} value={n}>{n}</option>)}
+            </select>
+            <span className="hidden sm:inline">per page</span>
+          </label>
+          <button onClick={onAddApplication} className="btn-primary">
+            <Plus className="h-4 w-4" />
+            <span>Add <span className="hidden xs:inline">application</span></span>
+          </button>
         </div>
       </div>
 
       {currentApplications.length === 0 ? (
-        <div className="flex items-center justify-center h-[400px]">
-          <div className="flex flex-col items-center gap-4">
-            <div className="text-gray-400 text-6xl">🔍</div>
-            <span className="text-base xm:text-[1.25rem] sm:text-[1.5rem] font-mono font-bold text-black leading-tight text-center">
-              No applications match your filters
-            </span>
-            <span className="text-sm text-gray-600 text-center max-w-md">
-              Try adjusting your search criteria or clear some filters to see more results
-            </span>
-          </div>
+        <div className="p-4">
+          <EmptyState
+            icon={Search}
+            title="No applications found"
+            description="Try a different search term."
+            className="border-0"
+          />
         </div>
       ) : (
-        <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Company
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Role
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Location
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Applied
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Last Updated
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Referral
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {currentApplications.map((application, index) => (
-              <tr key={application.id} className={`hover:bg-gray-100 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0 h-10 w-10">
-                      <img
-                        className="h-10 w-10 rounded-full object-contain"
-                        src={application.company_logo || "resources/Icons/Components_Cards/Company_Filter_Cards.png"}
-                        alt={application.company_name}
-                        width={40}
-                        height={40}
-                         onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                          target.nextElementSibling?.classList.remove('hidden');
-                        }}
-                      />
-                        <div className={`w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center text-sm font-bold text-gray-600 ${application.company_logo ? 'hidden' : ''}`}>
-                        {application.company_name.charAt(0).toUpperCase()}
-                        </div>
+        <>
+          {/* Móvil: tarjetas */}
+          <ul className="divide-y divide-slate-100 md:hidden">
+            {currentApplications.map((application) => (
+              <li key={application.id} className="flex gap-3 p-4">
+                <CompanyLogo src={application.company_logo} name={application.company_name} className="h-11 w-11" />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-slate-500">{application.company_name}</p>
+                      <p className="line-clamp-2 font-semibold leading-snug text-slate-900">{application.role}</p>
                     </div>
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">
-                        {application.company_name}
-                      </div>
+                    <div className="-mr-2 -mt-1 shrink-0">
+                      <RowActions application={application} onDeleteApplication={onDeleteApplication} />
                     </div>
                   </div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="text-sm text-gray-900">{application.role}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900" title={application.location}>
-                    {truncateText(application.location)}
+                  <p className="mt-1 flex items-center gap-1 truncate text-xs text-slate-500">
+                    <MapPin className="h-3 w-3 shrink-0" />
+                    <span className="truncate">{application.location || '—'}</span>
+                  </p>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <StatusSelect application={application} onUpdateStatus={onUpdateStatus} />
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${REFERRAL_STYLES[application.referral_type] ?? 'bg-slate-100 text-slate-700'}`}>
+                      {application.referral_type}
+                    </span>
+                    <span className="ml-auto text-xs text-slate-400">Applied {formatDate(application.applied_date)}</span>
                   </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">
-                    {formatDate(application.applied_date)}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">
-                    {formatDate(application.last_updated)}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getReferralColor(application.referral_type)}`}>
-                    {application.referral_type}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <select
-                    value={application.status}
-                    onChange={(e) => onUpdateStatus(application.id, e.target.value)}
-                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border-none focus:ring-2 focus:ring-blue-500 ${getStatusColor(application.status)}`}
-                  >
-                    {APPLICATION_STATUSES.map((status) => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => window.open(application.application_link, '_blank')}
-                      className="text-blue-600 hover:text-blue-900"
-                      disabled={!application.application_link}
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => onDeleteApplication(application.id)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
-                  </div>
-                </td>
-              </tr>
+                </div>
+              </li>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </ul>
+
+          {/* Desktop: tabla */}
+          <div className="hidden overflow-x-auto md:block">
+            <table className="min-w-full text-left text-sm">
+              <thead className="bg-slate-50/80 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <tr>
+                  <th scope="col" className="px-5 py-3">Company &amp; role</th>
+                  <th scope="col" className="hidden px-4 py-3 2xl:table-cell">Location</th>
+                  <th scope="col" className="px-4 py-3">Applied</th>
+                  <th scope="col" className="hidden px-4 py-3 xl:table-cell">Updated</th>
+                  <th scope="col" className="hidden px-4 py-3 lg:table-cell">Referral</th>
+                  <th scope="col" className="px-4 py-3">Status</th>
+                  <th scope="col" className="px-4 py-3"><span className="sr-only">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {currentApplications.map((application) => (
+                  <tr key={application.id} className="transition-colors hover:bg-slate-50/70">
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-3">
+                        <CompanyLogo src={application.company_logo} name={application.company_name} className="h-10 w-10" />
+                        <div className="min-w-0 max-w-[18rem]">
+                          <p className="truncate font-semibold text-slate-900" title={application.role}>{application.role}</p>
+                          <p className="truncate text-slate-500">{application.company_name}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="hidden max-w-[14rem] px-4 py-3.5 text-slate-600 2xl:table-cell">
+                      <span className="block truncate" title={application.location}>{application.location || '—'}</span>
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-3.5 text-slate-600">{formatDate(application.applied_date)}</td>
+                    <td className="hidden whitespace-nowrap px-4 py-3.5 text-slate-600 xl:table-cell">{formatDate(application.last_updated)}</td>
+                    <td className="hidden whitespace-nowrap px-4 py-3.5 lg:table-cell">
+                      <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${REFERRAL_STYLES[application.referral_type] ?? 'bg-slate-100 text-slate-700'}`}>
+                        {application.referral_type}
+                      </span>
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-3.5">
+                      <StatusSelect application={application} onUpdateStatus={onUpdateStatus} />
+                    </td>
+                    <td className="whitespace-nowrap py-3.5 pl-2 pr-4 text-right">
+                      <RowActions application={application} onDeleteApplication={onDeleteApplication} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
 
       {currentApplications.length > 0 && totalPages > 1 && (
-        <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-          <div className="flex-1 flex justify-between sm:hidden">
+        <nav className="flex items-center justify-between gap-3 border-t border-slate-100 px-4 py-3" aria-label="Pagination">
+          <p className="hidden text-sm text-slate-500 sm:block">
+            <span className="font-medium text-slate-700">{indexOfFirstApp + 1}–{Math.min(indexOfLastApp, filteredApplications.length)}</span>
+            {' '}of{' '}
+            <span className="font-medium text-slate-700">{filteredApplications.length}</span>
+          </p>
+          <div className="flex w-full items-center justify-between gap-1 sm:w-auto">
             <button
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => setCurrentPage(Math.max(page - 1, 1))}
+              disabled={page === 1}
+              className="btn-ghost px-2.5"
+              aria-label="Previous page"
             >
-              Previous
+              <ChevronLeft className="h-4 w-4" />
             </button>
-            <button
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Next
-            </button>
-          </div>
-          <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm text-gray-700">
-                Showing{' '}
-                <span className="font-medium">{indexOfFirstApp + 1}</span>
-                {' '}to{' '}
-                <span className="font-medium">
-                  {Math.min(indexOfLastApp, filteredApplications.length)}
-                </span>
-                {' '}of{' '}
-                <span className="font-medium">{filteredApplications.length}</span>
-                {' '}results
-              </p>
-            </div>
-            <div>
-              <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                <button
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
-                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Previous
-                </button>
-                
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <span className="text-sm text-slate-600 sm:hidden">Page {page} of {totalPages}</span>
+            <div className="hidden items-center gap-1 sm:flex">
+              {getPageRange(page, totalPages).map((p, i) =>
+                p === '…' ? (
+                  <span key={`gap-${i}`} className="px-1 text-slate-400">…</span>
+                ) : (
                   <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                      page === currentPage
-                        ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
-                        : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                    key={p}
+                    onClick={() => setCurrentPage(p)}
+                    aria-current={p === page ? 'page' : undefined}
+                    className={`h-9 min-w-9 rounded-lg px-2 text-sm font-semibold transition-colors ${
+                      p === page ? 'bg-brand-600 text-white' : 'text-slate-600 hover:bg-slate-100'
                     }`}
                   >
-                    {page}
+                    {p}
                   </button>
-                ))}
-                
-                <button
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Next
-                </button>
-              </nav>
+                )
+              )}
             </div>
+            <button
+              onClick={() => setCurrentPage(Math.min(page + 1, totalPages))}
+              disabled={page === totalPages}
+              className="btn-ghost px-2.5"
+              aria-label="Next page"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
           </div>
-        </div>
+        </nav>
       )}
     </div>
   );

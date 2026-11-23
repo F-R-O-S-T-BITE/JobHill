@@ -1,4 +1,5 @@
 "use client";
+// components/ApplicationFilter.tsx
 import { useEffect, useState } from "react";
 import { DataFilterStyles } from "@/styles/DataFilterStyles";
 import { Application, ApplicationFilters, APPLICATION_STATUSES } from "@/interfaces/Application";
@@ -48,14 +49,15 @@ const ApplicationFilterPanel: React.FC<ApplicationFilterPanelProps> = ({
 
   return (
     <div className={DataFilterStyles.Wrapper}>
-      <div className="flex justify-between items-center mb-4">
+      <div className="hidden items-baseline justify-between lg:flex">
+        <h2 className="font-display text-lg font-bold text-slate-900">Filters</h2>
         <p className={DataFilterStyles.Title}>
-          Showing {filteredData.length} {hasBeenFiltered ? `of ${data.length}` : ""} Application{filteredData.length !== 1 ? 's' : ''}
+          {filteredData.length}{hasBeenFiltered ? ` of ${data.length}` : ""} application{filteredData.length !== 1 ? 's' : ''}
         </p>
       </div>
 
       <AutocompleteInput
-        iconSrc="resources/Icons/Components_Cards/Company_Filter_Cards.png"
+        iconSrc="/resources/Icons/Components_Cards/Company_Filter_Cards.png"
         altText="Company"
         placeholder="Company"
         options={companies}
@@ -71,14 +73,14 @@ const ApplicationFilterPanel: React.FC<ApplicationFilterPanelProps> = ({
         placeholder="Location"
         value={filters.location}
         onChange={(e) => setFilters({ ...filters, location: e.target.value })}
-        leftIcon="resources/Icons/Components_Cards/location_icon_cards.png"
-        rightIcon="resources/Icons/search_icon.png"
+        leftIcon="/resources/Icons/Components_Cards/location_icon_cards.png"
+        rightIcon="/resources/Icons/search_icon.png"
         inputClassName={DataFilterStyles.Input}
       />
 
       <SelectDropdownWithIcon
         aria_label="Status"
-        iconSrc="resources/Icons/Components_Cards/category_icon_cards.png"
+        iconSrc="/resources/Icons/Components_Cards/category_icon_cards.png"
         altText="Status"
         value={filters.status}
         onChange={(val) => setFilters({ ...filters, status: val })}
@@ -89,7 +91,7 @@ const ApplicationFilterPanel: React.FC<ApplicationFilterPanelProps> = ({
 
       <SelectDropdownWithIcon
         aria_label="Referral"
-        iconSrc="resources/Icons/Components_Cards/category_icon_cards.png"
+        iconSrc="/resources/Icons/Components_Cards/category_icon_cards.png"
         altText="Referral"
         value={filters.referral}
         onChange={(val) => setFilters({ ...filters, referral: val })}
@@ -103,8 +105,8 @@ const ApplicationFilterPanel: React.FC<ApplicationFilterPanelProps> = ({
         onChange={(val) => setFilters({ ...filters, order: val })}
       />
 
-      <button className={DataFilterStyles.ButtonSecondary} onClick={handleReset}>
-        Reset Filters
+      <button type="button" className={`${DataFilterStyles.ButtonSecondary} mt-1`} onClick={handleReset}>
+        Reset filters
       </button>
     </div>
   );
