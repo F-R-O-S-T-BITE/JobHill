@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import type { JobOffersApiResponse } from '@/interfaces/JobOffer'
+import type { Company, JobOfferResponse, JobOffersApiResponse } from '@/interfaces/JobOffer'
 import { userPreferencesKeys, type UserPreferences } from './useUserPreferences'
 import { applicationsKeys } from './useApplications'
 import type { Application } from '@/interfaces/Application'
@@ -11,10 +11,22 @@ async function fetchAllJobOffers(): Promise<JobOffersApiResponse> {
   const response = await fetch('/api/job-offers')
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch job offers: ${response.statusText}`)
+    throw new Error(`Failed to fetch job offers (${response.status})`)
   }
 
-  return response.json()
+  const data: JobOffersApiResponse & { companies?: Record<string, Company> } = await response.json()
+
+  // La API manda cada empresa una sola vez; aquí se vuelve a poner en cada oferta
+  if (data.companies) {
+    const companies = data.companies
+    data.jobs = data.jobs.map((job: JobOfferResponse) => ({
+      ...job,
+      company: job.company ?? companies[String(job.company_id)],
+    }))
+    delete data.companies
+  }
+
+  return data
 }
 
 const jobOffersKeys = {
@@ -486,36 +498,31 @@ export function recalculateJobScoresInCache(
     (oldData: JobOffersApiResponse | undefined) => {
       if (!oldData) return oldData
 
+      // Mismo cálculo que /api/job-offers: 1 = empresa preferida y categoría,
+      // 2 = una de las dos, 3 = ninguna. La lista en pantalla se ordena por este tier.
       const updatedJobs = oldData.jobs.map((job) => {
-        let preferenceScore = 0
-
-        if (newPreferences) {
-          if (newPreferences.preferred_companies?.includes(job.company_id)) {
-            preferenceScore += 15
-          }
-
-          if (newPreferences.preferred_categories && job.categories) {
-            const matchingCategories = job.categories.filter((cat: string) =>
-              newPreferences.preferred_categories.includes(cat)
-            ).length
-            if (matchingCategories > 0) {
-              preferenceScore += matchingCategories * 10
-            }
-          }
-        }
+        const isPreferredCompany = !!newPreferences?.preferred_companies?.includes(job.company_id)
+        const hasMatchingCategory = !!(
+          newPreferences?.preferred_categories &&
+          job.categories?.some((cat: string) => newPreferences.preferred_categories.includes(cat))
+        )
+        const relevanceTier = isPreferredCompany && hasMatchingCategory
+          ? 1
+          : isPreferredCompany || hasMatchingCategory
+            ? 2
+            : 3
 
         return {
           ...job,
-          preference_score: preferenceScore,
+          relevance_tier: relevanceTier,
         }
       })
 
-      // Re-sort jobs by preference score
       updatedJobs.sort((a, b) => {
-        const aScore = a.preference_score || 0
-        const bScore = b.preference_score || 0
-        if (aScore !== bScore) {
-          return bScore - aScore
+        const aTier = a.relevance_tier ?? 3
+        const bTier = b.relevance_tier ?? 3
+        if (aTier !== bTier) {
+          return aTier - bTier
         }
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       })

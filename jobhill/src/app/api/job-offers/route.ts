@@ -6,6 +6,26 @@ import { NextResponse } from 'next/server';
 import { getUserPreferences } from '@/utils/userPreferencesUtils';
 import { getUserAppliedJobIds } from '@/utils/applicationsUtils';
 import { fetchAllRows } from '@/utils/supabase/fetchAllRows';
+
+// Solo las columnas que usa la interfaz (antes era select *)
+const JOB_COLUMNS =
+  'id, company_id, job_title, location, modality, period, categories, created_at, application_link, ' +
+  'noSponsor, usaCitizen, emergingTalent, newGrad, company:companies(id, name, logo_url)';
+
+type CompanyInfo = { id: number; name: string; logo_url: string | null };
+
+/**
+ * Manda cada empresa una sola vez en vez de repetirla en cada oferta
+ * (reduce ~25% el tamaño de la respuesta). El cliente vuelve a armar job.company.
+ */
+function splitCompanies<T extends { company?: CompanyInfo | null }>(jobs: T[]) {
+  const companies: Record<number, CompanyInfo> = {};
+  const slimJobs = jobs.map(({ company, ...job }) => {
+    if (company) companies[company.id] = company;
+    return job;
+  });
+  return { jobs: slimJobs, companies };
+}
 import type {
   JobOfferResponse
 } from '@/interfaces/JobOffer';
@@ -41,10 +61,7 @@ async function getJobsForCompanies(supabase: any, userId: string, companyIds: nu
   const buildQuery = (withCount: boolean) => {
     let query = supabase
       .from('job_offers')
-      .select(`
-        *,
-        company:companies(id, name, logo_url)
-      `, withCount ? { count: 'exact' } : undefined)
+      .select(JOB_COLUMNS, withCount ? { count: 'exact' } : undefined)
       .in('company_id', companyIds)
       .eq('status', 'Open');
 
@@ -116,14 +133,12 @@ async function getJobsForCompanies(supabase: any, userId: string, companyIds: nu
         relevanceTier = 2; // Good: preferred company OR matching categories
       }
 
-      return {
-        ...job,
-        is_applied: appliedJobIds.includes(job.id),
-        is_favorite: preferences?.favorite_jobs?.includes(job.id) || false,
-        relevance_tier: relevanceTier,
-        is_preferred_company: isPreferredCompany,
-        matching_categories: matchingCategories,
-      };
+      // Solo se mandan los campos que aportan algo, para aligerar la respuesta:
+      // las ofertas aplicadas ya se excluyen arriba y el tier 3 es el valor por defecto
+      const result: JobOfferResponse = { ...job };
+      if (relevanceTier !== 3) result.relevance_tier = relevanceTier;
+      if (preferences?.favorite_jobs?.includes(job.id)) result.is_favorite = true;
+      return result;
     });
 
   // Sort by tier first, then by date within each tier
@@ -177,10 +192,7 @@ async function getPublicJobs(supabase: any) {
   const { data, error, count } = await fetchAllRows<any>((withCount) =>
     supabase
       .from('job_offers')
-      .select(`
-        *,
-        company:companies(id, name, logo_url)
-      `, withCount ? { count: 'exact' } : undefined)
+      .select(JOB_COLUMNS, withCount ? { count: 'exact' } : undefined)
       .eq('status', 'Open')
       .order('created_at', { ascending: false })
       .order('id', { ascending: true })
@@ -193,15 +205,13 @@ async function getPublicJobs(supabase: any) {
 
   const jobOffers: JobOfferResponse[] = data
     .filter((job: any) => job.company) // Filter out jobs without company data
-    .map((job: any) => ({
-      ...job,
-      is_applied: false,
-      is_favorite: false,
-      preference_score: 0,
-    }));
+    .map((job: any) => job as JobOfferResponse);
+
+  const { jobs, companies } = splitCompanies(jobOffers);
 
   return NextResponse.json({
-    jobs: jobOffers,
+    jobs,
+    companies,
     total: count || 0,
   });
 }
@@ -227,10 +237,7 @@ async function getFilteredJobsForUser(
   const buildQuery = (withCount: boolean) => {
     let query = supabase
       .from('job_offers')
-      .select(`
-        *,
-        company:companies(id, name, logo_url)
-      `, withCount ? { count: 'exact' } : undefined)
+      .select(JOB_COLUMNS, withCount ? { count: 'exact' } : undefined)
       .eq('status', 'Open');
 
     // Filter out jobs user has applied to
@@ -309,14 +316,12 @@ async function getFilteredJobsForUser(
         relevanceTier = 2; // Good: preferred company OR matching categories
       }
 
-      return {
-        ...job,
-        is_applied: appliedJobIds.includes(job.id),
-        is_favorite: preferences?.favorite_jobs?.includes(job.id) || false,
-        relevance_tier: relevanceTier,
-        is_preferred_company: isPreferredCompany,
-        matching_categories: matchingCategories,
-      };
+      // Solo se mandan los campos que aportan algo, para aligerar la respuesta:
+      // las ofertas aplicadas ya se excluyen arriba y el tier 3 es el valor por defecto
+      const result: JobOfferResponse = { ...job };
+      if (relevanceTier !== 3) result.relevance_tier = relevanceTier;
+      if (preferences?.favorite_jobs?.includes(job.id)) result.is_favorite = true;
+      return result;
     });
 
   // Sort by tier first, then by date within each tier
@@ -331,8 +336,11 @@ async function getFilteredJobsForUser(
   });
 
 
+  const { jobs, companies } = splitCompanies(jobOffers);
+
   return NextResponse.json({
-    jobs: jobOffers,
+    jobs,
+    companies,
     total: count || 0,
     userPreferences: preferences,
   });
@@ -341,10 +349,7 @@ async function getFilteredJobsForUser(
 async function getHiddenJobsForUser(supabase: any, hiddenJobIds: string[]) {
   const { data: jobOffers, error } = await supabase
     .from('job_offers')
-    .select(`
-      *,
-      company:companies(id, name, logo_url)
-    `)
+    .select(JOB_COLUMNS)
     .in('id', hiddenJobIds)
     .eq('status', 'Open')
     .order('created_at', { ascending: false });
