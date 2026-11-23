@@ -18,12 +18,12 @@ export interface JobStats {
 }
 
 const defaultLogos: CompanyLogo[] = [
-  { id: 'marchingant1', name: 'MarchingAnt', logo_url: '/resources/ants/AntMarch.png' },
-  { id: 'marchingant2', name: 'MarchingAnt2', logo_url: '/resources/ants/AntMarch.png' },
-  { id: 'marchingant3', name: 'MarchingAnt3', logo_url: '/resources/ants/AntMarch.png' },
-  { id: 'marchingant4', name: 'MarchingAnt4', logo_url: '/resources/ants/AntMarch.png' },
-  { id: 'marchingant5', name: 'MarchingAnt5', logo_url: '/resources/ants/AntMarch.png' },
-  { id: 'marchingant6', name: 'MarchingAnt6', logo_url: '/resources/ants/AntMarch.png' }
+  { id: 'marchingant1', name: 'MarchingAnt', logo_url: '' },
+  { id: 'marchingant2', name: 'MarchingAnt2', logo_url: '' },
+  { id: 'marchingant3', name: 'MarchingAnt3', logo_url: '' },
+  { id: 'marchingant4', name: 'MarchingAnt4', logo_url: '' },
+  { id: 'marchingant5', name: 'MarchingAnt5', logo_url: '' },
+  { id: 'marchingant6', name: 'MarchingAnt6', logo_url: '' }
 ];
 
 const defaultStats: JobStats = {
