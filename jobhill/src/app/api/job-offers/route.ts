@@ -15,6 +15,23 @@ const JOB_COLUMNS =
 type CompanyInfo = { id: number; name: string; logo_url: string | null };
 
 /**
+ * Ofertas aplicadas, ocultas y de empresas ocultas se excluyen aquí y no en la consulta:
+ * con `not in (...)` todos los ids viajaban en la URL y con cientos de ellos se pasaba
+ * del límite de longitud. Ya traemos todas las páginas, así que filtrar en memoria es gratis.
+ */
+function buildExclusion(appliedJobIds: (string | number)[], preferences: any, includeHiddenCompanies: boolean) {
+  const excludedJobIds = new Set<string>([
+    ...appliedJobIds.map(String),
+    ...((preferences?.hidden_jobs ?? []) as (string | number)[]).map(String),
+  ]);
+  const excludedCompanyIds = new Set<number>(
+    includeHiddenCompanies ? ((preferences?.hidden_companies ?? []) as number[]) : []
+  );
+  return (job: { id: string | number; company_id: number }) =>
+    !excludedJobIds.has(String(job.id)) && !excludedCompanyIds.has(job.company_id);
+}
+
+/**
  * Manda cada empresa una sola vez en vez de repetirla en cada oferta
  * (reduce ~25% el tamaño de la respuesta). El cliente vuelve a armar job.company.
  */
@@ -65,16 +82,10 @@ async function getJobsForCompanies(supabase: any, userId: string, companyIds: nu
       .in('company_id', companyIds)
       .eq('status', 'Open');
 
-    if (appliedJobIds.length > 0) {
-      query = query.not('id', 'in', `(${appliedJobIds.join(',')})`);
-    }
+    // Aplicadas y ocultas se excluyen después (ver buildExclusion)
 
     // Apply user preference filters
     if (preferences) {
-      if (preferences.hidden_jobs && preferences.hidden_jobs.length > 0) {
-        query = query.not('id', 'in', `(${preferences.hidden_jobs.join(',')})`);
-      }
-
       // requires_sponsorship = true -> el usuario pidió ocultar ofertas sin patrocinio de visa
       if (preferences.requires_sponsorship === true) {
         query = query.neq('noSponsor', 1);
@@ -113,8 +124,10 @@ async function getJobsForCompanies(supabase: any, userId: string, companyIds: nu
     );
   }
 
+  const isVisible = buildExclusion(appliedJobIds, preferences, false);
+
   const jobOffers: JobOfferResponse[] = (data || [])
-    .filter((job: any) => job.company)
+    .filter((job: any) => job.company && isVisible(job))
     .map((job: any) => {
       // Calculate relevance tier
       const isPreferredCompany = preferences?.preferred_companies?.includes(job.company_id) || false;
@@ -240,23 +253,10 @@ async function getFilteredJobsForUser(
       .select(JOB_COLUMNS, withCount ? { count: 'exact' } : undefined)
       .eq('status', 'Open');
 
-    // Filter out jobs user has applied to
-    if (appliedJobIds.length > 0) {
-      query = query.not('id', 'in', `(${appliedJobIds.join(',')})`);
-    }
+    // Aplicadas, ocultas y empresas ocultas se excluyen después (ver buildExclusion)
 
     // Apply user preference filters
     if (preferences) {
-      // Filter out hidden jobs
-      if (preferences.hidden_jobs && preferences.hidden_jobs.length > 0) {
-        query = query.not('id', 'in', `(${preferences.hidden_jobs.join(',')})`);
-      }
-
-      // Filter out hidden companies
-      if (preferences.hidden_companies && preferences.hidden_companies.length > 0) {
-        query = query.not('company_id', 'in', `(${preferences.hidden_companies.join(',')})`);
-      }
-
       // Filter based on sponsorship requirements
       // requires_sponsorship = true -> el usuario pidió ocultar ofertas sin patrocinio de visa
       if (preferences.requires_sponsorship === true) {
@@ -289,15 +289,17 @@ async function getFilteredJobsForUser(
   };
 
   // Paginado: Supabase corta las respuestas en 2500 filas
-  const { data, error, count } = await fetchAllRows<any>(buildQuery);
+  const { data, error } = await fetchAllRows<any>(buildQuery);
 
   if (error) {
     console.error('Error fetching filtered jobs for user:', error);
     return NextResponse.json({ error: 'Failed to fetch job offers' }, { status: 500 });
   }
 
+  const isVisible = buildExclusion(appliedJobIds, preferences, true);
+
   const jobOffers: JobOfferResponse[] = data
-    .filter((job: any) => job.company) // Filter out jobs without company data
+    .filter((job: any) => job.company && isVisible(job)) // sin empresa, aplicadas u ocultas
     .map((job: any) => {
       // Calculate relevance tier
       const isPreferredCompany = preferences?.preferred_companies?.includes(job.company_id) || false;
@@ -341,7 +343,7 @@ async function getFilteredJobsForUser(
   return NextResponse.json({
     jobs,
     companies,
-    total: count || 0,
+    total: jobs.length,
     userPreferences: preferences,
   });
 }
