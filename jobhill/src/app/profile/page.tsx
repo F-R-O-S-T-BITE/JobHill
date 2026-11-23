@@ -11,7 +11,7 @@ import toast from 'react-hot-toast'
 import ProfileSidebar from '@/components/Profile/ProfileSidebar'
 import CompanyPreferencesSection from '@/components/Profile/CompanyPreferencesSection'
 import HiddenJobsSection from '@/components/Profile/HiddenJobsSection'
-import { handleSignOut, getDisplayName, getAvatarUrl, JOB_CATEGORIES, hasJobFilterChanges, hasCategoryChanges, hasUnhiddenCompanies } from '@/utils/profileUtils'
+import { handleSignOut, getDisplayName, getAvatarUrl, JOB_CATEGORIES, hasJobFilterChanges, hasCategoryChanges, hasUnhiddenCompanies, sameIds } from '@/utils/profileUtils'
 import { fetchJobsForCompanies, recalculateJobScoresInCache, jobOffersKeys } from '@/hooks/useJobOffers'
 import { useQueryClient } from '@tanstack/react-query'
 
@@ -69,8 +69,9 @@ export default function Profile() {
   const [pendingChanges, setPendingChanges] = useState<{
     categories: string[] | null
     preferences: { [key: string]: any }
-    companies: { preferred: number[], hidden: number[] }
-  }>({ categories: null, preferences: {}, companies: { preferred: [], hidden: [] } })
+    // null = sin cambios; [] = el usuario vació la lista a propósito
+    companies: { preferred: number[] | null, hidden: number[] | null }
+  }>({ categories: null, preferences: {}, companies: { preferred: null, hidden: null } })
   const router = useRouter()
 
   const { user, loading: authLoading } = useAuthModal()
@@ -94,7 +95,7 @@ export default function Profile() {
 
   useEffect(() => {
     if (preferencesData?.preferences && !editMode) {
-      setPendingChanges({ categories: null, preferences: {}, companies: { preferred: [], hidden: [] } })
+      setPendingChanges({ categories: null, preferences: {}, companies: { preferred: null, hidden: null } })
     }
   }, [preferencesData?.preferences?.preferred_companies, preferencesData?.preferences?.hidden_companies, editMode])
 
@@ -127,12 +128,8 @@ export default function Profile() {
     const dbPreferred = preferencesData.preferences.preferred_companies || []
     const dbHidden = preferencesData.preferences.hidden_companies || []
 
-    const currentPreferred = pendingChanges.companies.preferred.length > 0
-      ? pendingChanges.companies.preferred
-      : dbPreferred
-    const currentHidden = pendingChanges.companies.hidden.length > 0
-      ? pendingChanges.companies.hidden
-      : dbHidden
+    const currentPreferred = pendingChanges.companies.preferred ?? dbPreferred
+    const currentHidden = pendingChanges.companies.hidden ?? dbHidden
 
     let newPreferred = [...currentPreferred]
     let newHidden = [...currentHidden]
@@ -201,7 +198,7 @@ export default function Profile() {
                   <button
                     onClick={() => {
                       setEditMode(false)
-                      setPendingChanges({ categories: null, preferences: {}, companies: { preferred: [], hidden: [] } })
+                      setPendingChanges({ categories: null, preferences: {}, companies: { preferred: null, hidden: null } })
                     }}
                     className="btn-secondary flex-1 sm:flex-none"
                   >
@@ -228,21 +225,22 @@ export default function Profile() {
                           }))
                         }
 
-                        if (pendingChanges.companies.preferred.length > 0 || pendingChanges.companies.hidden.length > 0) {
-                          if (pendingChanges.companies.preferred.length > 0) {
-                            promises.push(updatePreference.mutateAsync({
-                              field: 'preferred_companies',
-                              value: pendingChanges.companies.preferred,
-                              action: 'set'
-                            }))
-                          }
-                          if (pendingChanges.companies.hidden.length > 0) {
-                            promises.push(updatePreference.mutateAsync({
-                              field: 'hidden_companies',
-                              value: pendingChanges.companies.hidden,
-                              action: 'set'
-                            }))
-                          }
+                        // Se guarda la lista aunque quede vacía (antes una lista vacía no se guardaba)
+                        const pendingPreferred = pendingChanges.companies.preferred
+                        const pendingHidden = pendingChanges.companies.hidden
+                        if (pendingPreferred !== null && !sameIds(pendingPreferred, preferences?.preferred_companies || [])) {
+                          promises.push(updatePreference.mutateAsync({
+                            field: 'preferred_companies',
+                            value: pendingPreferred,
+                            action: 'set'
+                          }))
+                        }
+                        if (pendingHidden !== null && !sameIds(pendingHidden, preferences?.hidden_companies || [])) {
+                          promises.push(updatePreference.mutateAsync({
+                            field: 'hidden_companies',
+                            value: pendingHidden,
+                            action: 'set'
+                          }))
                         }
 
                         Object.entries(pendingChanges.preferences).forEach(([field, value]) => {
@@ -282,7 +280,7 @@ export default function Profile() {
                           }
                         }
                         setEditMode(false)
-                        setPendingChanges({ categories: null, preferences: {}, companies: { preferred: [], hidden: [] } })
+                        setPendingChanges({ categories: null, preferences: {}, companies: { preferred: null, hidden: null } })
                         toast.success('Preferences updated successfully', {
                           duration: 3000,
                           position: 'top-right',
