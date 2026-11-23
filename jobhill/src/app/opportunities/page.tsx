@@ -49,6 +49,7 @@ export default function OpportunitiesPage() {
             id: job.id,
             logoSrc: job.company?.logo_url || '',
             publish_date: formatPublishDate(job.created_at),
+            createdAt: job.created_at,
             title: job.job_title,
             company: job.company?.name || 'Unknown Company',
             location: job.location || [],
