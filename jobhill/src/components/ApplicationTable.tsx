@@ -119,8 +119,8 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
   return (
     <div className="card overflow-hidden">
       {/* Toolbar */}
-      <div className="flex flex-col gap-3 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative w-full sm:max-w-xs">
+      <div className="flex flex-col gap-3 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between lg:flex-col lg:items-stretch xl:flex-row xl:items-center">
+        <div className="relative w-full sm:max-w-xs lg:max-w-none xl:max-w-xs">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
             type="search"
@@ -136,7 +136,7 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <label className="flex items-center gap-2 text-sm text-slate-500">
+          <label className="flex items-center gap-2 whitespace-nowrap text-sm text-slate-500">
             <span className="hidden sm:inline">Show</span>
             <select
               value={entriesPerPage}
@@ -151,7 +151,7 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
             </select>
             <span className="hidden sm:inline">per page</span>
           </label>
-          <button onClick={onAddApplication} className="btn-primary">
+          <button onClick={onAddApplication} className="btn-primary whitespace-nowrap">
             <Plus className="h-4 w-4" />
             <span>Add <span className="hidden xs:inline">application</span></span>
           </button>
@@ -201,15 +201,15 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
           </ul>
 
           {/* Desktop: tabla */}
-          <div className="hidden overflow-x-auto md:block">
+          <div className="relative hidden overflow-x-auto md:block">
             <table className="min-w-full text-left text-sm">
               <thead className="bg-slate-50/80 text-xs font-semibold uppercase tracking-wide text-slate-500">
                 <tr>
-                  <th scope="col" className="px-5 py-3">Company &amp; role</th>
+                  <th scope="col" className="px-4 py-3 xl:px-5">Company &amp; role</th>
                   <th scope="col" className="hidden px-4 py-3 2xl:table-cell">Location</th>
                   <th scope="col" className="px-4 py-3">Applied</th>
                   <th scope="col" className="hidden px-4 py-3 xl:table-cell">Updated</th>
-                  <th scope="col" className="hidden px-4 py-3 lg:table-cell">Referral</th>
+                  <th scope="col" className="hidden px-4 py-3 xl:table-cell">Referral</th>
                   <th scope="col" className="px-4 py-3">Status</th>
                   <th scope="col" className="px-4 py-3"><span className="sr-only">Actions</span></th>
                 </tr>
@@ -217,10 +217,10 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
               <tbody className="divide-y divide-slate-100">
                 {currentApplications.map((application) => (
                   <tr key={application.id} className="transition-colors hover:bg-slate-50/70">
-                    <td className="px-5 py-3.5">
+                    <td className="px-4 py-3.5 xl:px-5">
                       <div className="flex items-center gap-3">
                         <CompanyLogo src={application.company_logo} name={application.company_name} className="h-10 w-10" />
-                        <div className="min-w-0 max-w-[18rem]">
+                        <div className="min-w-0 max-w-[13rem] xl:max-w-[18rem]">
                           <p className="truncate font-semibold text-slate-900" title={application.role}>{application.role}</p>
                           <p className="truncate text-slate-500">{application.company_name}</p>
                         </div>
@@ -231,7 +231,7 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
                     </td>
                     <td className="whitespace-nowrap px-4 py-3.5 text-slate-600">{formatDate(application.applied_date)}</td>
                     <td className="hidden whitespace-nowrap px-4 py-3.5 text-slate-600 xl:table-cell">{formatDate(application.last_updated)}</td>
-                    <td className="hidden whitespace-nowrap px-4 py-3.5 lg:table-cell">
+                    <td className="hidden whitespace-nowrap px-4 py-3.5 xl:table-cell">
                       <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${REFERRAL_STYLES[application.referral_type] ?? 'bg-slate-100 text-slate-700'}`}>
                         {application.referral_type}
                       </span>
