@@ -1,8 +1,7 @@
 'use client'
 
 import { useMemo } from 'react';
-import { useJobOffers } from './useJobOffers';
-import type { JobOfferResponse } from '@/interfaces/JobOffer';
+import { useQuery } from '@tanstack/react-query';
 
 export interface CompanyLogo {
   id: string;
@@ -15,6 +14,11 @@ export interface JobStats {
   newGradRoles: number;
   newSWEPositions: number;
   totalOpportunities: number;
+}
+
+interface LandingStatsResponse {
+  stats: JobStats;
+  companyLogos: CompanyLogo[];
 }
 
 const defaultLogos: CompanyLogo[] = [
@@ -33,80 +37,43 @@ const defaultStats: JobStats = {
   totalOpportunities: 13000
 };
 
+async function fetchLandingStats(): Promise<LandingStatsResponse> {
+  const response = await fetch('/api/public/job-stats');
+  if (!response.ok) {
+    throw new Error(`Failed to fetch landing stats (${response.status})`);
+  }
+  return response.json();
+}
+
+/**
+ * Números y logos de la landing. Vienen de /api/public/job-stats, que cuenta en el
+ * servidor sin sesión: así son iguales para todos y no dependen de lo que cada
+ * usuario tenga oculto o filtrado en Opportunities.
+ */
 export function useLandingData() {
-  const { data: jobOffersData, isLoading } = useJobOffers();
+  const { data, isLoading } = useQuery({
+    queryKey: ['landing-stats'],
+    queryFn: fetchLandingStats,
+    staleTime: 10 * 60 * 1000,
+  });
 
   const companyLogos = useMemo((): CompanyLogo[] => {
-    if (!jobOffersData?.jobs) return defaultLogos;
+    const recentCompanies = data?.companyLogos;
+    if (!recentCompanies) return defaultLogos;
+    if (recentCompanies.length >= 5) return recentCompanies;
 
-    // Get recent companies (last 4 days)
-    const fourDaysAgo = new Date();
-    fourDaysAgo.setDate(fourDaysAgo.getDate() - 4);
-
-    const recentCompanies = jobOffersData.jobs
-      .filter((job: JobOfferResponse) => {
-        const jobDate = new Date(job.created_at);
-        return jobDate >= fourDaysAgo && job.company?.logo_url;
-      })
-      .map((job: JobOfferResponse) => ({
-        id: job.company!.id.toString(),
-        name: job.company!.name,
-        logo_url: job.company!.logo_url
-      }))
-      // Remove duplicates by company name
-      .filter((company, index, self) => 
-        self.findIndex(c => c.name === company.name) === index
-      )
-      .slice(0, 20); // Limit to 20 companies
-
-    if (recentCompanies.length >= 5) {
-      return recentCompanies;
-    }
-
-    // Mix recent companies with defaults if we don't have enough
+    // Si hay pocas empresas recientes, se completan con las hormigas
     const combinedLogos = [...recentCompanies];
     for (const defaultLogo of defaultLogos) {
       if (combinedLogos.length >= 7) break;
-      if (!combinedLogos.some(logo => logo.name === defaultLogo.name)) {
-        combinedLogos.push(defaultLogo);
-      }
+      combinedLogos.push(defaultLogo);
     }
-
     return combinedLogos;
-  }, [jobOffersData?.jobs]);
-
-  const jobStats = useMemo((): JobStats => {
-    if (!jobOffersData?.jobs) return defaultStats;
-
-    const jobs = jobOffersData.jobs;
-    const lastWeek = new Date();
-    lastWeek.setDate(lastWeek.getDate() - 7);
-
-    const weeklyJobs = jobs.filter((job: JobOfferResponse) => {
-      const jobDate = new Date(job.created_at);
-      return jobDate >= lastWeek;
-    });
-
-    // Internships y Emerging Talent (todo lo que no es New Grad)
-    const newInternRoles = weeklyJobs.filter((job: JobOfferResponse) => job.newGrad !== 1).length;
-
-    const newGradRoles = weeklyJobs.filter((job: JobOfferResponse) => job.newGrad === 1).length;
-
-    const newSWEPositions = weeklyJobs.filter((job: JobOfferResponse) => 
-      job.categories && job.categories.includes('SWE')
-    ).length;
-
-    return {
-      newInternRoles,
-      newGradRoles,
-      newSWEPositions,
-      totalOpportunities: jobs.length
-    };
-  }, [jobOffersData?.jobs]);
+  }, [data?.companyLogos]);
 
   return {
     companyLogos,
-    jobStats,
+    jobStats: data?.stats ?? defaultStats,
     isLoading
   };
 }
