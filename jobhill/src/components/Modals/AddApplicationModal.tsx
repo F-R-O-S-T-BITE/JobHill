@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { useCreateApplication } from "@/hooks/useApplications";
 import { ApplicationStatus, APPLICATION_STATUSES } from "@/interfaces/Application";
 import { AddAppModalStyles } from "@/styles/OfferCardStyles";
@@ -44,8 +45,8 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
     e.preventDefault();
 
     try {
+      // Aplicación manual: no se manda job_offer_id porque no viene de una oferta de Jobhill
       await createApplicationMutation.mutateAsync({
-        job_offer_id: crypto.randomUUID(),
         company_name: formData.company_name,
         role: formData.role,
         location: formData.location,
@@ -66,9 +67,11 @@ const AddApplicationModal: React.FC<AddApplicationModalProps> = ({
         application_link: "",
       });
 
+      toast.success("Application added");
       onClose();
     } catch (error) {
       console.error("Error creating application:", error);
+      toast.error(error instanceof Error ? error.message : "Couldn't add the application. Please try again.");
     }
   };
 

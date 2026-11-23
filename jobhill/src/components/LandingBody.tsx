@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, Check } from 'lucide-react';
+import { ArrowRight, Check, GraduationCap, type LucideIcon } from 'lucide-react';
 import styles from './slider.module.css';
 import { useLandingData } from '@/hooks/useLandingData';
 import { AntMarching, AntTracker } from '@/components/mascots';
@@ -18,7 +18,7 @@ const FALLBACK_LOGOS = Array.from({ length: 6 }, (_, i) => ({
 
 const FALLBACK_STATS = {
   newInternRoles: 1230,
-  newDataMLPositions: 463,
+  newGradRoles: 120,
   newSWEPositions: 828,
   totalOpportunities: 13000,
 };
@@ -82,12 +82,17 @@ function LogoSlide({ name, logoUrl }: { name: string; logoUrl: string }) {
   );
 }
 
-const STATS = [
+const STATS: {
+  key: 'newInternRoles' | 'newGradRoles' | 'newSWEPositions' | 'totalOpportunities';
+  label: string;
+  icon: string | LucideIcon;
+  duration: number;
+}[] = [
   { key: 'newInternRoles', label: 'New intern roles', icon: '/resources/home/New_Home.png', duration: 2000 },
-  { key: 'newDataMLPositions', label: 'New AI & ML positions', icon: '/resources/home/MLPositions_Home.png', duration: 2200 },
+  { key: 'newGradRoles', label: 'New grad roles', icon: GraduationCap, duration: 2200 },
   { key: 'newSWEPositions', label: 'New SWE positions', icon: '/resources/home/RolesOpen_home.png', duration: 1800 },
   { key: 'totalOpportunities', label: 'Open opportunities', icon: '/resources/home/TotalOpportunities_home.png', duration: 2500 },
-] as const;
+];
 
 const FEATURES = [
   {
@@ -158,10 +163,14 @@ function LandingBody() {
           </div>
 
           <dl className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
-            {STATS.map(({ key, label, icon, duration }) => (
+            {STATS.map(({ key, label, icon: StatIcon, duration }) => (
               <div key={key} className="card flex items-center gap-4 p-5 sm:p-6">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-50">
-                  <Image src={icon} alt="" width={32} height={32} />
+                  {typeof StatIcon === 'string' ? (
+                    <Image src={StatIcon} alt="" width={32} height={32} />
+                  ) : (
+                    <StatIcon className="h-7 w-7 text-brand-500" strokeWidth={1.75} aria-hidden="true" />
+                  )}
                 </div>
                 <div className="min-w-0">
                   <dd className="font-display text-2xl font-bold tabular-nums text-slate-900 sm:text-3xl">

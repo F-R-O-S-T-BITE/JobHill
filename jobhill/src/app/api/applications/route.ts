@@ -73,53 +73,71 @@ export async function POST(request: NextRequest) {
       applied_date
     } = body
 
-    if (!job_offer_id || !company_name || !role || !referral_type) {
+    const companyName = typeof company_name === 'string' ? company_name.trim() : ''
+    const roleName = typeof role === 'string' ? role.trim() : ''
+
+    if (!companyName || !roleName || !referral_type) {
       return NextResponse.json(
-        { error: 'Missing required fields: job_offer_id, company_name, role, referral_type' },
+        { error: 'Missing required fields: company_name, role, referral_type' },
         { status: 400 }
       )
     }
 
-    let finalCompanyId = company_id
-    if (!finalCompanyId) {
-      const { data: jobOffer, error: jobError } = await supabase
-        .from('job_offers')
-        .select('company_id')
-        .eq('id', job_offer_id)
+    let finalCompanyId: number | null = company_id ?? null
+
+    if (job_offer_id) {
+      // Aplicación a una oferta de Jobhill: la oferta debe existir
+      if (!finalCompanyId) {
+        const { data: jobOffer, error: jobError } = await supabase
+          .from('job_offers')
+          .select('company_id')
+          .eq('id', job_offer_id)
+          .single()
+
+        if (jobError) {
+          console.error('Error fetching job offer:', jobError)
+          return NextResponse.json(
+            { error: 'Failed to find job offer' },
+            { status: 404 }
+          )
+        }
+
+        finalCompanyId = jobOffer.company_id
+      }
+
+      // Check if application already exists for this user and job
+      const { data: existingApp, error: checkError } = await supabase
+        .from('applications')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('job_offer_id', job_offer_id)
         .single()
 
-      if (jobError) {
-        console.error('Error fetching job offer:', jobError)
+      if (checkError && checkError.code !== 'PGRST116') {
+        console.error('Error checking existing application:', checkError)
         return NextResponse.json(
-          { error: 'Failed to find job offer' },
-          { status: 404 }
+          { error: 'Failed to check existing applications' },
+          { status: 500 }
         )
       }
 
-      finalCompanyId = jobOffer.company_id
-    }
+      if (existingApp) {
+        return NextResponse.json(
+          { error: 'You have already applied to this job' },
+          { status: 409 } // Conflict
+        )
+      }
+    } else if (!finalCompanyId) {
+      // Aplicación manual: si la empresa ya existe en Jobhill, la ligamos para mostrar su logo
+      const escaped = companyName.replace(/[\\%_]/g, (c) => `\\${c}`)
+      const { data: matchedCompany } = await supabase
+        .from('companies')
+        .select('id')
+        .ilike('name', escaped)
+        .limit(1)
+        .maybeSingle()
 
-    // Check if application already exists for this user and job
-    const { data: existingApp, error: checkError } = await supabase
-      .from('applications')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('job_offer_id', job_offer_id)
-      .single()
-
-    if (checkError && checkError.code !== 'PGRST116') {
-      console.error('Error checking existing application:', checkError)
-      return NextResponse.json(
-        { error: 'Failed to check existing applications' },
-        { status: 500 }
-      )
-    }
-
-    if (existingApp) {
-      return NextResponse.json(
-        { error: 'You have already applied to this job' },
-        { status: 409 } // Conflict
-      )
+      finalCompanyId = matchedCompany?.id ?? null
     }
 
     // Create the application
@@ -127,10 +145,10 @@ export async function POST(request: NextRequest) {
       .from('applications')
       .insert({
         user_id: user.id,
-        job_offer_id: job_offer_id,
+        job_offer_id: job_offer_id || null,
         company_id: finalCompanyId,
-        company_name: company_name,
-        role: role,
+        company_name: companyName,
+        role: roleName,
         referral_type: referral_type,
         application_link: application_link,
         location: location,

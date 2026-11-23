@@ -12,9 +12,11 @@ export interface JobOffer {
   modality: string;
   period: string;
   categories: string[];
-  status: string;
+  /** No se manda en /api/job-offers (siempre son ofertas abiertas) */
+  status?: string;
   created_at: string;
-  updated_at: string;
+  /** No se manda en /api/job-offers */
+  updated_at?: string;
   application_link: string;
   noSponsor: number;
   usaCitizen: number;

@@ -2,19 +2,40 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import type { JobOffersApiResponse } from '@/interfaces/JobOffer'
-import { userPreferencesKeys, type UserPreferences } from './useUserPreferences'
+import type { Company, JobOfferResponse, JobOffersApiResponse } from '@/interfaces/JobOffer'
+import { PREFERENCES_WRITE_SCOPE, userPreferencesKeys, type UserPreferences } from './useUserPreferences'
 import { applicationsKeys } from './useApplications'
 import type { Application } from '@/interfaces/Application'
+import { decodeJobOffers, isCompactJobOffers } from '@/utils/jobOffersCodec'
 
 async function fetchAllJobOffers(): Promise<JobOffersApiResponse> {
   const response = await fetch('/api/job-offers')
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch job offers: ${response.statusText}`)
+    throw new Error(`Failed to fetch job offers (${response.status})`)
   }
 
-  return response.json()
+  const data = await response.json()
+
+  // La API manda las ofertas en formato compacto (arreglos + textos y empresas una sola vez);
+  // aquí se vuelven a armar los objetos que usan los componentes
+  if (isCompactJobOffers(data)) {
+    const meta = data as unknown as Omit<JobOffersApiResponse, 'jobs'>
+    return { total: meta.total, userPreferences: meta.userPreferences, jobs: decodeJobOffers(data) }
+  }
+
+  // Formato anterior (por si una versión vieja del servidor sigue respondiendo)
+  const legacy: JobOffersApiResponse & { companies?: Record<string, Company> } = data
+  if (legacy.companies) {
+    const companies = legacy.companies
+    legacy.jobs = legacy.jobs.map((job: JobOfferResponse) => ({
+      ...job,
+      company: job.company ?? companies[String(job.company_id)],
+    }))
+    delete legacy.companies
+  }
+
+  return legacy
 }
 
 const jobOffersKeys = {
@@ -87,63 +108,12 @@ export function useCreateApplication() {
   })
 }
 
-export function useToggleFavorite() {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: async ({ jobId, isFavorite }: { jobId: string; isFavorite: boolean }) => {
-      const response = await fetch(`/api/favorites/${jobId}`, {
-        method: isFavorite ? 'DELETE' : 'POST',
-      })
-      
-      if (!response.ok) {
-        throw new Error('Failed to toggle favorite')
-      }
-      
-      return response.json()
-    },
-    onMutate: async ({ jobId, isFavorite }) => {
-      await queryClient.cancelQueries({ queryKey: jobOffersKeys.allJobs() })
-      queryClient.setQueryData(
-        jobOffersKeys.allJobs(),
-        (oldData: JobOffersApiResponse | undefined) => {
-          if (!oldData) return oldData
-
-          return {
-            ...oldData,
-            jobs: oldData.jobs.map((job) =>
-              job.id === jobId
-                ? { ...job, is_favorite: !isFavorite }
-                : job
-            ),
-          }
-        }
-      )
-    },
-    onError: (err, { jobId, isFavorite }) => {
-      queryClient.setQueryData(
-        jobOffersKeys.allJobs(),
-        (oldData: JobOffersApiResponse | undefined) => {
-          if (!oldData) return oldData
-
-          return {
-            ...oldData,
-            jobs: oldData.jobs.map((job) =>
-              job.id === jobId
-                ? { ...job, is_favorite: isFavorite }
-                : job
-            ),
-          }
-        }
-      )
-    },
-  })
-}
-
 export function useHideJob() {
   const queryClient = useQueryClient()
 
   return useMutation({
+    // En fila con las demás escrituras de preferencias (ver PREFERENCES_WRITE_SCOPE)
+    scope: PREFERENCES_WRITE_SCOPE,
     mutationFn: async (jobId: string) => {
       const response = await fetch('/api/user-preferences', {
         method: 'POST',
@@ -251,6 +221,8 @@ export function useUnhideJob() {
   const queryClient = useQueryClient()
 
   return useMutation({
+    // En fila con las demás escrituras de preferencias (ver PREFERENCES_WRITE_SCOPE)
+    scope: PREFERENCES_WRITE_SCOPE,
     mutationFn: async (jobId: string) => {
       const response = await fetch('/api/user-preferences', {
         method: 'POST',
@@ -370,6 +342,8 @@ export function useHideCompany() {
   const queryClient = useQueryClient()
 
   return useMutation({
+    // En fila con las demás escrituras de preferencias (ver PREFERENCES_WRITE_SCOPE)
+    scope: PREFERENCES_WRITE_SCOPE,
     mutationFn: async (companyId: number) => {
       const response = await fetch('/api/user-preferences', {
         method: 'POST',
@@ -486,36 +460,31 @@ export function recalculateJobScoresInCache(
     (oldData: JobOffersApiResponse | undefined) => {
       if (!oldData) return oldData
 
+      // Mismo cálculo que /api/job-offers: 1 = empresa preferida y categoría,
+      // 2 = una de las dos, 3 = ninguna. La lista en pantalla se ordena por este tier.
       const updatedJobs = oldData.jobs.map((job) => {
-        let preferenceScore = 0
-
-        if (newPreferences) {
-          if (newPreferences.preferred_companies?.includes(job.company_id)) {
-            preferenceScore += 15
-          }
-
-          if (newPreferences.preferred_categories && job.categories) {
-            const matchingCategories = job.categories.filter((cat: string) =>
-              newPreferences.preferred_categories.includes(cat)
-            ).length
-            if (matchingCategories > 0) {
-              preferenceScore += matchingCategories * 10
-            }
-          }
-        }
+        const isPreferredCompany = !!newPreferences?.preferred_companies?.includes(job.company_id)
+        const hasMatchingCategory = !!(
+          newPreferences?.preferred_categories &&
+          job.categories?.some((cat: string) => newPreferences.preferred_categories.includes(cat))
+        )
+        const relevanceTier = isPreferredCompany && hasMatchingCategory
+          ? 1
+          : isPreferredCompany || hasMatchingCategory
+            ? 2
+            : 3
 
         return {
           ...job,
-          preference_score: preferenceScore,
+          relevance_tier: relevanceTier,
         }
       })
 
-      // Re-sort jobs by preference score
       updatedJobs.sort((a, b) => {
-        const aScore = a.preference_score || 0
-        const bScore = b.preference_score || 0
-        if (aScore !== bScore) {
-          return bScore - aScore
+        const aTier = a.relevance_tier ?? 3
+        const bTier = b.relevance_tier ?? 3
+        if (aTier !== bTier) {
+          return aTier - bTier
         }
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       })

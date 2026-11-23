@@ -7,6 +7,8 @@ export interface OfferCardProps {
     id?: string;
     logoSrc: string;
     publish_date: string;
+    /** Fecha ISO de publicación; publish_date es texto relativo ("2 days ago") y no sirve para ordenar */
+    createdAt?: string;
     title: string;
     company: string;
     location: string[];

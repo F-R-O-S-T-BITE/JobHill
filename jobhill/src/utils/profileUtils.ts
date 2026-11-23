@@ -89,13 +89,22 @@ export function hasCategoryChanges(pendingChanges: { categories: string[] | null
          !currentCategories.every(cat => pendingCats.includes(cat))
 }
 
+/** true si ambas listas tienen los mismos ids (sin importar el orden) */
+export function sameIds(a: number[], b: number[]): boolean {
+  if (a.length !== b.length) return false
+  const set = new Set(b)
+  return a.every(id => set.has(id))
+}
+
 export function hasUnhiddenCompanies(
-  pendingChanges: { companies: { hidden: number[] } },
+  pendingChanges: { companies: { hidden: number[] | null } },
   currentHidden: number[]
 ): number[] {
-  if (pendingChanges.companies.hidden.length === 0) return []
+  // null = no se tocó la lista de ocultas
+  const pendingHidden = pendingChanges.companies.hidden
+  if (pendingHidden === null) return []
   const unhiddenCompanyIds = currentHidden.filter(
-    companyId => !pendingChanges.companies.hidden.includes(companyId)
+    companyId => !pendingHidden.includes(companyId)
   )
 
   return unhiddenCompanyIds

@@ -14,5 +14,8 @@ export async function getUserAppliedJobIds(
     throw new Error('Failed to fetch user applications');
   }
 
-  return applications?.map((app: any) => app.job_offer_id) || [];
+  // Las aplicaciones agregadas a mano no tienen job_offer_id
+  return (applications ?? [])
+    .map((app: any) => app.job_offer_id)
+    .filter((id: unknown): id is number => id !== null && id !== undefined);
 }

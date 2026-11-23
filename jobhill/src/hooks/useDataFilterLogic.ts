@@ -18,7 +18,14 @@ export function useDataFilterLogic(data: OfferCardProps[], selectedCompany?: {id
     newGrad: ""
   });
 
+  const favoriteJobs = userPreferencesData?.preferences?.favorite_jobs;
+
   const filteredData = useMemo(() => {
+    // Las favoritas se leen de las preferencias (se actualizan al instante al marcar la estrella)
+    const favoriteIds = favoriteJobs ? new Set<string>(favoriteJobs) : null;
+    const isFavorite = (item: OfferCardProps) =>
+      favoriteIds ? !!item.id && favoriteIds.has(item.id) : !!item.isFavorite;
+    const toTime = (item: OfferCardProps) => (item.createdAt ? Date.parse(item.createdAt) || 0 : 0);
     const lowercasedCategories = filters.category.map(c => c.toLowerCase());
     const lowercasedCompanies = filters.company.map(c => c.toLowerCase());
 
@@ -28,7 +35,7 @@ export function useDataFilterLogic(data: OfferCardProps[], selectedCompany?: {id
           return false;
         }
 
-        if (showFavoritesOnly && !item.isFavorite) return false;
+        if (showFavoritesOnly && !isFavorite(item)) return false;
 
         if (lowercasedCompanies.length > 0 && !lowercasedCompanies.some(company =>
           item.company.toLowerCase().includes(company)
@@ -81,10 +88,10 @@ export function useDataFilterLogic(data: OfferCardProps[], selectedCompany?: {id
 
         // Within same tier, sort by date
         return filters.order === "newest"
-          ? new Date(b.publish_date).getTime() - new Date(a.publish_date).getTime()
-          : new Date(a.publish_date).getTime() - new Date(b.publish_date).getTime();
+          ? toTime(b) - toTime(a)
+          : toTime(a) - toTime(b);
       });
-  }, [data, showFavoritesOnly, filters, selectedCompany, userPreferencesData?.preferences?.preferred_companies]);
+  }, [data, showFavoritesOnly, filters, selectedCompany, favoriteJobs]);
 
   return {
     filteredData,

@@ -23,6 +23,15 @@ interface UserPreferencesResponse {
   success: boolean;
 }
 
+/**
+ * Las escrituras a /api/user-preferences leen la lista guardada, la modifican y la
+ * vuelven a guardar. Si dos corren al mismo tiempo, una pisa a la otra (p. ej. ocultar
+ * dos ofertas muy rápido). Las mutaciones con este scope se envían en fila; la
+ * actualización optimista (onMutate) sigue siendo inmediata.
+ * Ojo: no usar en mutaciones que llamen internamente a otra con el mismo scope.
+ */
+export const PREFERENCES_WRITE_SCOPE = { id: 'user-preferences-write' }
+
 export const userPreferencesKeys = {
   all: ['user-preferences'] as const,
   preferences: () => [...userPreferencesKeys.all, 'preferences'] as const,
@@ -61,6 +70,8 @@ export function useUpdatePreference() {
   const queryClient = useQueryClient()
 
   return useMutation({
+    // En fila con las demás escrituras de preferencias (ver PREFERENCES_WRITE_SCOPE)
+    scope: PREFERENCES_WRITE_SCOPE,
     mutationFn: async ({
       field,
       value,

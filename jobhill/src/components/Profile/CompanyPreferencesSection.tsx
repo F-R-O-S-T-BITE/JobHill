@@ -9,7 +9,7 @@ interface CompanyPreferencesSectionProps {
   companiesLoading: boolean
   preferences: any
   pendingChanges: {
-    companies: { preferred: number[], hidden: number[] }
+    companies: { preferred: number[] | null, hidden: number[] | null }
   }
   editMode: boolean
   handleCompanyPreference: (companyId: number, action: 'prefer' | 'hide') => void
@@ -87,12 +87,9 @@ export default function CompanyPreferencesSection({
   const basePreferredIds = preferences?.preferred_companies || []
   const baseHiddenIds = preferences?.hidden_companies || []
 
-  const currentPreferredIds = pendingChanges.companies.preferred.length > 0
-    ? pendingChanges.companies.preferred
-    : basePreferredIds
-  const currentHiddenIds = pendingChanges.companies.hidden.length > 0
-    ? pendingChanges.companies.hidden
-    : baseHiddenIds
+  // null = sin cambios pendientes; una lista vacía sí es un cambio
+  const currentPreferredIds = pendingChanges.companies.preferred ?? basePreferredIds
+  const currentHiddenIds = pendingChanges.companies.hidden ?? baseHiddenIds
 
   const actualPreferredCount = currentPreferredIds.filter((id: number) => !currentHiddenIds.includes(id)).length
 
