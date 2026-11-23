@@ -99,59 +99,6 @@ export function useCreateApplication() {
   })
 }
 
-export function useToggleFavorite() {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: async ({ jobId, isFavorite }: { jobId: string; isFavorite: boolean }) => {
-      const response = await fetch(`/api/favorites/${jobId}`, {
-        method: isFavorite ? 'DELETE' : 'POST',
-      })
-      
-      if (!response.ok) {
-        throw new Error('Failed to toggle favorite')
-      }
-      
-      return response.json()
-    },
-    onMutate: async ({ jobId, isFavorite }) => {
-      await queryClient.cancelQueries({ queryKey: jobOffersKeys.allJobs() })
-      queryClient.setQueryData(
-        jobOffersKeys.allJobs(),
-        (oldData: JobOffersApiResponse | undefined) => {
-          if (!oldData) return oldData
-
-          return {
-            ...oldData,
-            jobs: oldData.jobs.map((job) =>
-              job.id === jobId
-                ? { ...job, is_favorite: !isFavorite }
-                : job
-            ),
-          }
-        }
-      )
-    },
-    onError: (err, { jobId, isFavorite }) => {
-      queryClient.setQueryData(
-        jobOffersKeys.allJobs(),
-        (oldData: JobOffersApiResponse | undefined) => {
-          if (!oldData) return oldData
-
-          return {
-            ...oldData,
-            jobs: oldData.jobs.map((job) =>
-              job.id === jobId
-                ? { ...job, is_favorite: isFavorite }
-                : job
-            ),
-          }
-        }
-      )
-    },
-  })
-}
-
 export function useHideJob() {
   const queryClient = useQueryClient()
 
