@@ -8,9 +8,9 @@ import { useState } from "react";
 import { FaGoogle, FaGithub, FaEye, FaEyeSlash } from "react-icons/fa";
 import { RegisterStyles } from "@/styles/RegisterStyles";
 import CaptchaModal from "@/components/Modals/CaptchaModal";
-import '../../globals.css';
 //Hooks and Actions
 import { useLoginRegister } from "@/hooks/useLoginRegister";
+import { AntTrailScene } from "@/components/mascots";
 
 
 export default function Register() {
@@ -52,7 +52,7 @@ export default function Register() {
                 <div className={RegisterStyles.box}>
                     
                     <h1 className={RegisterStyles.title}>JOBHILL</h1>
-                    <p className="text-[18px] font-medium font-poppins text-black mb-2">Check your email!</p>
+                    <p className="text-[18px] font-medium font-poppins text-slate-900 mb-2">Check your email!</p>
                     <p className={RegisterStyles.text}>
                         We've sent a verification link to <strong>{formData.email}</strong>
                     </p>
@@ -62,11 +62,11 @@ export default function Register() {
                     </div>
 
                     <div className="text-center space-y-4">
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-slate-600">
                             Didn't receive the email? Check your spam folder or{" "}
                             <button 
                                 onClick={() => setEmailSent(false)}
-                                className="text-[#0353A4] hover:underline"
+                                className="text-brand-600 hover:underline"
                             >
                                 try again
                             </button>
@@ -74,7 +74,7 @@ export default function Register() {
                         
                         <Link 
                             href="/login" 
-                            className="text-[#0353A4] font-medium hover:underline"
+                            className="text-brand-600 font-medium hover:underline"
                         >
                             ← Back to Login
                         </Link>
@@ -82,13 +82,9 @@ export default function Register() {
                 </div>
             </div>
 
-            <div
-                className={RegisterStyles.rightPanel}
-                style={{
-                    backgroundImage: "url('/resources/ants/Register_background.png')",
-                    transform: "translateZ(0)",
-                }}
-            />
+            <div className={RegisterStyles.rightPanel}>
+                <AntTrailScene palette="night" className="absolute inset-0 h-full w-full" />
+            </div>
         </div>
     );
 }
@@ -107,7 +103,7 @@ export default function Register() {
 
                     <form onSubmit={onSubmit} className="space-y-4 text-left">
                         <div>
-                            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                            <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-1">
                                 Full Name
                             </label>
                             <input
@@ -123,7 +119,7 @@ export default function Register() {
                             />
                         </div>
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                            <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
                                 Email address
                             </label>
                             <input
@@ -139,7 +135,7 @@ export default function Register() {
                             />
                         </div>
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                            <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
                                 Password
                             </label>
                             <div className="relative">
@@ -157,7 +153,7 @@ export default function Register() {
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
                                 >
                                     {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
                                 </button>
@@ -202,10 +198,10 @@ export default function Register() {
                                     id="termsCheckbox"
                                     checked={formData.termsAccepted}
                                     onChange={handleChange}
-                                    className="h-4 w-4 text-[#0353A4] border-gray-300 rounded cursor-pointer"
+                                    className="h-4 w-4 rounded accent-brand-600 cursor-pointer"
                                 />
-                                <label htmlFor="termsCheckbox" className="ml-2 text-[12px] font-poppins text-black">
-                                    I agree to the <span className="text-[#0353A4] hover:underline cursor-pointer">terms & policy</span>
+                                <label htmlFor="termsCheckbox" className="ml-2 text-[12px] font-poppins text-slate-900">
+                                    I agree to the <span className="text-brand-600 hover:underline cursor-pointer">terms & policy</span>
                                 </label>
                             </div>
                             {errorMessage && (
@@ -222,12 +218,12 @@ export default function Register() {
                         </button>
                     </form>
 
-                    <div className="my-5 text-center text-[14px] font-poppins text-black">or</div>
+                    <div className="my-5 text-center text-sm text-slate-600">or</div>
 
                     <button
                         onClick={handleGoogleSignIn}
                         disabled={isLoading}
-                        className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins mb-3 text-black hover:bg-gray-100 transition-colors cursor-pointer disabled:opacity-70"
+                        className="btn-secondary w-full py-3 mb-3"
                     >
                         <FaGoogle className="text-red-500 mr-2" />
                         Sign in with Google
@@ -236,28 +232,24 @@ export default function Register() {
                     <button
                         onClick={handleGithubSignIn}
                         disabled={isLoading}
-                        className="w-full flex items-center justify-center border border-gray-300 py-2 rounded font-poppins text-black hover:bg-gray-100 transition-colors cursor-pointer disabled:opacity-70"
+                        className="btn-secondary w-full py-3"
                     >
                         <FaGithub className="mr-2" />
                         Sign in with Github
                     </button>
 
-                    <div className="mt-6 text-center text-[14px] font-poppins text-black">
+                    <div className="mt-6 text-center text-sm text-slate-600">
                         Have an account?{" "}
-                        <Link href="/login" className="text-[#0353A4] font-medium hover:underline">
+                        <Link href="/login" className="text-brand-600 font-medium hover:underline">
                             Sign In
                         </Link>
                     </div>
                 </div>
             </div>
 
-            <div
-                className={RegisterStyles.rightPanel}
-                style={{
-                    backgroundImage: "url('/resources/ants/Register_background.png')",
-                    transform: "translateZ(0)",
-                }}
-            />
+            <div className={RegisterStyles.rightPanel}>
+                <AntTrailScene palette="night" className="absolute inset-0 h-full w-full" />
+            </div>
 
             <CaptchaModal
                 isOpen={showCaptchaModal}

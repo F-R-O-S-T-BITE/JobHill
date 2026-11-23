@@ -3,10 +3,10 @@
 
 import React, { useState} from "react";
 import Link from "next/link";
-import '../../globals.css';
 import { LoginStyles } from '@/styles/LoginStyles';
 import { useLoginRegister } from '@/hooks/useLoginRegister';
 import CaptchaModal from "@/components/Modals/CaptchaModal";
+import { AntTrailScene } from "@/components/mascots";
 
 export default function ForgotPassword() {
 
@@ -37,13 +37,9 @@ export default function ForgotPassword() {
     if (emailSent) {
         return (
             <div className={LoginStyles.container}>
-                <div
-                    className={LoginStyles.leftPanel}
-                    style={{
-                        backgroundImage: "url('/resources/ants/Login_background.png')",
-                        transform: "translateZ(0)",
-                    }}
-                />
+                <div className={LoginStyles.leftPanel}>
+                <AntTrailScene palette="dusk" className="absolute inset-0 h-full w-full" />
+            </div>
                 <div className={LoginStyles.rightPanel}>
                     <div className={LoginStyles.box}>
                         <h1 className={LoginStyles.title}>JOBHILL</h1>
@@ -57,11 +53,11 @@ export default function ForgotPassword() {
                         </div>
 
                         <div className="text-center space-y-4">
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-slate-600">
                                 Didn't receive the email? Check your spam folder or{" "}
                                 <button 
                                     onClick={() => setEmailSent(false)}
-                                    className="text-[#0353A4] hover:underline"
+                                    className="text-brand-600 hover:underline"
                                 >
                                     try again
                                 </button>
@@ -69,7 +65,7 @@ export default function ForgotPassword() {
                             
                             <Link 
                                 href="/login" 
-                                className="text-[#0353A4] font-medium hover:underline"
+                                className="text-brand-600 font-medium hover:underline"
                             >
                                 ← Back to Login
                             </Link>
@@ -82,13 +78,9 @@ export default function ForgotPassword() {
 
     return (
         <div className={LoginStyles.container}>
-            <div
-                className={LoginStyles.leftPanel}
-                style={{
-                    backgroundImage: "url('/resources/ants/Login_background.png')",
-                    transform: "translateZ(0)",
-                }}
-            />
+            <div className={LoginStyles.leftPanel}>
+                <AntTrailScene palette="dusk" className="absolute inset-0 h-full w-full" />
+            </div>
             <div className={LoginStyles.rightPanel}>
                 <div className={LoginStyles.box}>
                     <h1 className={LoginStyles.title}>JOBHILL</h1>
@@ -105,7 +97,7 @@ export default function ForgotPassword() {
                         )}
                         
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                            <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
                                 Email address
                             </label>
                             <input
@@ -130,9 +122,9 @@ export default function ForgotPassword() {
                         </button>
                     </form>
 
-                    <div className="mt-6 text-center text-[14px] font-poppins text-black">
+                    <div className="mt-6 text-center text-sm text-slate-600">
                         Remember your password?{" "}
-                        <Link href="/login" className="text-[#0353A4] font-medium hover:underline">
+                        <Link href="/login" className="text-brand-600 font-medium hover:underline">
                             Sign In
                         </Link>
                     </div>

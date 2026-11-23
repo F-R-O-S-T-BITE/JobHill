@@ -1,4 +1,5 @@
 'use client'
+// components/Onboarding/OnboardingModal.tsx
 
 import { useState } from 'react'
 import { useSubmitOnboarding, useCompanies } from '@/hooks/useOnboarding'
@@ -28,11 +29,11 @@ function Tooltip({ children, content }: { children: React.ReactNode; content: st
       >
         {children}
       </div>
-      <div className={`absolute top-full left-1/2 transform -translate-x-1/2 mt-1 px-3 py-2 text-xs text-white bg-gray-800 rounded-lg shadow-lg transition-all duration-200 z-50 max-w-48 text-center ${
+      <div className={`absolute top-full left-1/2 transform -translate-x-1/2 mt-1 px-3 py-2 text-xs text-white bg-slate-800 rounded-lg shadow-lg transition-all duration-200 z-50 max-w-48 text-center ${
         isVisible ? 'opacity-100 visible' : 'opacity-0 invisible'
       }`}>
         {content}
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-800"></div>
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-slate-800"></div>
       </div>
     </div>
   )
@@ -141,10 +142,10 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
       <div className={styles.Modal}>
         {/* Header */}
         {currentStep > 0 && (
-          <div className="p-4">
-            <div className="w-1/2 bg-gray-200 rounded-full h-2 mx-auto">
+          <div className="shrink-0 px-4 pb-3 pt-5 sm:px-6">
+            <div className="mx-auto h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-slate-100" role="progressbar" aria-valuemin={0} aria-valuemax={4} aria-valuenow={currentStep}>
               <div 
-                className="bg-[#0353A4] h-2 rounded-full transition-all duration-300 ease-out"
+                className="h-full rounded-full bg-brand-600 transition-all duration-300 ease-out"
                 style={{ width: `${(currentStep / 4) * 100}%` }}
               />
             </div>
@@ -194,9 +195,9 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
         {currentStep === 0 && (
           <div className={styles.Content}>
             <div className={styles.WelcomeContainer}>
-              <h1 className={styles.WelcomeTitle}>LETS START BY SETTING YOUR PREFERENCES</h1>
+              <h1 className={styles.WelcomeTitle}>Let’s set up your preferences</h1>
               <p className={styles.WelcomeSubtitle}>
-                You can modify this preferences in your profile as well
+                We’ll use them to personalize your job feed. You can change them anytime from your profile.
               </p>
               <button
                 onClick={handleBegin}
@@ -219,8 +220,8 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
                   placeholder="Company"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  leftIcon="resources/Icons/Components_Cards/Company_Filter_Cards.png"
-                  rightIcon="resources/Icons/search_icon.png"
+                  leftIcon="/resources/Icons/Components_Cards/Company_Filter_Cards.png"
+                  rightIcon="/resources/Icons/search_icon.png"
                   inputClassName={styles.Input}
                  />
 
@@ -229,7 +230,7 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
               {/* Company Grid */}
               <div className={styles.CompanyGrid}>
                 {companiesLoading && (
-                  <div className="col-span-full text-center py-8 text-gray-500">
+                  <div className="col-span-full py-8 text-center text-slate-500">
                     Loading companies...
                   </div>
                 )}
@@ -268,7 +269,7 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
                             }}
                           />
                         ) : null}
-                        <div className={`w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center text-sm font-bold text-gray-600 ${company.logo_url ? 'hidden' : ''}`}>
+                        <div className={`w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg flex items-center justify-center text-sm font-bold text-slate-600 ${company.logo_url ? 'hidden' : ''}`}>
                           {company.name.charAt(0).toUpperCase()}
                         </div>
                       </div>
@@ -327,7 +328,7 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
               })}
             </div>
             <div className="text-center mt-2">
-              <span className={`text-sm ${formData.preferred_categories.length >= 4 ? 'text-red-600 font-semibold' : 'text-gray-600'}`}>
+              <span className={`text-sm ${formData.preferred_categories.length >= 4 ? 'text-red-600 font-semibold' : 'text-slate-600'}`}>
                 {formData.preferred_categories.length}/4 selected
               </span>
             </div>
@@ -380,9 +381,9 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
 
               <div className={styles.LegalSection}>
                 <h4 className={styles.LegalSectionTitle}>Role Levels You're Interested In</h4>
-                <p className="text-sm text-gray-600 mb-4">We'll <strong>hide</strong> the rest.</p>
+                <p className="mb-4 text-sm text-slate-600">We'll <strong>hide</strong> the rest.</p>
                 
-                <div className="  grid grid-cols-1 sm:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                   <label className={styles.RadioOption}>
                     <input
                       type="checkbox"
@@ -446,7 +447,7 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
                formData.hidden_companies.length === 0 && 
                formData.preferred_categories.length === 0 && (
                 <div className="text-center ">
-                  <div className="text-black ">
+                  <div className="rounded-xl bg-slate-50 p-6 text-slate-700">
                     <p className="text-lg font-medium">No specific preferences selected</p>
                     <p className="text-sm">We'll show you all available jobs to get you started!</p>
                   </div>
@@ -523,13 +524,13 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
                   <div className="space-y-2">
                     <div className={styles.WorkAuthReviewItem}>
                       <span className={formData.hide_not_sponsor ? styles.WorkAuthReviewIndicatorHide : styles.WorkAuthReviewIndicatorShow}></span>
-                      <span className="text-sm text-black">
+                      <span className="text-sm text-slate-700">
                         {formData.hide_not_sponsor ? 'Hide jobs that don\'t offer visa sponsorship' : 'Show all jobs regardless of visa sponsorship'}
                       </span>
                     </div>
                     <div className={styles.WorkAuthReviewItem}>
                       <span className={formData.hide_not_american ? styles.WorkAuthReviewIndicatorHide : styles.WorkAuthReviewIndicatorShow}></span>
-                      <span className="text-sm text-black">
+                      <span className="text-sm text-slate-700">
                         {formData.hide_not_american ? 'Hide jobs that require U.S. citizenship' : 'Show all jobs regardless of citizenship requirements'}
                       </span>
                     </div>
@@ -544,19 +545,19 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
                   <div className="space-y-2 ">
                     <div className="flex items-center gap-2">
                       <span className={ formData.hideET ? styles.RoleLevelsReviewIndicatorHide : styles.RoleLevelsReviewIndicatorShow}></span>
-                      <span className="text-sm text-black">
+                      <span className="text-sm text-slate-700">
                         {formData.hideET ? 'Hide Emerging Talent Programs' : 'Show Emerging Talent Programs'}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className={formData.hideNG ? styles.RoleLevelsReviewIndicatorHide : styles.RoleLevelsReviewIndicatorShow}></span>
-                      <span className="text-sm text-black">
+                      <span className="text-sm text-slate-700">
                         {formData.hideNG ? 'Hide New Grad positions' : 'Show New Grad positions'}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className={formData.hideInternships ? styles.RoleLevelsReviewIndicatorHide : styles.RoleLevelsReviewIndicatorShow}></span>
-                      <span className="text-sm text-black">
+                      <span className="text-sm text-slate-700">
                         {formData.hideInternships ? 'Hide Internship positions' : 'Show Internship positions'}
                       </span>
                     </div>
@@ -580,7 +581,7 @@ export default function OnboardingModal({ onComplete, isVisible }: OnboardingMod
               Back
             </button>
 
-            <div className="text-sm text-gray-500">Step {currentStep} of 4</div>
+            <div className="text-sm text-slate-500">Step {currentStep} of 4</div>
 
             
             <div className={styles.ButtonGroup}>
