@@ -8,6 +8,7 @@ import { ArrowRight, Check } from 'lucide-react';
 import styles from './slider.module.css';
 import { useLandingData } from '@/hooks/useLandingData';
 import { AntMarching, AntTracker } from '@/components/mascots';
+import { logoImageClass } from '@/utils/logo';
 
 const FALLBACK_LOGOS = Array.from({ length: 6 }, (_, i) => ({
   id: `marchingant${i + 1}`,
@@ -68,11 +69,11 @@ function LogoSlide({ name, logoUrl }: { name: string; logoUrl: string }) {
           <span className="max-w-[120px] truncate text-xs font-medium text-slate-500">{name}</span>
         </div>
       ) : (
-        <div className="flex h-[72px] w-[72px] items-center justify-center rounded-2xl bg-white p-2 shadow-card ring-1 ring-slate-100 transition-transform hover:scale-105">
+        <div className="h-[72px] w-[72px] overflow-hidden rounded-2xl bg-white shadow-card ring-1 ring-slate-100 transition-transform hover:scale-105">
           <img
             src={logoUrl}
             alt={`${name} logo`}
-            className="max-h-full max-w-full object-contain"
+            className={logoImageClass(logoUrl)}
             onError={() => setFailed(true)}
           />
         </div>
@@ -91,17 +92,17 @@ const STATS = [
 const FEATURES = [
   {
     title: 'Daily internship opportunities',
-    description: 'Browse fresh opportunities updated every day and find the right fit for your career goals.',
+    description: 'New postings every day, with filters for role, location, modality and work authorization.',
     icon: '/resources/home/suitcase_home.png',
   },
   {
     title: 'Track your applications',
-    description: 'Keep every submission organized in a clear, easy-to-update table — from applied to offer.',
+    description: 'Keep all your applications in one table and update their status as you hear back.',
     icon: '/resources/home/checklist_home.png',
   },
   {
-    title: 'Apply faster, get hired sooner',
-    description: 'Our smart autofill completes most of each application for you — just review and submit.',
+    title: 'Autofill (coming soon)',
+    description: 'We\'re building a browser extension that fills in applications for you, so you only review and submit.',
     icon: '/resources/home/autocomplete_home.png',
   },
 ];
@@ -148,11 +149,11 @@ function LandingBody() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" ref={statsRef}>
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-              Empowering students to build their futures,{' '}
-              <span className="text-brand-600">starting with internships</span>
+              Thousands of internships,{' '}
+              <span className="text-brand-600">all in one place</span>
             </h2>
             <p className="mt-4 text-base text-slate-600 sm:text-lg">
-              There are a lot of opportunities out there — you just need to apply.
+              New roles are added every day.
             </p>
           </div>
 
@@ -178,9 +179,9 @@ function LandingBody() {
       <section className="bg-white py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
-            <p className="text-sm font-semibold uppercase tracking-wider text-brand-600">Why Jobhill</p>
+            <p className="text-sm font-semibold uppercase tracking-wider text-brand-600">What you get</p>
             <h2 className="mt-2 font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-              Streamline your internship journey, from search to success
+              From finding a role to tracking your application
             </h2>
           </div>
 
@@ -206,13 +207,13 @@ function LandingBody() {
               Organize your job search with an application tracker
             </h2>
             <p className="mt-4 text-lg text-slate-600">
-              Turn chaos into clarity with a centralized application table.
+              See every application you've sent and where each one stands.
             </p>
             <ul className="mt-6 space-y-3">
               {[
-                'Track roles, deadlines and statuses in one place',
-                'Spot patterns and never miss a next step',
-                'Stay motivated while reducing stress',
+                'Status, referral and dates for every application',
+                'Filter by company, status or referral',
+                'Edit several at once or export them to Excel',
               ].map((item) => (
                 <li key={item} className="flex items-start gap-3 text-slate-700">
                   <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-600 text-white">

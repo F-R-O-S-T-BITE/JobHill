@@ -13,7 +13,7 @@ export default function GetStartedButton() {
   }
 
   const href = user ? '/opportunities' : '/register';
-  const text = user ? 'View opportunities' : 'Get started — it’s free';
+  const text = user ? 'View opportunities' : 'Get started';
 
   return (
     <Link href={href} className="btn-primary px-6 py-3 text-base shadow-lg shadow-brand-600/20">
