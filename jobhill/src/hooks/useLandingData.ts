@@ -87,7 +87,8 @@ export function useLandingData() {
       return jobDate >= lastWeek;
     });
 
-    const newInternRoles = weeklyJobs.length;
+    // Internships y Emerging Talent (todo lo que no es New Grad)
+    const newInternRoles = weeklyJobs.filter((job: JobOfferResponse) => job.newGrad !== 1).length;
 
     const newGradRoles = weeklyJobs.filter((job: JobOfferResponse) => job.newGrad === 1).length;
 
