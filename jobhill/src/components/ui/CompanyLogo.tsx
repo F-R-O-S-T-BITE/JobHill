@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import { logoImageClass } from '@/utils/logo';
 
 interface CompanyLogoProps {
   src?: string | null;
@@ -27,12 +28,12 @@ export default function CompanyLogo({ src, name, className = 'h-12 w-12', rounde
   }
 
   return (
-    <div className={`${className} ${rounded} flex shrink-0 items-center justify-center overflow-hidden bg-white p-1.5 ring-1 ring-slate-200`}>
+    <div className={`${className} ${rounded} flex shrink-0 items-center justify-center overflow-hidden bg-white ring-1 ring-slate-200`}>
       <img
         src={src}
         alt={`${name} logo`}
         loading="lazy"
-        className="h-full w-full object-contain"
+        className={logoImageClass(src)}
         onError={() => setFailed(true)}
       />
     </div>

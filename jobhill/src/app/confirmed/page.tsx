@@ -71,7 +71,7 @@ export default function AccountConfirmed() {
                     You're All Set! 
                   </h3>
                   <p className="text-slate-600 font-poppins text-sm">
-                    Start your internship journey today
+                    Your account is ready. Go find your next internship.
                   </p>
                 </div>
               </div>

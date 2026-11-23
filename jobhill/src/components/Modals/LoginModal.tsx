@@ -52,7 +52,7 @@ export default function LoginModal() {
           Sign in to continue
         </h2>
         <p className="mt-2 text-slate-600">
-          You need an account to use this feature. Sign in or create one — it only takes a minute.
+          You need an account to use this feature.
         </p>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2">

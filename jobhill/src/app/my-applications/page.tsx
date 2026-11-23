@@ -2,9 +2,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import Link from "next/link";
 import { AlertTriangle, ClipboardList, Plus, SearchX, SlidersHorizontal, X } from "lucide-react";
-import { useUserApplications, useFilteredApplications, useUpdateApplicationStatus, useDeleteApplication } from "@/hooks/useApplications";
+import { useUserApplications, useFilteredApplications, useUpdateApplicationStatus, useDeleteApplication, useBulkDeleteApplications, useBulkUpdateApplicationStatus } from "@/hooks/useApplications";
 import { ApplicationFilters } from "@/interfaces/Application";
 import ApplicationFilterPanel from "@/components/ApplicationFilter";
 import ApplicationTable from "@/components/ApplicationTable";
@@ -28,11 +29,14 @@ export default function MyApplicationsPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [applicationToDelete, setApplicationToDelete] = useState<{ id: string; companyName: string; role: string } | null>(null);
+  const [bulkDeleteIds, setBulkDeleteIds] = useState<string[] | null>(null);
 
   const { data: allApplications = [], isLoading, error } = useUserApplications();
   const { data: filteredApplications = [] } = useFilteredApplications(filters);
   const updateStatusMutation = useUpdateApplicationStatus();
   const deleteApplicationMutation = useDeleteApplication();
+  const bulkDeleteMutation = useBulkDeleteApplications();
+  const bulkStatusMutation = useBulkUpdateApplicationStatus();
 
   useEffect(() => {
     if (!filtersOpen) return;
@@ -72,6 +76,28 @@ export default function MyApplicationsPage() {
       } catch (error) {
         console.error("Error deleting application:", error);
       }
+    }
+  };
+
+  const handleBulkUpdateStatus = async (ids: string[], status: string) => {
+    try {
+      await bulkStatusMutation.mutateAsync({ ids, status });
+      toast.success(`Moved ${ids.length} application${ids.length === 1 ? '' : 's'} to ${status}`);
+    } catch (error) {
+      console.error("Error updating applications:", error);
+      toast.error("Couldn't update those applications. Please try again.");
+    }
+  };
+
+  const confirmBulkDelete = async () => {
+    if (!bulkDeleteIds) return;
+    const ids = bulkDeleteIds;
+    try {
+      await bulkDeleteMutation.mutateAsync(ids);
+      toast.success(`Deleted ${ids.length} application${ids.length === 1 ? '' : 's'}`);
+    } catch (error) {
+      console.error("Error deleting applications:", error);
+      toast.error("Couldn't delete those applications. Please try again.");
     }
   };
 
@@ -224,12 +250,24 @@ export default function MyApplicationsPage() {
               onUpdateStatus={handleUpdateStatus}
               onDeleteApplication={handleDeleteApplication}
               onAddApplication={() => setIsAddModalOpen(true)}
+              onBulkDelete={(ids) => setBulkDeleteIds(ids)}
+              onBulkUpdateStatus={handleBulkUpdateStatus}
             />
           )}
         </section>
       </div>
 
       <AddApplicationModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
+
+      {bulkDeleteIds && (
+        <DeleteConfirmationModal
+          isOpen
+          count={bulkDeleteIds.length}
+          onClose={() => setBulkDeleteIds(null)}
+          onConfirm={confirmBulkDelete}
+          applicationInfo={{ companyName: '', role: '' }}
+        />
+      )}
 
       {applicationToDelete && (
         <DeleteConfirmationModal

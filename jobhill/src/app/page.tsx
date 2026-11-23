@@ -27,8 +27,8 @@ export default function Home() {
               Looking for an <span className="text-brand-600">internship?</span>
             </h1>
             <p className="mx-auto mt-5 max-w-xl text-lg text-slate-600 md:mx-0 sm:text-xl">
-              <span className="font-semibold text-brand-600">Jobhill</span> is your go-to platform for finding
-              internships. Discover opportunities, manage your applications and start your journey today.
+              <span className="font-semibold text-brand-600">Jobhill</span> puts internship postings in one place
+              and helps you keep track of everywhere you&apos;ve applied.
             </p>
             <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center md:justify-start">
               <GetStartedButton />

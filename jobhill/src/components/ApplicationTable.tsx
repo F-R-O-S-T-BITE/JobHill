@@ -1,16 +1,20 @@
 // components/ApplicationTable.tsx
 "use client";
 import { useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, ExternalLink, MapPin, Plus, Search, Trash2 } from "lucide-react";
+import toast from "react-hot-toast";
+import { ChevronLeft, ChevronRight, Download, ExternalLink, Loader2, MapPin, Plus, Search, Trash2, X } from "lucide-react";
 import { Application, APPLICATION_STATUSES } from "@/interfaces/Application";
 import CompanyLogo from "@/components/ui/CompanyLogo";
 import EmptyState from "@/components/ui/EmptyState";
+import { exportApplicationsToExcel } from "@/utils/exportApplications";
 
 interface ApplicationTableProps {
   applications: Application[];
   onUpdateStatus: (applicationId: string, newStatus: string) => void;
   onDeleteApplication: (applicationId: string) => void;
   onAddApplication: () => void;
+  onBulkDelete: (applicationIds: string[]) => void;
+  onBulkUpdateStatus: (applicationIds: string[], newStatus: string) => void;
 }
 
 const STATUS_STYLES: Record<string, string> = {
@@ -96,8 +100,12 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
   onUpdateStatus,
   onDeleteApplication,
   onAddApplication,
+  onBulkDelete,
+  onBulkUpdateStatus,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isExporting, setIsExporting] = useState(false);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -116,9 +124,105 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
   const indexOfLastApp = indexOfFirstApp + entriesPerPage;
   const currentApplications = filteredApplications.slice(indexOfFirstApp, indexOfLastApp);
 
+  // Selección: solo cuenta lo que sigue visible con los filtros y la búsqueda actuales
+  const selectedApplications = useMemo(
+    () => filteredApplications.filter(app => selectedIds.has(app.id)),
+    [filteredApplications, selectedIds]
+  );
+  const selectedCount = selectedApplications.length;
+  const pageIds = currentApplications.map(app => app.id);
+  const allPageSelected = pageIds.length > 0 && pageIds.every(id => selectedIds.has(id));
+  const somePageSelected = pageIds.some(id => selectedIds.has(id));
+
+  const toggleOne = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const togglePage = () => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (allPageSelected) pageIds.forEach(id => next.delete(id));
+      else pageIds.forEach(id => next.add(id));
+      return next;
+    });
+  };
+
+  const selectAllResults = () => setSelectedIds(new Set(filteredApplications.map(app => app.id)));
+  const clearSelection = () => setSelectedIds(new Set());
+
+  const handleExport = async (rows: Application[]) => {
+    if (rows.length === 0 || isExporting) return;
+    setIsExporting(true);
+    try {
+      await exportApplicationsToExcel(rows);
+      toast.success(`Downloaded ${rows.length} application${rows.length === 1 ? '' : 's'}`);
+    } catch (error) {
+      console.error('Error exporting applications:', error);
+      toast.error("Couldn't create the Excel file. Please try again.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const selectedIdList = selectedApplications.map(app => app.id);
+
   return (
-    <div className="card overflow-hidden">
-      {/* Toolbar */}
+    <div className="card overflow-clip">
+      {/* Barra de acciones en lote (aparece al seleccionar) */}
+      {selectedCount > 0 ? (
+        <div className="sticky top-16 z-20 flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-brand-100 bg-brand-50 px-4 py-3" role="region" aria-label="Bulk actions">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={clearSelection}
+              className="rounded-lg p-1.5 text-brand-700 hover:bg-brand-100"
+              aria-label="Clear selection"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <span className="text-sm font-semibold text-brand-900">{selectedCount} selected</span>
+            {selectedCount < filteredApplications.length && (
+              <button onClick={selectAllResults} className="text-sm font-semibold text-brand-600 hover:text-brand-800 hover:underline">
+                Select all {filteredApplications.length}
+              </button>
+            )}
+          </div>
+          <div className="flex w-full items-center gap-2 sm:ml-auto sm:w-auto">
+            <select
+              value=""
+              onChange={(e) => {
+                if (e.target.value) onBulkUpdateStatus(selectedIdList, e.target.value);
+              }}
+              className="field w-auto flex-1 py-2 pr-8 sm:flex-none"
+              aria-label="Change status of selected applications"
+            >
+              <option value="" disabled>Change status</option>
+              {APPLICATION_STATUSES.map(status => <option key={status} value={status}>{status}</option>)}
+            </select>
+            <button
+              onClick={() => handleExport(selectedApplications)}
+              disabled={isExporting}
+              className="btn-secondary px-3 sm:px-4"
+              aria-label="Export selected to Excel"
+            >
+              {isExporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+              <span className="hidden sm:inline">Export</span>
+            </button>
+            <button
+              onClick={() => onBulkDelete(selectedIdList)}
+              className="btn-danger px-3 sm:px-4"
+              aria-label="Delete selected applications"
+            >
+              <Trash2 className="h-4 w-4" />
+              <span className="hidden sm:inline">Delete</span>
+            </button>
+          </div>
+        </div>
+      ) : (
       <div className="flex flex-col gap-3 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between lg:flex-col lg:items-stretch xl:flex-row xl:items-center">
         <div className="relative w-full sm:max-w-xs lg:max-w-none xl:max-w-xs">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -151,12 +255,24 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
             </select>
             <span className="hidden sm:inline">per page</span>
           </label>
-          <button onClick={onAddApplication} className="btn-primary whitespace-nowrap">
-            <Plus className="h-4 w-4" />
-            <span>Add <span className="hidden xs:inline">application</span></span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handleExport(filteredApplications)}
+              disabled={isExporting || filteredApplications.length === 0}
+              className="btn-secondary whitespace-nowrap"
+              title="Download as Excel"
+            >
+              {isExporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+              <span className="hidden xs:inline">Export</span>
+            </button>
+            <button onClick={onAddApplication} className="btn-primary whitespace-nowrap">
+              <Plus className="h-4 w-4" />
+              <span>Add <span className="hidden sm:inline">application</span></span>
+            </button>
+          </div>
         </div>
       </div>
+      )}
 
       {currentApplications.length === 0 ? (
         <div className="p-4">
@@ -170,9 +286,26 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
       ) : (
         <>
           {/* Móvil: tarjetas */}
+          <label className="flex items-center gap-3 border-b border-slate-100 bg-slate-50/80 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-slate-500 md:hidden">
+            <input
+              type="checkbox"
+              checked={allPageSelected}
+              ref={(el) => { if (el) el.indeterminate = somePageSelected && !allPageSelected; }}
+              onChange={togglePage}
+              className="h-4 w-4 cursor-pointer rounded accent-brand-600"
+            />
+            Select all on this page
+          </label>
           <ul className="divide-y divide-slate-100 md:hidden">
             {currentApplications.map((application) => (
-              <li key={application.id} className="flex gap-3 p-4">
+              <li key={application.id} className={`flex gap-3 p-4 transition-colors ${selectedIds.has(application.id) ? 'bg-brand-50/60' : ''}`}>
+                <input
+                  type="checkbox"
+                  checked={selectedIds.has(application.id)}
+                  onChange={() => toggleOne(application.id)}
+                  className="mt-3 h-4 w-4 shrink-0 cursor-pointer rounded accent-brand-600"
+                  aria-label={`Select ${application.role} at ${application.company_name}`}
+                />
                 <CompanyLogo src={application.company_logo} name={application.company_name} className="h-11 w-11" />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
@@ -186,7 +319,7 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
                   </div>
                   <p className="mt-1 flex items-center gap-1 truncate text-xs text-slate-500">
                     <MapPin className="h-3 w-3 shrink-0" />
-                    <span className="truncate">{application.location || '—'}</span>
+                    <span className="truncate">{application.location || 'No location'}</span>
                   </p>
                   <div className="mt-3 flex flex-wrap items-center gap-2">
                     <StatusSelect application={application} onUpdateStatus={onUpdateStatus} />
@@ -205,6 +338,16 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
             <table className="min-w-full text-left text-sm">
               <thead className="bg-slate-50/80 text-xs font-semibold uppercase tracking-wide text-slate-500">
                 <tr>
+                  <th scope="col" className="w-10 py-3 pl-4 pr-0 xl:pl-5">
+                    <input
+                      type="checkbox"
+                      checked={allPageSelected}
+                      ref={(el) => { if (el) el.indeterminate = somePageSelected && !allPageSelected; }}
+                      onChange={togglePage}
+                      className="h-4 w-4 cursor-pointer rounded accent-brand-600"
+                      aria-label="Select all applications on this page"
+                    />
+                  </th>
                   <th scope="col" className="px-4 py-3 xl:px-5">Company &amp; role</th>
                   <th scope="col" className="hidden px-4 py-3 2xl:table-cell">Location</th>
                   <th scope="col" className="px-4 py-3">Applied</th>
@@ -216,7 +359,16 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {currentApplications.map((application) => (
-                  <tr key={application.id} className="transition-colors hover:bg-slate-50/70">
+                  <tr key={application.id} className={`transition-colors ${selectedIds.has(application.id) ? 'bg-brand-50/60 hover:bg-brand-50' : 'hover:bg-slate-50/70'}`}>
+                    <td className="w-10 py-3.5 pl-4 pr-0 xl:pl-5">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(application.id)}
+                        onChange={() => toggleOne(application.id)}
+                        className="h-4 w-4 cursor-pointer rounded accent-brand-600"
+                        aria-label={`Select ${application.role} at ${application.company_name}`}
+                      />
+                    </td>
                     <td className="px-4 py-3.5 xl:px-5">
                       <div className="flex items-center gap-3">
                         <CompanyLogo src={application.company_logo} name={application.company_name} className="h-10 w-10" />
@@ -227,7 +379,7 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
                       </div>
                     </td>
                     <td className="hidden max-w-[14rem] px-4 py-3.5 text-slate-600 2xl:table-cell">
-                      <span className="block truncate" title={application.location}>{application.location || '—'}</span>
+                      <span className="block truncate" title={application.location}>{application.location || 'No location'}</span>
                     </td>
                     <td className="whitespace-nowrap px-4 py-3.5 text-slate-600">{formatDate(application.applied_date)}</td>
                     <td className="hidden whitespace-nowrap px-4 py-3.5 text-slate-600 xl:table-cell">{formatDate(application.last_updated)}</td>
@@ -253,7 +405,7 @@ const ApplicationTable: React.FC<ApplicationTableProps> = ({
       {currentApplications.length > 0 && totalPages > 1 && (
         <nav className="flex items-center justify-between gap-3 border-t border-slate-100 px-4 py-3" aria-label="Pagination">
           <p className="hidden text-sm text-slate-500 sm:block">
-            <span className="font-medium text-slate-700">{indexOfFirstApp + 1}–{Math.min(indexOfLastApp, filteredApplications.length)}</span>
+            <span className="font-medium text-slate-700">{indexOfFirstApp + 1}-{Math.min(indexOfLastApp, filteredApplications.length)}</span>
             {' '}of{' '}
             <span className="font-medium text-slate-700">{filteredApplications.length}</span>
           </p>

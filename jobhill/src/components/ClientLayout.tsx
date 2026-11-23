@@ -16,6 +16,16 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  // En celular los avisos van arriba para no tapar botones ni modales
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)');
+    const update = () => setIsSmallScreen(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
   
   // Rutas donde no mostrar el header o onboarding
   const authRoutes = ['/login', '/register','/forgot-password', '/auth/reset-password'];
@@ -57,9 +67,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   return (
     <AuthModalProvider>
       <Toaster
-        position="bottom-right"
-        reverseOrder={true}
-        containerClassName="!bottom-4 !right-4 sm:!bottom-6 sm:!right-6"
+        position={isSmallScreen ? 'top-center' : 'bottom-right'}
+        reverseOrder={!isSmallScreen}
+        containerClassName={isSmallScreen ? '!top-20' : '!bottom-6 !right-6'}
         toastOptions={{
           duration: 6500,
           className: '!rounded-xl !shadow-pop !text-sm !text-slate-900',

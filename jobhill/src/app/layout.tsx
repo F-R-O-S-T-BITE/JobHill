@@ -20,8 +20,8 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Jobhill — Find your next internship',
-    template: '%s · Jobhill',
+    default: 'Jobhill | Find your next internship',
+    template: '%s | Jobhill',
   },
   description: 'Helping you find your next opportunity',
 };

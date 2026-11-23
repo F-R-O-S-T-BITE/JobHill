@@ -73,7 +73,8 @@ async function getJobsForCompanies(supabase: any, userId: string, companyIds: nu
     }
 
     if (preferences.hideInternships === true) {
-      query = query.not('and', '(newGrad.eq.0,emergingTalent.eq.0)');
+      // Ocultar internships = mostrar solo New Grad o Emerging Talent
+      query = query.or('newGrad.eq.1,emergingTalent.eq.1');
     }
   }
 
@@ -256,7 +257,8 @@ async function getFilteredJobsForUser(
     }
 
     if (preferences.hideInternships === true) {
-      query = query.not('and', '(newGrad.eq.0,emergingTalent.eq.0)');
+      // Ocultar internships = mostrar solo New Grad o Emerging Talent
+      query = query.or('newGrad.eq.1,emergingTalent.eq.1');
     }
   }
 
