@@ -5,6 +5,7 @@ import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 import { getUserPreferences } from '@/utils/userPreferencesUtils';
 import { getUserAppliedJobIds } from '@/utils/applicationsUtils';
+import { fetchAllRows } from '@/utils/supabase/fetchAllRows';
 import type {
   JobOfferResponse
 } from '@/interfaces/JobOffer';
@@ -37,50 +38,55 @@ async function getJobsForCompanies(supabase: any, userId: string, companyIds: nu
     return NextResponse.json({ error: 'Failed to fetch user applications' }, { status: 500 });
   }
 
-  let query = supabase
-    .from('job_offers')
-    .select(`
-      *,
-      company:companies(id, name, logo_url)
-    `)
-    .in('company_id', companyIds)
-    .eq('status', 'Open');
+  const buildQuery = (withCount: boolean) => {
+    let query = supabase
+      .from('job_offers')
+      .select(`
+        *,
+        company:companies(id, name, logo_url)
+      `, withCount ? { count: 'exact' } : undefined)
+      .in('company_id', companyIds)
+      .eq('status', 'Open');
 
-  if (appliedJobIds.length > 0) {
-    query = query.not('id', 'in', `(${appliedJobIds.join(',')})`);
-  }
-
-  // Apply user preference filters
-  if (preferences) {
-    if (preferences.hidden_jobs && preferences.hidden_jobs.length > 0) {
-      query = query.not('id', 'in', `(${preferences.hidden_jobs.join(',')})`);
+    if (appliedJobIds.length > 0) {
+      query = query.not('id', 'in', `(${appliedJobIds.join(',')})`);
     }
 
-    // requires_sponsorship = true -> el usuario pidió ocultar ofertas sin patrocinio de visa
-    if (preferences.requires_sponsorship === true) {
-      query = query.neq('noSponsor', 1);
+    // Apply user preference filters
+    if (preferences) {
+      if (preferences.hidden_jobs && preferences.hidden_jobs.length > 0) {
+        query = query.not('id', 'in', `(${preferences.hidden_jobs.join(',')})`);
+      }
+
+      // requires_sponsorship = true -> el usuario pidió ocultar ofertas sin patrocinio de visa
+      if (preferences.requires_sponsorship === true) {
+        query = query.neq('noSponsor', 1);
+      }
+
+      // american_citizen = true -> el usuario pidió ocultar ofertas que exigen ciudadanía de EE. UU.
+      if (preferences.american_citizen === true) {
+        query = query.neq('usaCitizen', 1);
+      }
+
+      if (preferences.hideNG === true) {
+        query = query.neq('newGrad', 1);
+      }
+
+      if (preferences.hideET === true) {
+        query = query.neq('emergingTalent', 1);
+      }
+
+      if (preferences.hideInternships === true) {
+        // Ocultar internships = mostrar solo New Grad o Emerging Talent
+        query = query.or('newGrad.eq.1,emergingTalent.eq.1');
+      }
     }
 
-    // american_citizen = true -> el usuario pidió ocultar ofertas que exigen ciudadanía de EE. UU.
-    if (preferences.american_citizen === true) {
-      query = query.neq('usaCitizen', 1);
-    }
+    return query.order('created_at', { ascending: false }).order('id', { ascending: true });
+  };
 
-    if (preferences.hideNG === true) {
-      query = query.neq('newGrad', 1);
-    }
-
-    if (preferences.hideET === true) {
-      query = query.neq('emergingTalent', 1);
-    }
-
-    if (preferences.hideInternships === true) {
-      // Ocultar internships = mostrar solo New Grad o Emerging Talent
-      query = query.or('newGrad.eq.1,emergingTalent.eq.1');
-    }
-  }
-
-  const { data, error } = await query.order('created_at', { ascending: false });
+  // Paginado: Supabase corta las respuestas en 2500 filas
+  const { data, error } = await fetchAllRows<any>(buildQuery);
 
   if (error) {
     console.error('Error fetching jobs for companies:', error);
@@ -167,14 +173,18 @@ export async function POST(request: Request) {
 }
 // Fetch all open jobs for unauthenticated users 
 async function getPublicJobs(supabase: any) {
-  const { data, error, count } = await supabase
-    .from('job_offers')
-    .select(`
-      *,
-      company:companies(id, name, logo_url)
-    `, { count: 'exact' })
-    .eq('status', 'Open')
-    .order('created_at', { ascending: false });
+  // Paginado: Supabase corta las respuestas en 2500 filas
+  const { data, error, count } = await fetchAllRows<any>((withCount) =>
+    supabase
+      .from('job_offers')
+      .select(`
+        *,
+        company:companies(id, name, logo_url)
+      `, withCount ? { count: 'exact' } : undefined)
+      .eq('status', 'Open')
+      .order('created_at', { ascending: false })
+      .order('id', { ascending: true })
+  );
 
   if (error) {
     console.error('Error fetching public jobs:', error);
@@ -214,59 +224,65 @@ async function getFilteredJobsForUser(
     return NextResponse.json({ error: 'Failed to fetch user applications' }, { status: 500 });
   }
 
-  let query = supabase
-    .from('job_offers')
-    .select(`
-      *,
-      company:companies(id, name, logo_url)
-    `, { count: 'exact' })
-    .eq('status', 'Open');
+  const buildQuery = (withCount: boolean) => {
+    let query = supabase
+      .from('job_offers')
+      .select(`
+        *,
+        company:companies(id, name, logo_url)
+      `, withCount ? { count: 'exact' } : undefined)
+      .eq('status', 'Open');
 
-  // Filter out jobs user has applied to
-  if (appliedJobIds.length > 0) {
-    query = query.not('id', 'in', `(${appliedJobIds.join(',')})`);
-  }
-
-  // Apply user preference filters
-  if (preferences) {
-    // Filter out hidden jobs
-    if (preferences.hidden_jobs && preferences.hidden_jobs.length > 0) {
-      query = query.not('id', 'in', `(${preferences.hidden_jobs.join(',')})`);
+    // Filter out jobs user has applied to
+    if (appliedJobIds.length > 0) {
+      query = query.not('id', 'in', `(${appliedJobIds.join(',')})`);
     }
 
-    // Filter out hidden companies
-    if (preferences.hidden_companies && preferences.hidden_companies.length > 0) {
-      query = query.not('company_id', 'in', `(${preferences.hidden_companies.join(',')})`);
+    // Apply user preference filters
+    if (preferences) {
+      // Filter out hidden jobs
+      if (preferences.hidden_jobs && preferences.hidden_jobs.length > 0) {
+        query = query.not('id', 'in', `(${preferences.hidden_jobs.join(',')})`);
+      }
+
+      // Filter out hidden companies
+      if (preferences.hidden_companies && preferences.hidden_companies.length > 0) {
+        query = query.not('company_id', 'in', `(${preferences.hidden_companies.join(',')})`);
+      }
+
+      // Filter based on sponsorship requirements
+      // requires_sponsorship = true -> el usuario pidió ocultar ofertas sin patrocinio de visa
+      if (preferences.requires_sponsorship === true) {
+        query = query.neq('noSponsor', 1);
+      }
+
+      // Filter based on citizenship
+      // american_citizen = true -> el usuario pidió ocultar ofertas que exigen ciudadanía de EE. UU.
+      if (preferences.american_citizen === true) {
+        query = query.neq('usaCitizen', 1);
+      }
+
+      // Filter based on role level preferences
+      if (preferences.hideNG === true) {
+        query = query.neq('newGrad', 1);
+      }
+
+      if (preferences.hideET === true) {
+        query = query.neq('emergingTalent', 1);
+      }
+
+      if (preferences.hideInternships === true) {
+        // Ocultar internships = mostrar solo New Grad o Emerging Talent
+        query = query.or('newGrad.eq.1,emergingTalent.eq.1');
+      }
     }
 
-    // Filter based on sponsorship requirements
-    // requires_sponsorship = true -> el usuario pidió ocultar ofertas sin patrocinio de visa
-    if (preferences.requires_sponsorship === true) {
-      query = query.neq('noSponsor', 1);
-    }
+    // Orden estable para que la paginación no repita ni salte filas
+    return query.order('created_at', { ascending: false }).order('id', { ascending: true });
+  };
 
-    // Filter based on citizenship
-    // american_citizen = true -> el usuario pidió ocultar ofertas que exigen ciudadanía de EE. UU.
-    if (preferences.american_citizen === true) {
-      query = query.neq('usaCitizen', 1);
-    }
-
-    // Filter based on role level preferences
-    if (preferences.hideNG === true) {
-      query = query.neq('newGrad', 1);
-    }
-
-    if (preferences.hideET === true) {
-      query = query.neq('emergingTalent', 1);
-    }
-
-    if (preferences.hideInternships === true) {
-      // Ocultar internships = mostrar solo New Grad o Emerging Talent
-      query = query.or('newGrad.eq.1,emergingTalent.eq.1');
-    }
-  }
-
-  const { data, error, count } = await query;
+  // Paginado: Supabase corta las respuestas en 2500 filas
+  const { data, error, count } = await fetchAllRows<any>(buildQuery);
 
   if (error) {
     console.error('Error fetching filtered jobs for user:', error);

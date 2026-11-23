@@ -9,9 +9,10 @@ export async function GET() {
   try {
     const supabase = await createClient()
 
-    const { data: stats, error } = await supabase
+    // Solo el conteo (head: true): no descarga filas y no se corta en 2500
+    const { count, error } = await supabase
       .from('job_offers')
-      .select('status', { count: 'exact' })
+      .select('id', { count: 'exact', head: true })
       .eq('status', 'Open')
 
     if (error) {
@@ -20,7 +21,7 @@ export async function GET() {
     }
 
     return NextResponse.json({
-      total: stats.length,
+      total: count ?? 0,
       success: true
     })
 
