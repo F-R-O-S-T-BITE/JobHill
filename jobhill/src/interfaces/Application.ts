@@ -43,7 +43,8 @@ export interface ApplicationFilters {
 }
 
 export interface CreateApplicationData {
-  job_offer_id: string;
+  /** Ausente en aplicaciones agregadas a mano (no vienen de una oferta de Jobhill) */
+  job_offer_id?: string;
   referral_type: 'Cold Apply' | 'Employee Ref' | 'Referred';
   application_link?: string;
 }

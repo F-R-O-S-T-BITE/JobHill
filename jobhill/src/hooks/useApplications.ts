@@ -93,7 +93,8 @@ export function useCreateApplication() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create application');
+        const body = await response.json().catch(() => null);
+        throw new Error(body?.error || 'Failed to create application');
       }
 
       return response.json();
