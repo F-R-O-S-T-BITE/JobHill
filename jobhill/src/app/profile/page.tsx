@@ -6,7 +6,7 @@ import { useAuthModal } from '@/contexts/AuthModalContext'
 import { useUserPreferences, useUpdatePreference } from '@/hooks/useUserPreferences'
 import { useCompanies } from '@/hooks/useOnboarding'
 import { useHiddenJobOffers } from '@/hooks/useJobOffers'
-import { Edit3, Save, X, Menu } from 'lucide-react'
+import { Edit3, Save, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 import ProfileSidebar from '@/components/Profile/ProfileSidebar'
 import CompanyPreferencesSection from '@/components/Profile/CompanyPreferencesSection'
@@ -27,12 +27,13 @@ interface PreferenceToggleProps {
 
 function PreferenceToggle({ label, description, checked, onChange, disabled = false }: PreferenceToggleProps) {
   return (
-    <div className={`flex items-center justify-between p-4 border border-gray-200 rounded-lg ${disabled ? 'opacity-50' : 'hover:bg-gray-50'} transition-colors`}>
+    <div className={`flex items-center justify-between gap-4 rounded-xl border p-4 transition-colors ${disabled ? 'border-slate-100 bg-slate-50/60' : 'border-slate-200 hover:border-brand-200 hover:bg-brand-50/40'}`}>
       <div className="flex-1">
-        <p className="font-medium text-gray-900">{label}</p>
-        {description && <p className="text-sm text-gray-500 mt-1">{description}</p>}
+        <p className={`font-medium ${disabled ? 'text-slate-500' : 'text-slate-900'}`}>{label}</p>
+        {description && <p className="mt-0.5 text-sm text-slate-500">{description}</p>}
       </div>
-      <label className="relative inline-flex items-center cursor-pointer">
+      <label className="relative inline-flex shrink-0 items-center cursor-pointer">
+        <span className="sr-only">{label}</span>
         <input
           type="checkbox"
           checked={checked}
@@ -40,7 +41,7 @@ function PreferenceToggle({ label, description, checked, onChange, disabled = fa
           disabled={disabled}
           className="sr-only peer"
         />
-        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0353A4] peer-disabled:cursor-not-allowed"></div>
+        <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus-visible:ring-4 peer-focus-visible:ring-brand-200 peer-disabled:opacity-60 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-600 peer-disabled:cursor-not-allowed"></div>
       </label>
     </div>
   )
@@ -53,9 +54,9 @@ function CategoryTag({ category, isSelected, onToggle, disabled = false }: { cat
       disabled={disabled}
       className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
         isSelected
-          ? 'bg-[#0353A4] text-white'
-          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-      } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+          ? 'bg-brand-600 text-white shadow-sm'
+          : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+      } ${disabled ? 'cursor-not-allowed opacity-60' : ''}`}
     >
       {category}
     </button>
@@ -65,7 +66,6 @@ function CategoryTag({ category, isSelected, onToggle, disabled = false }: { cat
 export default function Profile() {
   const [activeSection, setActiveSection] = useState<ActiveSection>('preferences')
   const [editMode, setEditMode] = useState(false)
-  const [isSidebarOpen, setSidebarOpen] = useState(false)
   const [pendingChanges, setPendingChanges] = useState<{
     categories: string[] | null
     preferences: { [key: string]: any }
@@ -159,23 +159,25 @@ export default function Profile() {
 
   if (authLoading || preferencesLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0353A4] mx-auto mb-4"></div>
-          <p className="text-lg font-medium text-gray-700">Loading profile...</p>
+      <div className="min-h-[calc(100dvh-4rem)] bg-slate-50">
+        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-8 lg:px-8 lg:py-10" aria-busy="true">
+          <div className="card flex flex-col items-center gap-3 p-6">
+            <div className="skeleton h-24 w-24 rounded-full" />
+            <div className="skeleton h-4 w-32" />
+            <div className="skeleton h-3 w-40" />
+          </div>
+          <div className="space-y-6">
+            <div className="skeleton h-9 w-48" />
+            <div className="skeleton h-56 w-full rounded-2xl" />
+            <div className="skeleton h-40 w-full rounded-2xl" />
+          </div>
         </div>
       </div>
     )
   }
   return (
-    <div className="h-screen bg-gray-50 flex overflow-hidden">
-      <button
-        onClick={() => setSidebarOpen(!isSidebarOpen)}
-        className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-white shadow-lg"
-      >
-        <Menu className="h-6 w-6 text-gray-600" />
-      </button>
-
+    <div className="min-h-[calc(100dvh-4rem)] bg-slate-50">
+      <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-8 lg:px-8 lg:py-10">
       <ProfileSidebar
         user={user}
         displayName={displayName}
@@ -183,27 +185,25 @@ export default function Profile() {
         activeSection={activeSection}
         setActiveSection={setActiveSection}
         handleSignOut={handleUserSignOut}
-        isSidebarOpen={isSidebarOpen}
       />
 
-
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-8">
+      <div className="min-w-0">
+        <div>
         {activeSection === 'preferences' && (
           <div className="w-full">
-            <div className="flex items-center justify-between mb-8">
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Preferences</h1>
-                <p className="text-gray-600 mt-2">Customize your job search experience</p>
+                <h1 className="font-display text-2xl font-bold text-slate-900 sm:text-3xl">Preferences</h1>
+                <p className="mt-1 text-slate-600">Customize your job search experience</p>
               </div>
-              <div className="flex gap-3">
+              <div className="flex gap-2 sm:gap-3">
                 {editMode && (
                   <button
                     onClick={() => {
                       setEditMode(false)
                       setPendingChanges({ categories: null, preferences: {}, companies: { preferred: [], hidden: [] } })
                     }}
-                    className="flex items-center gap-2 px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-semibold"
+                    className="btn-secondary flex-1 sm:flex-none"
                   >
                     <X className="w-4 h-4" />
                     <span>Cancel</span>
@@ -299,11 +299,7 @@ export default function Profile() {
                       setEditMode(true)
                     }
                   }}
-                  className={`flex items-center gap-2 px-6 py-2 rounded-lg font-semibold transition-colors ${
-                    editMode
-                      ? 'bg-[#0466C8] hover:bg-[#0353A4] text-white'
-                      : 'bg-[#0353A4] hover:bg-[#024080] text-white'
-                  }`}
+                  className="btn-primary flex-1 sm:flex-none sm:px-6"
                 >
                   {editMode ? <Save className="w-4 h-4" /> : <Edit3 className="w-4 h-4" />}
                   <span>{editMode ? 'Save' : 'Edit'}</span>
@@ -312,8 +308,9 @@ export default function Profile() {
             </div>
 
             {/* Job Filters */}
-            <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Job Filters</h2>
+            <div className="card mb-6 p-4 sm:p-6">
+              <h2 className="mb-1 text-lg font-semibold text-slate-900">Job Filters</h2>
+              <p className="mb-5 text-sm text-slate-500">Choose which jobs you don&apos;t want to see.</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <PreferenceToggle
                   label="Requires sponsorship"
@@ -378,10 +375,10 @@ export default function Profile() {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">Preferred Categories</h2>
-                <span className="text-sm text-gray-500">
+            <div className="card mb-6 p-4 sm:p-6">
+              <div className="mb-5 flex items-center justify-between gap-3">
+                <h2 className="text-lg font-semibold text-slate-900">Preferred Categories</h2>
+                <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
                   {(pendingChanges.categories !== null ? pendingChanges.categories : preferences?.preferred_categories || []).length}/4 selected
                 </span>
               </div>
@@ -403,7 +400,7 @@ export default function Profile() {
               </div>
             </div>
             
-            <div className='mb-8'>
+            <div className='mb-6'>
               <HiddenJobsSection
               hiddenJobs={hiddenJobs || []}
               isLoading={hiddenJobsLoading}
@@ -423,13 +420,14 @@ export default function Profile() {
 
         {activeSection === 'apply-extension' && (
           <div className="w-full">
-            <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">Apply Extension</h1>
-              <p className="text-gray-600 text-lg">This feature will be available soon.</p>
+            <div className="card p-8 text-center">
+              <h1 className="text-3xl font-bold text-slate-900 mb-4">Apply Extension</h1>
+              <p className="text-slate-600 text-lg">This feature will be available soon.</p>
             </div>
           </div>
         )}
         </div>
+      </div>
       </div>
     </div>
   )

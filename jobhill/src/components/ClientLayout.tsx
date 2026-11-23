@@ -1,3 +1,4 @@
+// components/ClientLayout.tsx
 'use client';
 
 import { usePathname } from 'next/navigation';
@@ -58,17 +59,15 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       <Toaster
         position="bottom-right"
         reverseOrder={true}
+        containerClassName="!bottom-4 !right-4 sm:!bottom-6 sm:!right-6"
         toastOptions={{
           duration: 6500,
-          style: {
-            background: '#fff',
-            color: '#000',
-          },
+          className: '!rounded-xl !shadow-pop !text-sm !text-slate-900',
         }}
       />
-      <div className="min-h-screen bg-white">
+      <div className="flex min-h-dvh flex-col bg-white">
         {shouldShowHeader && <HeaderWrapper />}
-        <main >
+        <main className="flex-1">
           {children}
         </main>
         <LoginModal />

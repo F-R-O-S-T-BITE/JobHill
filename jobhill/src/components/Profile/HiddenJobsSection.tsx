@@ -16,12 +16,12 @@ function HiddenJobCard({ job, onUnhide, isUnhiding }: {
   isUnhiding: boolean
 }) {
   return (
-    <div className={`p-3 border border-gray-200 hover:bg-gray-50 rounded-lg transition-all duration-500 min-w-0 flex-shrink-0 ${
+    <div className={`p-3 border border-slate-200 hover:bg-slate-50 rounded-lg transition-all duration-500 min-w-0 flex-shrink-0 ${
       isUnhiding ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'
     }`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2 flex-1 min-w-0">
-          <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+          <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center flex-shrink-0">
             {job.company?.logo_url ? (
               <img
                 src={job.company.logo_url}
@@ -34,26 +34,26 @@ function HiddenJobCard({ job, onUnhide, isUnhiding }: {
                 }}
               />
             ) : null}
-            <div className={`w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center text-xs font-bold text-gray-600 ${job.company?.logo_url ? 'hidden' : ''}`}>
+            <div className={`w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 rounded-lg flex items-center justify-center text-xs font-bold text-slate-600 ${job.company?.logo_url ? 'hidden' : ''}`}>
               {job.company?.name?.charAt(0)?.toUpperCase()}
             </div>
           </div>
 
           <div className="flex-1 min-w-0">
-            <h4 className="font-medium text-gray-900 text-xs truncate">
+            <h4 className="font-medium text-slate-900 text-xs truncate">
                 {job.job_title.length > 35 ? `${job.job_title.substring(0, 35)}...` : job.job_title}
             </h4>
-            <p className="text-xs text-gray-500 truncate">{job.company?.name}</p>
+            <p className="text-xs text-slate-500 truncate">{job.company?.name}</p>
             <div className="flex items-center space-x-2 mt-1">
               {job.location && job.location.length > 0 && (
-                <span className="text-xs text-gray-400 truncate">
+                <span className="text-xs text-slate-400 truncate">
                   {job.location[0].length > 15 ? `${job.location[0].substring(0, 15)}...` : job.location[0]}
                 </span>
               )}
               {job.created_at && (
                 <div className="flex items-center space-x-1">
-                  <Calendar className="w-3 h-3 text-gray-400" />
-                  <span className="text-xs text-gray-400">
+                  <Calendar className="w-3 h-3 text-slate-400" />
+                  <span className="text-xs text-slate-400">
                     {new Date(job.created_at).toLocaleDateString('en-US', {
                       month: 'short',
                       day: 'numeric'
@@ -67,7 +67,7 @@ function HiddenJobCard({ job, onUnhide, isUnhiding }: {
 
         <button
           onClick={() => onUnhide(job.id)}
-          className="flex items-center justify-center w-8 h-8 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex-shrink-0 ml-2"
+          className="flex items-center justify-center w-8 h-8 text-slate-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors flex-shrink-0 ml-2"
           title="Unhide job"
         >
           <Eye className="w-4 h-4" />
@@ -109,22 +109,22 @@ export default function HiddenJobsSection({
   }
   if (!hiddenJobs.length && !isLoading) {
     return (
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Hidden Jobs</h2>
+      <div className="card p-4 sm:p-6">
+        <h2 className="text-lg font-semibold text-slate-900 mb-4">Hidden Jobs</h2>
         <div className="text-center py-8">
-          <Eye className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500">No hidden jobs</p>
-          <p className="text-sm text-gray-400 mt-1">Jobs you hide will appear here</p>
+          <Eye className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+          <p className="text-slate-500">No hidden jobs</p>
+          <p className="text-sm text-slate-400 mt-1">Jobs you hide will appear here</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6">
+    <div className="card p-4 sm:p-6">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-gray-900">Hidden Jobs</h2>
-        <span className="text-sm text-gray-500">
+        <h2 className="text-lg font-semibold text-slate-900">Hidden Jobs</h2>
+        <span className="text-sm text-slate-500">
           {hiddenJobs.length} {hiddenJobs.length === 1 ? 'job' : 'jobs'} hidden
         </span>
       </div>
@@ -132,8 +132,8 @@ export default function HiddenJobsSection({
 
       {isLoading ? (
         <div className="text-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0353A4] mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading hidden jobs...</p>
+          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-brand-100 border-t-brand-600"></div>
+          <p className="text-slate-600">Loading hidden jobs...</p>
         </div>
       ) : (
         <div className="flex gap-3 overflow-x-auto pb-2">
