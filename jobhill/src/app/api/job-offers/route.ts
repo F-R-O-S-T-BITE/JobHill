@@ -121,7 +121,7 @@ async function getJobsForCompanies(supabase: any, userId: string, companyIds: nu
   jobOffers.sort((a, b) => {
     // Sort by tier (lower tier number = higher priority)
     if (a.relevance_tier !== b.relevance_tier) {
-      return a.relevance_tier - b.relevance_tier;
+      return (a.relevance_tier ?? 3) - (b.relevance_tier ?? 3);
     }
 
     // Within same tier, sort by date (newest first)
@@ -301,7 +301,7 @@ async function getFilteredJobsForUser(
   jobOffers.sort((a, b) => {
     // Sort by tier (lower tier number = higher priority)
     if (a.relevance_tier !== b.relevance_tier) {
-      return a.relevance_tier - b.relevance_tier;
+      return (a.relevance_tier ?? 3) - (b.relevance_tier ?? 3);
     }
 
     // Within same tier, sort by date (newest first)
