@@ -56,11 +56,13 @@ async function getJobsForCompanies(supabase: any, userId: string, companyIds: nu
       query = query.not('id', 'in', `(${preferences.hidden_jobs.join(',')})`);
     }
 
-    if (preferences.requires_sponsorship === false) {
+    // requires_sponsorship = true -> el usuario pidió ocultar ofertas sin patrocinio de visa
+    if (preferences.requires_sponsorship === true) {
       query = query.neq('noSponsor', 1);
     }
 
-    if (preferences.american_citizen === false) {
+    // american_citizen = true -> el usuario pidió ocultar ofertas que exigen ciudadanía de EE. UU.
+    if (preferences.american_citizen === true) {
       query = query.neq('usaCitizen', 1);
     }
 
@@ -238,12 +240,14 @@ async function getFilteredJobsForUser(
     }
 
     // Filter based on sponsorship requirements
-    if (preferences.requires_sponsorship === false) {
+    // requires_sponsorship = true -> el usuario pidió ocultar ofertas sin patrocinio de visa
+    if (preferences.requires_sponsorship === true) {
       query = query.neq('noSponsor', 1);
     }
 
     // Filter based on citizenship
-    if (preferences.american_citizen === false) {
+    // american_citizen = true -> el usuario pidió ocultar ofertas que exigen ciudadanía de EE. UU.
+    if (preferences.american_citizen === true) {
       query = query.neq('usaCitizen', 1);
     }
 
