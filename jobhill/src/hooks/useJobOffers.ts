@@ -3,7 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import type { Company, JobOfferResponse, JobOffersApiResponse } from '@/interfaces/JobOffer'
-import { userPreferencesKeys, type UserPreferences } from './useUserPreferences'
+import { PREFERENCES_WRITE_SCOPE, userPreferencesKeys, type UserPreferences } from './useUserPreferences'
 import { applicationsKeys } from './useApplications'
 import type { Application } from '@/interfaces/Application'
 
@@ -103,6 +103,8 @@ export function useHideJob() {
   const queryClient = useQueryClient()
 
   return useMutation({
+    // En fila con las demás escrituras de preferencias (ver PREFERENCES_WRITE_SCOPE)
+    scope: PREFERENCES_WRITE_SCOPE,
     mutationFn: async (jobId: string) => {
       const response = await fetch('/api/user-preferences', {
         method: 'POST',
@@ -210,6 +212,8 @@ export function useUnhideJob() {
   const queryClient = useQueryClient()
 
   return useMutation({
+    // En fila con las demás escrituras de preferencias (ver PREFERENCES_WRITE_SCOPE)
+    scope: PREFERENCES_WRITE_SCOPE,
     mutationFn: async (jobId: string) => {
       const response = await fetch('/api/user-preferences', {
         method: 'POST',
@@ -329,6 +333,8 @@ export function useHideCompany() {
   const queryClient = useQueryClient()
 
   return useMutation({
+    // En fila con las demás escrituras de preferencias (ver PREFERENCES_WRITE_SCOPE)
+    scope: PREFERENCES_WRITE_SCOPE,
     mutationFn: async (companyId: number) => {
       const response = await fetch('/api/user-preferences', {
         method: 'POST',
